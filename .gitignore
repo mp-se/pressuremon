@@ -1,0 +1,5 @@
+# Prerequisites
+.pio/*
+.vscode/*
+cad/*.?#
+test/env/*
