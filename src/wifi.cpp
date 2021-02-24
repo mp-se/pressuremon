@@ -76,7 +76,6 @@ void webHandleConfig() {
     String out;
     serializeJson(doc, out);
     myWebServer.send(200, "application/json", out.c_str() );
-    delay(1000);
 }
 
 //
@@ -90,7 +89,6 @@ void webHandleCalibrate() {
     char buf[40];
     sprintf(&buf[0], "Calibrated pressure sensor, new offset %s...", myConfig.getPressureZeroCorrection() );
     myWebServer.send(200, "text/plain", &buf[0] );
-    delay(1000);
 }
 
 //
@@ -126,7 +124,6 @@ void webHandleStatus() {
     String out;
     serializeJson(doc, out);
     myWebServer.send(200, "application/json", out.c_str() );
-    delay(1000);
 }
 
 //
@@ -140,7 +137,6 @@ void webHandleClearWIFI() {
     delay(1000);
     WiFi.disconnect();  // Clear credentials
     ESP.reset();
-    delay(500);
 }
 
 //
@@ -158,35 +154,40 @@ void webHandleConfigApiSet() {
     Log.verbose(F("WIFI: webServer callback for /api/config/set. %s=%s" CR), param.c_str(), value.c_str());
 #endif
 
-    if( !id.compareTo( myConfig.getID() ) ) {
-        if( !param.compareTo( CFG_PARAM_OTA ) ) {
+    if( id.equalsIgnoreCase( myConfig.getID() ) ) {
+        if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
             myConfig.setOtaURL( value.c_str() );
             success = true; 
-        } else if( !param.compareTo( CFG_PARAM_TEMPFORMAT ) ) {
+        } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
             if( !value.compareTo("C") || !value.compareTo("F") ) {
                 myConfig.setTempFormat( value.c_str() );
                 success = true; 
             }
-        } else if( !param.compareTo (CFG_PARAM_PRESSURECORR ) ) {
-            myConfig.setPressureZeroCorrection( value.c_str() );
-            success = true; 
-        } else if( !param.compareTo( CFG_PARAM_PUSH_FERMENTRACK ) ) {
+        } else if( param.equalsIgnoreCase (CFG_PARAM_PRESSURECORR ) ) {
+            if( atof( value.c_str() ) ) {
+                myConfig.setPressureZeroCorrection( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_FERMENTRACK ) ) {
             myConfig.setFermentrackPushTarget( value.c_str() );
             success = true; 
-        } else if( !param.compareTo( CFG_PARAM_PUSH_BREWFATHER ) ) {
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BREWFATHER ) ) {
             myConfig.setBrewfatherPushTarget( value.c_str() );
             success = true; 
-        } else if( !param.compareTo( CFG_PARAM_PUSH_HTTP ) ) {
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
             myConfig.setHttpPushTarget( value.c_str() );
             success = true; 
-        } else if( !param.compareTo( CFG_PARAM_PUSH_INTERVAL ) ) {
-            myConfig.setPushInterval( value.c_str() );
-            success = true; 
-        } else if( !param.compareTo( CFG_PARAM_VOLTAGEFACTOR ) ) {
-            myConfig.setVoltageFactor( value.c_str() );
-            success = true; 
-        } else if( !param.compareTo( CFG_PARAM_MDNS ) ) {
-
+        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
+            if( atoi( value.c_str() ) ) {
+                myConfig.setPushInterval( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_VOLTAGEFACTOR ) ) {
+            if( atof( value.c_str() ) ) {
+                myConfig.setVoltageFactor( value.c_str() );
+                success = true; 
+            }
+        } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
             myConfig.setMDNS( value.c_str() );
             success = true; 
         }
@@ -200,7 +201,6 @@ void webHandleConfigApiSet() {
     } else {
         myWebServer.send(400, "text/plain", "Unknown parameter/value or ID.");
     }
-    delay(1000);
 }
 
 //
@@ -213,26 +213,26 @@ void webHandleConfigApiGet() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer callback for /api/config/get. %s" CR), param.c_str());
 #endif
-    char buf[40];
+    char buf[200];
 
-    if( !param.compareTo( CFG_PARAM_OTA ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getOtaURL() );
-    } else if( !param.compareTo( CFG_PARAM_TEMPFORMAT ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getTempFormat() );
-    } else if( !param.compareTo( CFG_PARAM_PRESSURECORR ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getPressureZeroCorrection() );
-    } else if( !param.compareTo( CFG_PARAM_PUSH_FERMENTRACK ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getFermentrackPushTarget() );
-    } else if( !param.compareTo( CFG_PARAM_PUSH_BREWFATHER ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getBrewfatherPushTarget() );
-    } else if( !param.compareTo( CFG_PARAM_PUSH_HTTP ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getHttpPushTarget() );
-    } else if( !param.compareTo( CFG_PARAM_PUSH_INTERVAL ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getPushInterval() );
-    } else if( !param.compareTo( CFG_PARAM_VOLTAGEFACTOR ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getVoltageFactor() );
-    } else if( !param.compareTo( CFG_PARAM_MDNS ) ) {
-        sprintf( &buf[0], "value='%s'", myConfig.getMDNS() );
+    if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_OTA, myConfig.getOtaURL() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_TEMPFORMAT, myConfig.getTempFormat() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PRESSURECORR ) ) {
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PRESSURECORR, myConfig.getPressureZeroCorrection() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_FERMENTRACK ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_FERMENTRACK, myConfig.getFermentrackPushTarget() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BREWFATHER ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BREWFATHER, myConfig.getBrewfatherPushTarget() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_HTTP, myConfig.getHttpPushTarget() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_INTERVAL, myConfig.getPushInterval() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_VOLTAGEFACTOR ) ) {
+        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_VOLTAGEFACTOR, myConfig.getVoltageFactor() );
+    } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
+        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_MDNS, myConfig.getMDNS() );
     } else {
         myWebServer.send(400, "text/plain", "Unknown parameter.");
         delay(1000);
@@ -242,8 +242,7 @@ void webHandleConfigApiGet() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: webServer returning %s" CR), &buf[0]);
 #endif
-    myWebServer.send(200, "text/plain", &buf[0] );
-    delay(1000);
+    myWebServer.send(200, "application/json", &buf[0] );
 }
 
 //

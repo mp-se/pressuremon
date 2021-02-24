@@ -56,7 +56,7 @@ class Config {
 
         char   id[10];
         char   mDNS[30];
-        char   otaURL[40];
+        char   otaURL[200];
         char   fermentrackPushTarget[200];
         char   brewfatherPushTarget[200];
         char   httpPushTarget[200];

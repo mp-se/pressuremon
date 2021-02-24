@@ -50,8 +50,9 @@ void checkSleepMode( float psi, float volt ) {
   return;
 #endif
 
-  // If there is pressure on the sensor and the power is less than 4.5V (Assume on battery) we will go into deep sleep mode
-  sleepModeActive = ( abs(psi) > 0.5 ) && ( volt < 4.5 ) ? true : false; 
+  // If there is pressure on the sensor and the power is less than 4.5V but higher than 2.5V (Assume on battery)
+  // we will then go into deep sleep mode.
+  sleepModeActive = ( abs(psi) > 0.5 ) && ( volt < 4.5 ) && ( volt > 2.5 ) ? true : false; 
 #if LOG_LEVEL==6
   Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
 #endif

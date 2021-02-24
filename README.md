@@ -80,7 +80,7 @@ Valid configuration parameters:
 * __otaurl__ url to directory where new firmware versions are located
 * __fermentrackpush__ url to fermentrack endpoint (using ispindel for now)
 * __brewfatherpush__ url to brewfather endpoint
-* __thingsboardpush__ url to brewfather endpoint
+* __httppush__ url to standard http endpoint
 * __pushinterval__ seconds between push
 * __tempformat__ temperature format (Valid: C or F)
 * __pressurecorr__ temperature correction value (from calibration)

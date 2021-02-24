@@ -123,6 +123,7 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
         "bpm": 123, // Bubbles Per Minute
         "comment": "Hello World",
         "beer": "Pale Ale"
+        "battery": 4.98
         }
     */
     doc["name"]          = myConfig.getMDNS();
@@ -130,6 +131,7 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
     doc["temp_unit"]     = myConfig.getTempFormat(); 
     doc["pressure"]      = reduceFloatPrecision( pressure ); 
     doc["pressure_unit"] = "PSI"; 
+    doc["battery"]       = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
 
     WiFiClient client;
     HTTPClient http;
