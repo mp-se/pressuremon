@@ -31,7 +31,7 @@ SOFTWARE.
 
 // defintions
 #define CFG_APPNAME         "PressureMon"       // Name of firmware
-#define CFG_APPVER          "0.1.1"             // Version of firmware (used wit OTA update to check for newer)
+#define CFG_APPVER          "0.2.0"             // Version of firmware (used wit OTA update to check for newer)
 #define CFG_FILENAME        "/pressuremon.json" // Name of config file
 
 #define WIFI_DEFAULT_SSID   "PressureMon"   // Name of created SSID
