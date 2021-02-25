@@ -16,6 +16,7 @@ The trickey part was to figure out how to connect the small sensor and I ended u
 
 ## Versions
 
+* 0.2.0 Added pcb, api's and various enhancements.
 * 0.1.0 First version based on Honeywell Digital pressure sensor.
 
 ## Future changes
