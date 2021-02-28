@@ -95,7 +95,7 @@ void deepSleep(int t) {
 // Print the build options used
 //
 void printBuildOptions() {
-    Log.notice( F("Build options: LOGLEVEL %d " 
+    Log.notice( F("Build options: LOGLEVEL %d %s " 
 #ifdef SIMULATE_SENSOR
                 "SIMULATE "
 #endif    
@@ -111,7 +111,7 @@ void printBuildOptions() {
 #ifdef DISPLAY_SELFTEST    
                 "DISPLAY_SELFTEST "
 #endif    
-    CR), LOG_LEVEL );
+    CR), LOG_LEVEL, CFG_APPVER );
 }
 
 //

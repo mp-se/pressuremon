@@ -139,6 +139,32 @@ void webHandleStatus() {
 //
 // Callback from webServer when / has been accessed.
 //
+extern bool sleepModeActive;
+
+void webHandleDebug() {
+#if LOG_LEVEL==6
+    Log.verbose(F("WIFI: webServer callback for /debug." CR));
+#endif
+    StaticJsonDocument<512> doc;
+
+    doc[ "pressure" ]       = myPressureSensor.getPressurePsi() ;
+    doc[ "temperature" ]    = myPressureSensor.getTemperatureC();
+    doc[ "battery" ]        = myBatteryVoltage.getVoltage(); 
+    doc[ "sleepmode" ]      = sleepModeActive; 
+    doc[ "ip" ]             = myWifi.getIPAddress(); 
+    doc[ "rssi" ]           = WiFi.RSSI(); 
+
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+#endif    
+    String out;
+    serializeJson(doc, out);
+    myWebServer.send(200, "application/json", out.c_str() );
+}
+
+//
+// Callback from webServer when / has been accessed.
+//
 void webHandleClearWIFI() {
     String id    = myWebServer.arg("id");
 #if LOG_LEVEL==6
@@ -272,6 +298,7 @@ void Wifi::setupWebServer() {
     myWebServer.on("/calibrate", webHandleCalibrate);
     myWebServer.on("/reset", webHandleReset);
     myWebServer.on("/status", webHandleStatus);
+    myWebServer.on("/debug", webHandleDebug);
     myWebServer.on("/clearwifi", webHandleClearWIFI);
     myWebServer.on("/api/config/set", webHandleConfigApiSet);   // Will be obsolate
     myWebServer.on("/api/config/get", webHandleConfigApiGet);   // Will be obsolete

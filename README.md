@@ -38,7 +38,7 @@ The following endpoints are currently implemented:
 
 __TOOD__ Test brewfather endpoint
 
-If the device is used with an battery it will go into sleep mode when there is a pressure higher than 0.5 psi and the voltage is less than 4.5V (indication of an attached battery). This is to prolong the lifespan of the device when on battery. If you run the device via a powersupply it will never to into sleep mode. 
+If the device is used with an battery it will go into sleep mode when the voltage is less than 4.5V and higher than 2.5V (indication of an attached battery). This is to prolong the lifespan of the device when on battery. If you run the device via a powersupply it will never to into sleep mode. 
 
 __TOOD__ Testing how long the device will work on a full battery.
 
