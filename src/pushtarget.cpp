@@ -86,9 +86,11 @@ void PushTarget::sendFermentrack(float pressure, float temp ) {
     String json;
     serializeJson(doc, json);
 #if LOG_LEVEL==6
+    Log.verbose(F("PUSH: url %s." CR), serverPath.c_str());
     Log.verbose(F("PUSH: json %s." CR), json.c_str());
 #endif
     // Send HTTP GET request
+    http.addHeader("Content-Type", "application/json" );
     int httpResponseCode = http.POST(json);
     
     if (httpResponseCode==200) {
@@ -128,10 +130,18 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
     */
     doc["name"]          = myConfig.getMDNS();
     doc["temp"]          = reduceFloatPrecision( temp );
+  //doc["aux_temp"]      = 0;
+  //doc["ext_temp"]      = 0;
     doc["temp_unit"]     = myConfig.getTempFormat(); 
     doc["pressure"]      = reduceFloatPrecision( pressure ); 
     doc["pressure_unit"] = "PSI"; 
     doc["battery"]       = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
+  //doc["gravity"]       = 0;
+  //doc["gravity_unit"]  = "G";
+  //doc["ph"]            = 0;
+  //doc["bpm"]           = 0;
+  //doc["comment"]       = "";
+  //doc["beer"]          = "";
 
     WiFiClient client;
     HTTPClient http;
@@ -142,12 +152,14 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
     String json;
     serializeJson(doc, json);
 #if LOG_LEVEL==6
+    Log.verbose(F("PUSH: url %s." CR), serverPath.c_str());
     Log.verbose(F("PUSH: json %s." CR), json.c_str());
 #endif
 
-    // Send HTTP GET request
+    // Send HTTP POST request
+    http.addHeader("Content-Type", "application/json" );
     int httpResponseCode = http.POST(json);
-    
+
     if (httpResponseCode==200) {
         Log.notice(F("PUSH: HTTP Response code %d" CR), httpResponseCode);
     } else {
@@ -158,7 +170,7 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
 }
 
 //
-// Send data to thingsboard
+// Send data to http target
 //
 void PushTarget::sendHttp(float pressure, float temp ) {
     // Send data to the standard HTTP endpoint
@@ -183,10 +195,12 @@ void PushTarget::sendHttp(float pressure, float temp ) {
     String json;
     serializeJson(doc, json);
 #if LOG_LEVEL==6
+    Log.verbose(F("PUSH: url %s." CR), serverPath.c_str());
     Log.verbose(F("PUSH: json %s." CR), json.c_str());
 #endif
 
-    // Send HTTP GET request
+    // Send HTTP POST request
+    http.addHeader("Content-Type", "application/json" );
     int httpResponseCode = http.POST(json);
     
     if (httpResponseCode==200) {
