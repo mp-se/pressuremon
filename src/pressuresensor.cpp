@@ -27,8 +27,6 @@ SOFTWARE.
 #include "numled.h"
 
 #define ABP_SENSOR_CS           D8      // 
-#define ABP_SENSOR_MIN_PRESSURE 0       // The sensor used is range 0-150 psi for the prototype, 
-#define ABP_SENSOR_MAX_PRESSURE 150     // will change to 0-60 for the next build.
 
 PressureSensor myPressureSensor;
 

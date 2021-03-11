@@ -12,11 +12,11 @@ Since we are measuring beer fermentation, a sensor in the range of 0-4 bar (or 0
 
 The aim is to make this project as small as possible and make it easy to connect it to an gas post on a fermentation vessel with possibility to have a spunding valve to release excess pressure. 
 
-The trickey part was to figure out how to connect the small sensor and I ended up with having a 3D printed adapter in 3/8" format that can be connected to a quick release John Guest adapter. This model can be adpated to other size adapters if needed. 
+One key aspect is to have a connection that is leak proof. I ended up with creating an adapter that fits to a hose of 9.5mm (or 3/8") with inner diameter if 6.7mm. Adapter is glued to the hose and pressure sensor using epoxy to make a strong bond.
 
 ## Versions
 
-* 0.2.0 Added pcb, api's and various enhancements.
+* 0.2.0 Added pcb, api interface, new adapter for a 3/8" hose and various improvements.
 * 0.1.0 First version based on Honeywell Digital pressure sensor.
 
 ## Future changes
@@ -24,8 +24,6 @@ The trickey part was to figure out how to connect the small sensor and I ended u
 * Make 3d case 
 * Make pcb-board
 * Create webinterface for interacting with device
-* Create pressure adapter for other dimensions
-* Add push support for more targets
 
 ## How it works
 
@@ -121,15 +119,76 @@ Contents version.json
 
 ## Pushtarget
 
-Work in progress...
+Fermentrack push targets (Using iSpindel endpoint to collect data)
+
+   doc["name"]        = myConfig.getMDNS();
+    doc["ID"]          = ESP.getChipId();
+    doc["token"]       = "fermentrack"; 
+    doc["angle"]       = reduceFloatPrecision(  pressure );                      
+    doc["temperature"] = reduceFloatPrecision( temp ); 
+    doc["temp_units"]  = myConfig.getTempFormat(); 
+    doc["battery"]     = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
+    doc["gravity"]     = 0; 
+    doc["interval"]    = myConfig.getPushIntervalAsInt(); 
+    doc["RSSI"]        = WiFi.RSSI(); 
+
+```
+{
+    "name" : "mydevice",
+    "id" : "mychip",
+    "token" : "fermentrack",
+    "angle" : 4,2,              # pressure
+    "temperature" : 28.5,
+    "temp_unit" : "C',
+    "battery" : 4.2,
+    "gravity" : 0,
+    "interval" : 60,
+    "RSSI" : 4.2,
+}
+```
+
+Brewfather push targets
+
+```
+{
+    "name" : "mydevice",
+    "temp" : 28.5,
+    "temp_unit" : "C',
+    "pressure" : 1.0,
+    "pressure_unit" : "PSI",
+    "battery" : 4.2,
+}
+```
+
+Standard HTTP push targets
+
+```
+{
+    "name" : "mydevice",
+    "temp" : 28.5,
+    "temp_unit" : "C',
+    "pressure" : 1.0,
+    "pressure_unit" : "PSI",
+    "battery" : 4.2,
+    "rssi" : -58,
+}
+```
 
 ## Materials
 
 In order to build this project you will need the following;
 
-Work in progress...
-
-* ...
+* U1 - Microcontroller ESP8266 (WEMOS D1 Mini)
+* U2 - Honeywell Pressure Sensor, Gage, SPI - ABPDANV060GSA3 
+* U3 - TP4056 LiPRO Charger (For Battery power)
+* B  - LiPro Battery 18650 (For Battery power)
+* S1 - Switch (For Battery power)
+* C1 - 0.1uF
+* C2 - 0.1uF
+* R1 - Resistor 470 (or diode BAT43)
+* R2 - Resistor 3.2k
+* LED- 4 digit LED (Optional, done use if battery powered)
+* Board for mounting components
 
 Feel free to use the code and modify your own build. 
 

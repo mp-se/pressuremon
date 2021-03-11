@@ -27,6 +27,10 @@ SOFTWARE.
 // Includes
 #include <HoneywellTruStabilitySPI.h>
 
+// Definnitions
+#define ABP_SENSOR_MIN_PRESSURE 0       // The sensor used is range 0-150 psi for the prototype, 
+#define ABP_SENSOR_MAX_PRESSURE 150     // will change to 0-60 for the next build.
+
 // classes
 class PressureSensor {
     private:
