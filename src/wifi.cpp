@@ -128,10 +128,6 @@ void webHandleStatus() {
     doc[ "temperature_f" ]  = reduceFloatPrecision( myPressureSensor.convertTemperature2F( myPressureSensor.getTemperatureC() ) );
     doc[ "battery" ]        = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
     doc[ "rssi" ]           = WiFi.RSSI(); 
-
-    doc[ "sensor_min" ]     = ABP_SENSOR_MIN_PRESSURE; 
-    doc[ "sensor_max" ]     = ABP_SENSOR_MAX_PRESSURE; 
-
 #if LOG_LEVEL==6
     serializeJson(doc, Serial);
 #endif    
@@ -157,6 +153,9 @@ void webHandleDebug() {
     doc[ "sleepmode" ]      = sleepModeActive; 
     doc[ "ip" ]             = myWifi.getIPAddress(); 
     doc[ "rssi" ]           = WiFi.RSSI(); 
+
+    doc[ "sensor_min" ]     = ABP_SENSOR_MIN_PRESSURE; 
+    doc[ "sensor_max" ]     = ABP_SENSOR_MAX_PRESSURE; 
 
 #if LOG_LEVEL==6
     serializeJson(doc, Serial);
