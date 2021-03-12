@@ -16,6 +16,7 @@ One key aspect is to have a connection that is leak proof. I ended up with creat
 
 ## Versions
 
+* 0.2.1 Fixed brewfather push target
 * 0.2.0 Added pcb, api interface, new adapter for a 3/8" hose and various improvements.
 * 0.1.0 First version based on Honeywell Digital pressure sensor.
 
