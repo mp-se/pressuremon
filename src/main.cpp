@@ -27,17 +27,21 @@ SOFTWARE.
 #include "pushtarget.h"
 #include "pressuresensor.h"
 
-// Settings for double reset
-#define ESP8266_DRD_USE_RTC true
+// Settings for double reset detector.
+//#define USE_LITTLEFS              true
+//#define ESP_DRD_USE_LITTLEFS      true
+#define ESP8266_DRD_USE_RTC       true
+#define DRD_TIMEOUT               1
+#define DRD_ADDRESS               0
 #define DOUBLERESETDETECTOR_DEBUG true
-#include <ESP_DoubleResetDetector.h>
+#include <ESP_DoubleResetDetector.h>            
+DoubleResetDetector *drd;
 
 // Define constats for this program
 const int interval = 5000;                  // ms, time to wait between changes to output
 unsigned long lastMillis = 0;
 unsigned long startMillis;
 bool sleepModeActive = false;
-DoubleResetDetector* myDRD;
 
 //
 // Check if we should be in sleep mode
@@ -69,9 +73,9 @@ void setup() {
   Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
   printBuildOptions();
   powerLedOn();
-  myDRD = new DoubleResetDetector(2, 0); // Timeout, Address
+  drd = new DoubleResetDetector(2, 0); // Timeout, Address
 #if defined( ACTIVATE_WIFI )
-  bool dt = myDRD->detectDoubleReset();  
+  bool dt = drd->detectDoubleReset();  
 #endif
 
   Log.notice(F("Main: Loading configuration." CR));
@@ -112,7 +116,7 @@ void setup() {
 // Main loop
 //
 void loop() {
-  myDRD->loop();
+  drd->loop();
 
   if( sleepModeActive || abs(millis() - lastMillis) > interval ) {
     float psi  = myPressureSensor.getPressurePsi();
@@ -138,6 +142,7 @@ void loop() {
 
       // Enter sleep mode...
       Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
+      drd->stop();
       delay(500);
       deepSleep( myConfig.getPushIntervalAsInt() ); 
     }
