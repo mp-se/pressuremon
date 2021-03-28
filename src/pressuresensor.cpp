@@ -24,7 +24,6 @@ SOFTWARE.
 #include "pressuresensor.h"
 #include "config.h"
 #include "helper.h"
-#include "numled.h"
 
 #define ABP_SENSOR_CS           D8      // 
 
@@ -85,10 +84,8 @@ void PressureSensor::loop() {
 void PressureSensor::calibrateSensor() {
   Log.notice(F("PRES: Starting auto calibration." CR));
   float zero = 0;
-  myNumLED.clear();
 
   for( int i = 0; i < 10; i++ ) {
-    myNumLED.printDash( i%4 + 1);
     loop();
     float f = getPressurePsi( false );
     Log.notice(F("PRES: Step %d, Pressure = %F." CR), i+1, f);
@@ -103,7 +100,6 @@ void PressureSensor::calibrateSensor() {
   myConfig.setPressureZeroCorrection( &buf[0] );
   myConfig.saveFile();
   zeroCorrection = myConfig.getPressureZeroCorrectionAsFloat();
-  myNumLED.clear();
 }
 
 //

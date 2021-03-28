@@ -470,7 +470,7 @@ bool Wifi::checkFirmwareVersion() {
             Log.error(F("WIFI: Failed to parse json" CR));
         } else {
 #if LOG_LEVEL==6
-            Log.verbose(F("WIFI: Project %s version %s." CR), ver["project"].as<char*>(), ver["version"].as<char*>());
+            Log.verbose(F("WIFI: Project %s version %s." CR), (const char*) ver["project"], (const char*)  ver["version"]);
 #endif
             int  newVer[3];
             int  curVer[3];
