@@ -23,7 +23,6 @@ SOFTWARE.
  */
 #include "helper.h"
 #include "config.h"
-#include "numled.h"
 #include "wifi.h"
 #include "pushtarget.h"
 #include "pressuresensor.h"
@@ -74,7 +73,6 @@ void setup() {
 #if defined( ACTIVATE_WIFI )
   bool dt = myDRD->detectDoubleReset();  
 #endif
-  myNumLED.setup();
 
   Log.notice(F("Main: Loading configuration." CR));
   myConfig.checkFileSystem();
@@ -88,7 +86,6 @@ void setup() {
   if( dt ) 
     Log.notice(F("Main: Detected doubletap on reset." CR));
 
-  myNumLED.printConn();
   myWifi.connect( dt );
   
   if( myWifi.isConnected() )
@@ -104,7 +101,6 @@ void setup() {
 #if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA ) 
   if( !sleepModeActive && myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
     delay(500);
-    myNumLED.printUpd();
     myWifi.updateFirmware();
   }
 #endif
@@ -118,7 +114,7 @@ void setup() {
 void loop() {
   myDRD->loop();
 
-  if( sleepModeActive || (millis() - lastMillis) > interval ) {
+  if( sleepModeActive || abs(millis() - lastMillis) > interval ) {
     float psi  = myPressureSensor.getPressurePsi();
     float temp = myPressureSensor.getTemperatureC();
 
@@ -132,11 +128,6 @@ void loop() {
 #if LOG_LEVEL==6
     Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %s." CR), psi, temp, myConfig.getTempFormat() );
 #endif
-
-    if( myPressureSensor.isSensorActive() )
-      myNumLED.printNum( psi );
-    else
-      myNumLED.printDash(4);
 
 #if defined( ACTIVATE_PUSH )
     myPushTarget.send( psi, temp, sleepModeActive );    // Force the transmission if we are going to sleep
