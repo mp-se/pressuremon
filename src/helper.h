@@ -44,8 +44,8 @@ void deepSleep(int t);
 void printBuildOptions();
 
 // Float to String
-void  convertFloatToString( float f, char* buf);
-float reduceFloatPrecision( float f );
+char* convertFloatToString( float f, char* buf, int dec = 2);
+float reduceFloatPrecision( float f, int dec = 2 );
 
 // Logging via serial
 void printTimestamp(Print* _logOutput);

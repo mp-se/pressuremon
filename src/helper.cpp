@@ -141,7 +141,7 @@ void printTimestamp(Print* _logOutput) {
 //
 void BatteryVoltage::read() { 
     // The analog pin can only handle 3.3V maximum voltage so we need to reduce the voltage (from max 5V)
-    float factor = myConfig.getVoltageFactorAsFloat();      // Default value is 1.63 
+    float factor = myConfig.getVoltageFactor();      // Default value is 1.63 
     int v = analogRead( A0 );
     batteryLevel = ((3.3/1023)*v)*factor;
 #if LOG_LEVEL==6
@@ -150,18 +150,19 @@ void BatteryVoltage::read() {
 }
 
 //
-// Convert float to formatted string with 2 decimals
+// Convert float to formatted string with n decimals. Buffer should be at least 10 chars.
 //
-void convertFloatToString( float f, char *buffer ) {
-    dtostrf(f, 6, 2, buffer); 
+char* convertFloatToString( float f, char *buffer, int dec ) {
+    dtostrf(f, 6, dec, buffer); 
+    return buffer;
 }
 
 //
-// Reduce precision to 2 decimals
+// Reduce precision to n decimals
 //
-float reduceFloatPrecision( float f ) {
-    char buffer[10];
-    dtostrf(f, 6, 2, &buffer[0]); 
+float reduceFloatPrecision( float f, int dec ) {
+    char buffer[5];
+    dtostrf(f, 6, dec, &buffer[0]); 
     return atof(&buffer[0]);
 }
 

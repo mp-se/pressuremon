@@ -1,0 +1,1 @@
+{"mdns":"test","id":"7fa5c6","ota-url":"http://ota","temp-format":"C","pressure-corr":0.1,"fermentrack-push":"http://fermentrack","brewfather-push":"http://brewfather","http-push":"http://http","push-interval":900,"voltage-factor":1.63,"min-pressure":0,"max-pressure":60,"pressure":-0.19,"temp-c":23.6,"temp-f":74.4,"battery":4.7}

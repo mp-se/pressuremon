@@ -25,16 +25,13 @@ SOFTWARE.
 #define _WIFI_H
 
 // Include 
-#include <WiFiManager.h>
+#include <ESP8266WiFi.h>
 
 // classes
 class Wifi {
     private:
         // WIFI
         bool   connectedFlag = false;
-
-        // WEB server
-        void setupWebServer();
 
         // OTA
         bool newFirmware = false;
@@ -46,7 +43,6 @@ class Wifi {
         bool   disconnect();
         bool   isConnected() { return connectedFlag; };
         String getIPAddress() { return WiFi.localIP().toString(); };
-        void   loop();
 
         // OTA
         bool updateFirmware();

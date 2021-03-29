@@ -24,6 +24,7 @@ SOFTWARE.
 #include "helper.h"
 #include "config.h"
 #include "wifi.h"
+#include "webserver.h"
 #include "pushtarget.h"
 #include "pressuresensor.h"
 
@@ -42,6 +43,7 @@ const int interval = 5000;                  // ms, time to wait between changes 
 unsigned long lastMillis = 0;
 unsigned long startMillis;
 bool sleepModeActive = false;
+bool sleepModeAlwaysSkip = false;           // Web interface can override normal behaviour
 
 //
 // Check if we should be in sleep mode
@@ -49,14 +51,18 @@ bool sleepModeActive = false;
 void checkSleepMode( float psi, float volt ) {
 #if defined( SKIP_SLEEPMODE )
   sleepModeActive = false;
-  //Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
+  Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
   return;
 #endif
 
-  // If there is pressure on the sensor and the power is less than 4.5V but higher than 2.5V (Assume on battery)
-  // we will then go into deep sleep mode.
-  //sleepModeActive = ( abs(psi) > 0.5 ) && ( volt < 4.5 ) && ( volt > 2.5 ) ? true : false; 
-  sleepModeActive = ( volt < 4.5 ) && ( volt > 2.5 ) ? true : false; 
+  if( sleepModeAlwaysSkip ) {
+      Log.notice(F("MAIN: Sleep mode disabled from web interface." CR) );
+      sleepModeActive = false;
+      return;
+  }
+
+  // Will not enter sleep mode if: charger is connected 
+  sleepModeActive = volt<4.15 ? true : false; 
 #if LOG_LEVEL==6
   Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
 #endif
@@ -73,11 +79,6 @@ void setup() {
   Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
   printBuildOptions();
   powerLedOn();
-  drd = new DoubleResetDetector(2, 0); // Timeout, Address
-#if defined( ACTIVATE_WIFI )
-  bool dt = drd->detectDoubleReset();  
-#endif
-
   Log.notice(F("Main: Loading configuration." CR));
   myConfig.checkFileSystem();
   myConfig.loadFile();
@@ -87,6 +88,9 @@ void setup() {
   ESP.wdtEnable( interval*2 );
 
 #if defined( ACTIVATE_WIFI )
+  drd = new DoubleResetDetector(2, 0); // Timeout, Address
+  bool dt = drd->detectDoubleReset();  
+
   if( dt ) 
     Log.notice(F("Main: Detected doubletap on reset." CR));
 
@@ -109,6 +113,21 @@ void setup() {
   }
 #endif
 
+#if defined( ACTIVATE_WIFI ) 
+    if( myWifi.isConnected() ) {
+        Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
+
+  #if defined( ACTIVATE_OTA ) 
+        if( !sleepModeActive && myWifi.checkFirmwareVersion() ) {
+            myWifi.updateFirmware();
+        }
+  #endif
+        if( !sleepModeActive )
+            if( myWebServer.setupWebServer() )
+                Log.notice(F("Main: Webserver is running." CR) );
+    }
+#endif
+
   powerLedOff();
 }
 
@@ -122,15 +141,11 @@ void loop() {
     float psi  = myPressureSensor.getPressurePsi();
     float temp = myPressureSensor.getTemperatureC();
 
-    if( myConfig.isTempF() ) {
-#if LOG_LEVEL==6
-      Log.verbose(F("MAIN: Using Farenheigt for temperature." CR) );
-#endif
-      temp = myPressureSensor.convertTemperature2F( temp );
-    }
+    if( myConfig.isTempF() )
+      temp = myPressureSensor.getTemperatureF();
 
 #if LOG_LEVEL==6
-    Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %s." CR), psi, temp, myConfig.getTempFormat() );
+    Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %c." CR), psi, temp, myConfig.getTempFormat() );
 #endif
 
 #if defined( ACTIVATE_PUSH )
@@ -144,7 +159,7 @@ void loop() {
       Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
       drd->stop();
       delay(500);
-      deepSleep( myConfig.getPushIntervalAsInt() ); 
+      deepSleep( myConfig.getPushInterval() ); 
     }
 
     // Do these checks if we are running in normal mode (not sleep mode)
@@ -154,7 +169,7 @@ void loop() {
     lastMillis = millis();
   }
 
-  myWifi.loop();
+  myWebServer.loop();
 }
 
 // EOF

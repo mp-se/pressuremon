@@ -1,0 +1,10 @@
+{
+    "id": "7376ef",
+    "pressure": 10.10,
+    "temp-c": 10,
+    "temp-f": 43,
+    "battery": 1.6,
+    "temp-format": "C",
+    "sleep-mode": false,
+    "rssi": -56
+}

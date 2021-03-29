@@ -28,16 +28,16 @@ SOFTWARE.
 #include "config.h"
 #include "helper.h"
 #include "pressuresensor.h"
-#include <ESP8266WiFi.h>
+#include <LittleFS.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
+#include <ESP_WiFiManager.h>   
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 
 Wifi myWifi;
-WiFiManager myWifiManager; 
-ESP8266WebServer myWebServer(80);
-bool saveConfigCallbackFlag = false;
+ESP_WiFiManager myWifiManager; 
+bool shouldSaveConfig = false;
 
 //
 // Callback from wifiManager when settings have changed.
@@ -46,266 +46,7 @@ void saveConfigCallback() {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: wifiMgr callback to save params." CR));
 #endif
-    saveConfigCallbackFlag = true;
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleRoot() {
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /." CR));
-#endif
-    char buf[100];
-    sprintf( &buf[0], "ApplicationName=%s version=%s mDNS=%s, ID=%s", CFG_APPNAME, CFG_APPVER, myConfig.getMDNS(), myConfig.getID() );
-    myWebServer.send(200, "text/plain", buf );
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleConfig() {
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /config." CR));
-#endif
-    StaticJsonDocument<512> doc;
-    myConfig.createJson( doc );
-#if LOG_LEVEL==6
-    serializeJson(doc, Serial);
-#endif    
-    String out;
-    serializeJson(doc, out);
-    myWebServer.send(200, "application/json", out.c_str() );
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleCalibrate() {
-    String id    = myWebServer.arg("id");
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /calibrate." CR));
-#endif
-    if( !id.compareTo( myConfig.getID() ) ) {
-        myPressureSensor.calibrateSensor();
-        char buf[40];
-        sprintf(&buf[0], "Calibrated pressure sensor, new offset %s...", myConfig.getPressureZeroCorrection() );
-        myWebServer.send(200, "text/plain", &buf[0] );
-    } else {
-        myWebServer.send(400, "text/plain", "Unknown ID.");
-    }
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleReset() {
-    String id    = myWebServer.arg("id");
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /reset." CR));
-#endif
-    if( !id.compareTo( myConfig.getID() ) ) {
-        myWebServer.send(200, "text/plain", "Doing reset...");
-        delay(1000);
-        ESP.reset();
-    } else {
-        myWebServer.send(400, "text/plain", "Unknown ID.");
-    }
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleStatus() {
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /status." CR));
-#endif
-    StaticJsonDocument<512> doc;
-
-    doc[ "pressure" ]       = reduceFloatPrecision( myPressureSensor.getPressurePsi() );
-    doc[ "pressure_unit" ]  = "PSI";
-    doc[ "temperature_c" ]  = reduceFloatPrecision( myPressureSensor.getTemperatureC() );
-    doc[ "temperature_f" ]  = reduceFloatPrecision( myPressureSensor.convertTemperature2F( myPressureSensor.getTemperatureC() ) );
-    doc[ "battery" ]        = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
-    doc[ "rssi" ]           = WiFi.RSSI(); 
-#if LOG_LEVEL==6
-    serializeJson(doc, Serial);
-#endif    
-    String out;
-    serializeJson(doc, out);
-    myWebServer.send(200, "application/json", out.c_str() );
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-extern bool sleepModeActive;
-
-void webHandleDebug() {
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /debug." CR));
-#endif
-    StaticJsonDocument<512> doc;
-
-    doc[ "pressure" ]       = myPressureSensor.getPressurePsi() ;
-    doc[ "temperature" ]    = myPressureSensor.getTemperatureC();
-    doc[ "battery" ]        = myBatteryVoltage.getVoltage(); 
-    doc[ "sleepmode" ]      = sleepModeActive; 
-    doc[ "ip" ]             = myWifi.getIPAddress(); 
-    doc[ "rssi" ]           = WiFi.RSSI(); 
-
-    doc[ "sensor_min" ]     = ABP_SENSOR_MIN_PRESSURE; 
-    doc[ "sensor_max" ]     = ABP_SENSOR_MAX_PRESSURE; 
-
-#if LOG_LEVEL==6
-    serializeJson(doc, Serial);
-#endif    
-    String out;
-    serializeJson(doc, out);
-    myWebServer.send(200, "application/json", out.c_str() );
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-void webHandleClearWIFI() {
-    String id    = myWebServer.arg("id");
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /clearwifi." CR));
-#endif
-    if( !id.compareTo( myConfig.getID() ) ) {
-        myWebServer.send(200, "text/plain", "Clearing WIFI credentials and doing reset...");
-        delay(1000);
-        WiFi.disconnect();  // Clear credentials
-        ESP.reset();
-    } else {
-        myWebServer.send(400, "text/plain", "Unknown ID.");
-    }
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-// TODO: Change these to REST API (these are convinient for testing)
-//
-void webHandleConfigApiSet() {
-    String id    = myWebServer.arg("id");
-    String param = myWebServer.arg("param");
-    String value = myWebServer.arg("value");
-    bool success = false; 
-
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /api/config/set. %s=%s" CR), param.c_str(), value.c_str());
-#endif
-
-    if( id.equalsIgnoreCase( myConfig.getID() ) ) {
-        if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
-            myConfig.setOtaURL( value.c_str() );
-            success = true; 
-        } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
-            if( !value.compareTo("C") || !value.compareTo("F") ) {
-                myConfig.setTempFormat( value.c_str() );
-                success = true; 
-            }
-        } else if( param.equalsIgnoreCase (CFG_PARAM_PRESSURECORR ) ) {
-            if( atof( value.c_str() ) ) {
-                myConfig.setPressureZeroCorrection( value.c_str() );
-                success = true; 
-            }
-        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_FERMENTRACK ) ) {
-            myConfig.setFermentrackPushTarget( value.c_str() );
-            success = true; 
-        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BREWFATHER ) ) {
-            myConfig.setBrewfatherPushTarget( value.c_str() );
-            success = true; 
-        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
-            myConfig.setHttpPushTarget( value.c_str() );
-            success = true; 
-        } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
-            if( atoi( value.c_str() ) ) {
-                myConfig.setPushInterval( value.c_str() );
-                success = true; 
-            }
-        } else if( param.equalsIgnoreCase( CFG_PARAM_VOLTAGEFACTOR ) ) {
-            if( atof( value.c_str() ) ) {
-                myConfig.setVoltageFactor( value.c_str() );
-                success = true; 
-            }
-        } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
-            myConfig.setMDNS( value.c_str() );
-            success = true; 
-        }
-    } else {
-        Log.error(F("WIFI: Wrong ID received %s, expected %s" CR), id.c_str(), myConfig.getID());
-    }
-
-    if( success ) {
-        myConfig.saveFile();
-        myWebServer.send(200, "text/plain", "Updated configuration.");
-    } else {
-        myWebServer.send(400, "text/plain", "Unknown parameter/value or ID.");
-    }
-}
-
-//
-// Callback from webServer when / has been accessed.
-//
-// TODO: Change these to REST API (these are convinient for testing)
-//
-void webHandleConfigApiGet() {
-    String param = myWebServer.arg("param");
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer callback for /api/config/get. %s" CR), param.c_str());
-#endif
-    char buf[200];
-
-    if( param.equalsIgnoreCase( CFG_PARAM_OTA ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_OTA, myConfig.getOtaURL() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_TEMPFORMAT ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_TEMPFORMAT, myConfig.getTempFormat() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_PRESSURECORR ) ) {
-        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PRESSURECORR, myConfig.getPressureZeroCorrection() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_FERMENTRACK ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_FERMENTRACK, myConfig.getFermentrackPushTarget() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_BREWFATHER ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_BREWFATHER, myConfig.getBrewfatherPushTarget() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_HTTP ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_PUSH_HTTP, myConfig.getHttpPushTarget() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_PUSH_INTERVAL ) ) {
-        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_PUSH_INTERVAL, myConfig.getPushInterval() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_VOLTAGEFACTOR ) ) {
-        sprintf( &buf[0], "{ \"%s\": %s }", CFG_PARAM_VOLTAGEFACTOR, myConfig.getVoltageFactor() );
-    } else if( param.equalsIgnoreCase( CFG_PARAM_MDNS ) ) {
-        sprintf( &buf[0], "{ \"%s\": \"%s\" }", CFG_PARAM_MDNS, myConfig.getMDNS() );
-    } else {
-        myWebServer.send(400, "text/plain", "Unknown parameter.");
-        delay(1000);
-        return;
-    }
-
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: webServer returning %s" CR), &buf[0]);
-#endif
-    myWebServer.send(200, "application/json", &buf[0] );
-}
-
-//
-// Setup the Web Server callbacks and start it
-//
-void Wifi::setupWebServer() {
-#if LOG_LEVEL==6
-//    Log.verbose(F("WIFI: Setting up web server." CR));
-#endif
-    myWebServer.on("/", webHandleRoot);
-    myWebServer.on("/config", webHandleConfig);
-    myWebServer.on("/calibrate", webHandleCalibrate);
-    myWebServer.on("/reset", webHandleReset);
-    myWebServer.on("/status", webHandleStatus);
-    myWebServer.on("/debug", webHandleDebug);
-    myWebServer.on("/clearwifi", webHandleClearWIFI);
-    myWebServer.on("/api/config/set", webHandleConfigApiSet);   // Will be obsolate
-    myWebServer.on("/api/config/get", webHandleConfigApiGet);   // Will be obsolete
-    myWebServer.begin();
+    shouldSaveConfig = true;
 }
 
 //
@@ -318,78 +59,43 @@ bool Wifi::connect( bool showPortal ) {
 #else
     myWifiManager.setDebugOutput(false);    
 #endif
-    // LED will show that we are in WIFI connection/configuration mode
-    activateLedTicker( LED_FLASH_WIFI );
-
-    #define WIFI_PARAM_MAXLEN 120
-
-    WiFiManagerParameter cfgOtaUrl("otaUrl", "OTA Base URL (ex: http://server:port/path)", myConfig.getOtaURL(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgOtaUrl);
-    WiFiManagerParameter cfgFermentrackPush("Fermentrack push", "Fermentrack URL", myConfig.getFermentrackPushTarget(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgFermentrackPush);
-    WiFiManagerParameter cfgBrewfatherkPush("Brewfather push", "Brewfather URL", myConfig.getBrewfatherPushTarget(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgBrewfatherkPush);
-    WiFiManagerParameter cfgHttpPush("Http push", "Http URL", myConfig.getHttpPushTarget(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgHttpPush);
-    WiFiManagerParameter cfgPushInterval("Push interval", "Seconds between push", myConfig.getPushInterval(), WIFI_PARAM_MAXLEN);
-    myWifiManager.addParameter(&cfgPushInterval);
-    WiFiManagerParameter tempFormat("tempFormat", "Temperature format (C|F)", myConfig.getTempFormat(), 1);
-    myWifiManager.addParameter(&tempFormat);
+    unsigned long startMillis = millis();
 
     myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
+
+    ESP_WMParameter mdnsParam("mDNS name", "hostname", myConfig.getMDNS(), 20);
     myWifiManager.setSaveConfigCallback(saveConfigCallback);
+    myWifiManager.addParameter( &mdnsParam );
 
-    if( showPortal )
+    if( showPortal ) {
+        Log.notice(F("WIFI: Starting wifi portal." CR));
+        myWifiManager.setMinimumSignalQuality(-1);  // Ignore under 8%
         connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
-    else
-        connectedFlag = myWifiManager.autoConnect( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
-    // If the flag is changed, the callback was triggered
-    if( connectedFlag && saveConfigCallbackFlag ) {
-#if LOG_LEVEL==6
-        Log.verbose(F("WIFI: Saving configuration options." CR));
-#endif
-        // Celcius is the default value
-        const char* t = cfgOtaUrl.getValue();
-        if( strcmp(t, "F")==0 || strcmp(t, "f")==0 )
-            myConfig.setTempFormat( "F" );
-        else
-            myConfig.setTempFormat( "C" );
+        if( shouldSaveConfig ) {
+            myConfig.setMDNS( mdnsParam.getValue() );
+            myConfig.saveFile();
+        }
+    } 
 
-        myConfig.setOtaURL( cfgOtaUrl.getValue() );
-        myConfig.setPushInterval( cfgPushInterval.getValue() );
-        myConfig.setFermentrackPushTarget( cfgFermentrackPush.getValue() );
-        myConfig.setBrewfatherPushTarget( cfgBrewfatherkPush.getValue() );
-        myConfig.setHttpPushTarget( cfgHttpPush.getValue() );
-   }
+    // Connect to wifi
+    int i = 0;
 
-    myConfig.saveFile();
-#if LOG_LEVEL==6
-    Log.verbose(F("WIFI: Connect returned %s." CR), connectedFlag?"True":"False" );
-#endif
+    WiFi.begin();
+    while( WiFi.status() != WL_CONNECTED ) {
+        delay(100);
+        Serial.print( "." );
 
-    if( connectedFlag ) {
-#if LOG_LEVEL==6
-        Log.verbose(F("WIFI: Starting mDNS for %s." CR), myConfig.getMDNS() );
-#endif
-        MDNS.begin( myConfig.getMDNS() );
-        MDNS.addService("http", "tcp", 80);
-        setupWebServer();
-
-        // Disable the ticker if we are connected, otherwise it's a signal that wifi connection failed.
-        deactivateLedTicker();
+        if( i++ > 100 ) {
+            LittleFS.end();
+            ESP.reset();
+        }
     }
 
+    Serial.print( CR );
+    connectedFlag = true;
+    Log.notice( F("WIFI: IP=%s, Connect time %d s" CR), WiFi.localIP().toString().c_str(), abs(millis() - startMillis)/1000);
     return connectedFlag;
-}
-
-//
-// called from main loop
-//
-void Wifi::loop() {
-    // Dont put serial debug output in this call
-    myWebServer.handleClient();
-    MDNS.update();
 }
 
 //
@@ -464,7 +170,7 @@ bool Wifi::checkFirmwareVersion() {
 #if LOG_LEVEL==6
 //        Log.verbose(F("WIFI: Payload %s." CR), payload.c_str());
 #endif
-        StaticJsonDocument<200> ver;
+        DynamicJsonDocument ver(100);
         DeserializationError err = deserializeJson(ver, payload);
         if( err ) {
             Log.error(F("WIFI: Failed to parse json" CR));

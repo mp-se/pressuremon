@@ -37,7 +37,7 @@ void PressureSensor::setup() {
   Log.verbose(F("PRES: Looking for pressure sensors." CR));
 #endif
 
-  zeroCorrection = myConfig.getPressureZeroCorrectionAsFloat();
+  zeroCorrection = myConfig.getPressureZeroCorrection();
 
 #if !defined( SIMULATE_SENSOR )
   sensor = new TruStabilityPressureSensor( ABP_SENSOR_CS, ABP_SENSOR_MIN_PRESSURE, ABP_SENSOR_MAX_PRESSURE );
@@ -99,7 +99,7 @@ void PressureSensor::calibrateSensor() {
   dtostrf(zero/10, 5, 4, &buf[0]);
   myConfig.setPressureZeroCorrection( &buf[0] );
   myConfig.saveFile();
-  zeroCorrection = myConfig.getPressureZeroCorrectionAsFloat();
+  zeroCorrection = myConfig.getPressureZeroCorrection();
 }
 
 //

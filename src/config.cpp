@@ -32,13 +32,18 @@ Config myConfig;
 //
 Config::Config() {
     // Assiging default values
-    sprintf(&id[0], "%6x", (unsigned int) ESP.getChipId() );
-    sprintf(&mDNS[0], "" WIFI_MDNS "%s", getID() );
-    setTempFormat("C");
-    setPushInterval("900");             // 15 minutes
-    setVoltageFactor("1.63");           // Conversion factor for battery
+    char buf[20];
+    sprintf(&buf[0], "%6x", (unsigned int) ESP.getChipId() );
+    id = &buf[0];
+    sprintf(&buf[0], "" WIFI_MDNS "%s", getID() );
+    mDNS = &buf[0];
+    setTempFormat('C');
+    setPushInterval(900);             // 15 minutes
+    setVoltageFactor(1.63);           // Conversion factor for battery
+    minPressure = 0;                  // PSI
+    maxPressure = 60;                 // PSI
 #if LOG_LEVEL==6
-    Log.verbose(F("CFG : Creating hostname %s." CR), mDNS);
+    Log.verbose(F("CFG : Creating hostname %s." CR), mDNS.c_str());
 #endif
     saveNeeded = false;
 }
@@ -46,131 +51,124 @@ Config::Config() {
 //
 // Populate the json document with all configuration parameters (used in both web and saving to file)
 //
-void Config::createJson(StaticJsonDocument<512>& doc) {
+void Config::createJson(DynamicJsonDocument& doc) {
     doc[ CFG_PARAM_MDNS ]             = getMDNS();
     doc[ CFG_PARAM_ID ]               = getID();
     doc[ CFG_PARAM_OTA ]              = getOtaURL();
-    doc[ CFG_PARAM_TEMPFORMAT ]       = getTempFormat();
+    doc[ CFG_PARAM_TEMPFORMAT ]       = String( getTempFormat() );
     doc[ CFG_PARAM_PRESSURECORR ]     = getPressureZeroCorrection();
     doc[ CFG_PARAM_PUSH_FERMENTRACK ] = getFermentrackPushTarget();
     doc[ CFG_PARAM_PUSH_BREWFATHER ]  = getBrewfatherPushTarget();
     doc[ CFG_PARAM_PUSH_HTTP ]        = getHttpPushTarget();
     doc[ CFG_PARAM_PUSH_INTERVAL ]    = getPushInterval();
     doc[ CFG_PARAM_VOLTAGEFACTOR ]    = getVoltageFactor();
+    doc[ CFG_PARAM_MIN_PRESSURE ]     = getMinPressure();
+    doc[ CFG_PARAM_MAX_PRESSURE ]     = getMaxPressure();
 }
 
 //
 // Save json document to file
 //
 bool Config::saveFile() {
-    bool success = false;
-
-    if( saveNeeded ) {
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Saving configuration to file." CR));
-#endif    
-        File configFile = LittleFS.open(CFG_FILENAME, "w");
-
-        if (!configFile) {
-            Log.error(F("CFG : Failed to save " CFG_FILENAME "." CR));
-        }
-
-        StaticJsonDocument<512> doc;
-        createJson( doc );
-#if LOG_LEVEL==6
-        serializeJson(doc, Serial);
-#endif    
-        serializeJson(doc, configFile);
-        configFile.close();
-        saveNeeded = false;
-        success = true;
-        myConfig.debug();
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
-#endif    
-    } else {
+    if( !saveNeeded ) {
 #if LOG_LEVEL==6
         Log.verbose(F("CFG : Skipping save, not needed." CR));
-#endif    
-        success = true;
+#endif
+        return true;
     }
-    return success;
+
+#if LOG_LEVEL==6
+    Log.verbose(F("CFG : Saving configuration to file." CR));
+#endif    
+
+    File configFile = LittleFS.open(CFG_FILENAME, "w");
+
+    if (!configFile) {
+        Log.error(F("CFG : Failed to open file " CFG_FILENAME " for save." CR));
+        return false;
+    }
+
+    DynamicJsonDocument doc(CFG_JSON_BUFSIZE);
+    createJson( doc );
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+    Serial.print( CR );
+#endif    
+    serializeJson(doc, configFile);
+    configFile.flush();
+    configFile.close();
+    
+    saveNeeded = false;
+    myConfig.debug();
+    Log.notice(F("CFG : Configuration saved to " CFG_FILENAME "." CR));
+    return true;
 }
 
 //
 // Load config file from disk
 //
 bool Config::loadFile() {
-    bool success = false;
 #if LOG_LEVEL==6
     Log.verbose(F("CFG : Loading configuration from file." CR));
 #endif 
 
-    if (LittleFS.begin()) {
-#if LOG_LEVEL==6
-        Log.verbose(F("CFG : Filesystem mounted." CR));
-#endif    
-        if (LittleFS.exists(CFG_FILENAME)) {
-            File configFile = LittleFS.open(CFG_FILENAME, "r");
-
-            if (configFile) {
-#if LOG_LEVEL==6
-                Log.verbose(F("CFG : Parsing json configuration." CR));
-#endif    
-                char buf[1024];
-                size_t size = configFile.size();
-                configFile.readBytes(&buf[0], size);
-
-                StaticJsonDocument<1024> cfg;
-                DeserializationError err = deserializeJson(cfg, buf);
-
-                if( err ) {
-                    Log.error(F("CFG : Failed to load " CFG_FILENAME " file." CR));
-                } else {
-#if LOG_LEVEL==6
-                    Log.verbose(F("CFG : Parsed configuration file." CR));
-#endif                    
-                    if( !cfg[ CFG_PARAM_OTA ].isNull() )
-                        setOtaURL( cfg[ CFG_PARAM_OTA ] );
-
-                    if( !cfg[ CFG_PARAM_MDNS ].isNull() )
-                        setMDNS( cfg[ CFG_PARAM_MDNS ] );
-
-                    if( !cfg[ CFG_PARAM_TEMPFORMAT ].isNull() )
-                        setTempFormat( cfg[ CFG_PARAM_TEMPFORMAT ] );
-
-                    if( !cfg[ CFG_PARAM_PRESSURECORR ].isNull() )
-                        setPressureZeroCorrection( cfg[ CFG_PARAM_PRESSURECORR ]);
-
-                    if( !cfg[ CFG_PARAM_PUSH_FERMENTRACK ].isNull() )
-                        setFermentrackPushTarget( cfg[ CFG_PARAM_PUSH_FERMENTRACK ] );
- 
-                   if( !cfg[ CFG_PARAM_PUSH_BREWFATHER ].isNull() )
-                        setBrewfatherPushTarget( cfg[ CFG_PARAM_PUSH_BREWFATHER ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_HTTP ].isNull() )
-                        setHttpPushTarget( cfg[ CFG_PARAM_PUSH_HTTP ] );
-
-                   if( !cfg[ CFG_PARAM_PUSH_INTERVAL ].isNull() )
-                        setPushInterval( cfg[ CFG_PARAM_PUSH_INTERVAL ] );
-
-                   if( !cfg[ CFG_PARAM_VOLTAGEFACTOR ].isNull() )
-                        setVoltageFactor( cfg[ CFG_PARAM_VOLTAGEFACTOR ] );
-
-                    myConfig.debug();
-                    success = true;
-                    saveNeeded = false;     // Reset save flag 
-                }
-            } else {
-                Log.error(F("CFG : Failed to open " CFG_FILENAME "." CR));
-            }
-        }  else {
-            Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
-        }
-    } else {
-        Log.error(F("CFG : Failed to mount file system." CR));
+    if (!LittleFS.exists(CFG_FILENAME)) {
+        Log.error(F("CFG : Configuration file does not exist " CFG_FILENAME "." CR));
+        return false;
     }
-    return success;
+
+    File configFile = LittleFS.open(CFG_FILENAME, "r");
+
+    if (!configFile) {
+        Log.error(F("CFG : Failed to open " CFG_FILENAME "." CR));
+        return false;
+    }
+
+    DynamicJsonDocument doc(CFG_JSON_BUFSIZE);
+    DeserializationError err = deserializeJson(doc, configFile);
+#if LOG_LEVEL==6
+    serializeJson(doc, Serial);
+    Serial.print( CR );
+#endif    
+    configFile.close();
+
+    if( err ) {
+        Log.error(F("CFG : Failed to parse " CFG_FILENAME " file, Err: %s, %d." CR), err.c_str(), doc.capacity());
+        return false;
+    }
+
+#if LOG_LEVEL==6
+    Log.verbose(F("CFG : Parsed configuration file." CR));
+#endif 
+    if( !doc[ CFG_PARAM_OTA ].isNull() )
+        setOtaURL( doc[ CFG_PARAM_OTA ] );
+    if( !doc[ CFG_PARAM_MDNS ].isNull() )
+        setMDNS( doc[ CFG_PARAM_MDNS ] );
+    if( !doc[ CFG_PARAM_TEMPFORMAT ].isNull() ) {
+        String s = doc[ CFG_PARAM_TEMPFORMAT ];
+        setTempFormat( s.charAt(0) );
+    }
+    if( !doc[ CFG_PARAM_PRESSURECORR ].isNull() )
+        setPressureZeroCorrection( doc[ CFG_PARAM_PRESSURECORR ].as<float>());
+    if( !doc[ CFG_PARAM_PUSH_FERMENTRACK ].isNull() )
+        setFermentrackPushTarget( doc[ CFG_PARAM_PUSH_FERMENTRACK ] );
+    if( !doc[ CFG_PARAM_PUSH_BREWFATHER ].isNull() )
+        setBrewfatherPushTarget( doc[ CFG_PARAM_PUSH_BREWFATHER ] );
+    if( !doc[ CFG_PARAM_PUSH_HTTP ].isNull() )
+        setHttpPushTarget( doc[ CFG_PARAM_PUSH_HTTP ] );
+    if( !doc[ CFG_PARAM_PUSH_INTERVAL ].isNull() )
+        setPushInterval( doc[ CFG_PARAM_PUSH_INTERVAL ].as<int>() );
+    if( !doc[ CFG_PARAM_VOLTAGEFACTOR ].isNull() )
+        setVoltageFactor( doc[ CFG_PARAM_VOLTAGEFACTOR ].as<float>() );
+    if( !doc[ CFG_PARAM_MIN_PRESSURE ].isNull() )
+        setMinPressure( doc[ CFG_PARAM_MIN_PRESSURE ].as<int>() );
+    if( !doc[ CFG_PARAM_MAX_PRESSURE ].isNull() )
+        setMaxPressure( doc[ CFG_PARAM_MAX_PRESSURE ].as<int>() );
+
+    myConfig.debug();
+    saveNeeded = false;     // Reset save flag 
+    Log.notice(F("CFG : Configuration file " CFG_FILENAME " loaded." CR));
+    return true;
 }
 
 //
@@ -210,13 +208,13 @@ void Config::debug() {
     Log.verbose(F("CFG : ID; '%s'." CR), getID());
     Log.verbose(F("CFG : mDNS; '%s'." CR), getMDNS() );
     Log.verbose(F("CFG : OTA; '%s'." CR), getOtaURL() );
-    Log.verbose(F("CFG : Temp; '%s'." CR), getTempFormat() );
-    Log.verbose(F("CFG : ZeroCorr; '%s'." CR), getPressureZeroCorrection() );
-    Log.verbose(F("CFG : VoltageFactor; '%s'." CR), getVoltageFactor() );
+    Log.verbose(F("CFG : Temp; '%c'." CR), getTempFormat() );
+    Log.verbose(F("CFG : ZeroCorr; '%F'." CR), getPressureZeroCorrection() );
+    Log.verbose(F("CFG : VoltageFactor; '%F'." CR), getVoltageFactor() );
     Log.verbose(F("CFG : Push fementrack; '%s'." CR), getFermentrackPushTarget() );
     Log.verbose(F("CFG : Push brewfather; '%s'." CR), getBrewfatherPushTarget() );
     Log.verbose(F("CFG : Push http; '%s'." CR), getHttpPushTarget() );
-    Log.verbose(F("CFG : Push interval; '%s'." CR), getPushInterval() );
+    Log.verbose(F("CFG : Push interval; '%d'." CR), getPushInterval() );
 #endif    
 }
 

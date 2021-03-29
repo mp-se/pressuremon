@@ -31,7 +31,7 @@ PushTarget myPushTarget;
 //
 void PushTarget::send(float pressure, float temp, bool force ) {
     unsigned long timePassed = abs( millis() - ms );
-    unsigned long interval = myConfig.getPushIntervalAsInt()*1000;
+    unsigned long interval = myConfig.getPushInterval()*1000;
 
     if( ( timePassed < interval ) && !force) {
 #if LOG_LEVEL==6
@@ -71,10 +71,10 @@ void PushTarget::sendFermentrack(float pressure, float temp ) {
     doc["token"]       = "fermentrack"; 
     doc["angle"]       = reduceFloatPrecision(  pressure );                      
     doc["temperature"] = reduceFloatPrecision( temp ); 
-    doc["temp_units"]  = myConfig.getTempFormat(); 
+    doc["temp_units"]  = String( myConfig.getTempFormat() ); 
     doc["battery"]     = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
     doc["gravity"]     = 0; 
-    doc["interval"]    = myConfig.getPushIntervalAsInt(); 
+    doc["interval"]    = myConfig.getPushInterval(); 
     doc["RSSI"]        = WiFi.RSSI(); 
 
     WiFiClient client;
@@ -132,7 +132,7 @@ void PushTarget::sendBrewfather(float pressure, float temp ) {
     doc["temp"]          = reduceFloatPrecision( temp );
   //doc["aux_temp"]      = 0;
   //doc["ext_temp"]      = 0;
-    doc["temp_unit"]     = myConfig.getTempFormat(); 
+    doc["temp_unit"]     = String( myConfig.getTempFormat() ); 
     doc["pressure"]      = reduceFloatPrecision( pressure ); 
     doc["pressure_unit"] = "PSI"; 
     doc["battery"]       = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
@@ -180,7 +180,7 @@ void PushTarget::sendHttp(float pressure, float temp ) {
 
     doc["name"]          = myConfig.getMDNS();
     doc["temp"]          = temp;
-    doc["temp_unit"]     = myConfig.getTempFormat(); 
+    doc["temp_unit"]     = String( myConfig.getTempFormat() ); 
     doc["pressure"]      = reduceFloatPrecision( pressure ); 
     doc["pressure_unit"] = "PSI"; 
     doc["battery"]       = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
