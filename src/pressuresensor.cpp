@@ -43,7 +43,7 @@ void PressureSensor::setup() {
   sensor = new TruStabilityPressureSensor( ABP_SENSOR_CS, ABP_SENSOR_MIN_PRESSURE, ABP_SENSOR_MAX_PRESSURE );
   sensor->begin();
   SPI.begin();
-  Log.notice(F("PRES: Sensor reported code %d, zero correction = %f" CR), sensor->status(), zeroCorrection );
+  Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR), sensor->status(), zeroCorrection );
 #endif
 }
 
