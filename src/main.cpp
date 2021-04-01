@@ -29,10 +29,8 @@ SOFTWARE.
 #include "pressuresensor.h"
 
 // Settings for double reset detector.
-//#define USE_LITTLEFS              true
-//#define ESP_DRD_USE_LITTLEFS      true
 #define ESP8266_DRD_USE_RTC       true
-#define DRD_TIMEOUT               1
+#define DRD_TIMEOUT               2
 #define DRD_ADDRESS               0
 #define DOUBLERESETDETECTOR_DEBUG true
 #include <ESP_DoubleResetDetector.h>            
@@ -50,21 +48,21 @@ bool sleepModeAlwaysSkip = false;           // Web interface can override normal
 //
 void checkSleepMode( float psi, float volt ) {
 #if defined( SKIP_SLEEPMODE )
-  sleepModeActive = false;
-  Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
-  return;
+    sleepModeActive = false;
+    Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
+    return;
 #endif
 
-  if( sleepModeAlwaysSkip ) {
-      Log.notice(F("MAIN: Sleep mode disabled from web interface." CR) );
-      sleepModeActive = false;
-      return;
-  }
+    if( sleepModeAlwaysSkip ) {
+        Log.notice(F("MAIN: Sleep mode disabled from web interface." CR) );
+        sleepModeActive = false;
+        return;
+    }
 
-  // Will not enter sleep mode if: charger is connected 
-  sleepModeActive = volt<4.15 ? true : false; 
+    // Will not enter sleep mode if: charger is connected 
+    sleepModeActive = volt<4.15 ? true : false; 
 #if LOG_LEVEL==6
-  Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
+    Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
 #endif
 }
 
@@ -73,24 +71,26 @@ void checkSleepMode( float psi, float volt ) {
 //
 void setup() {
   // Record the starting time
-  startMillis = millis();
-
-  // Initialize pin outputs
-  Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
-  printBuildOptions();
-  powerLedOn();
-  Log.notice(F("Main: Loading configuration." CR));
-  myConfig.checkFileSystem();
-  myConfig.loadFile();
-
-  // Setup watchdog
-  ESP.wdtDisable();
-  ESP.wdtEnable( interval*2 );
+    startMillis = millis();
 
 #if defined( ACTIVATE_WIFI )
-  drd = new DoubleResetDetector(2, 0); // Timeout, Address
-  bool dt = drd->detectDoubleReset();  
+    drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS); // Timeout, Address
+    bool dt = drd->detectDoubleReset();  
+#endif
 
+    // Initialize pin outputs
+    Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
+    printBuildOptions();
+    powerLedOn();
+    Log.notice(F("Main: Loading configuration." CR));
+    myConfig.checkFileSystem();
+    myConfig.loadFile();
+
+    // Setup watchdog
+    ESP.wdtDisable();
+    ESP.wdtEnable( interval*2 );
+
+#if defined( ACTIVATE_WIFI )
   if( dt ) 
     Log.notice(F("Main: Detected doubletap on reset." CR));
 
@@ -100,17 +100,17 @@ void setup() {
     Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
 #endif
 
-  // Activate the pressure sensor and check the value
-  myPressureSensor.setup();
-  myPressureSensor.loop();  
-  myBatteryVoltage.read();
-  checkSleepMode( myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
+    // Activate the pressure sensor and check the value
+    myPressureSensor.setup();
+    myPressureSensor.loop();  
+    myBatteryVoltage.read();
+    checkSleepMode( myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
 
 #if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA ) 
-  if( !sleepModeActive && myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
-    delay(500);
-    myWifi.updateFirmware();
-  }
+    if( !sleepModeActive && myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
+        delay(500);
+        myWifi.updateFirmware();
+    }
 #endif
 
 #if defined( ACTIVATE_WIFI ) 
@@ -135,41 +135,41 @@ void setup() {
 // Main loop
 //
 void loop() {
-  drd->loop();
+    drd->loop();
 
-  if( sleepModeActive || abs(millis() - lastMillis) > interval ) {
-    float psi  = myPressureSensor.getPressurePsi();
-    float temp = myPressureSensor.getTemperatureC();
+    if( sleepModeActive || abs(millis() - lastMillis) > interval ) {
+        float psi  = myPressureSensor.getPressurePsi();
+        float temp = myPressureSensor.getTemperatureC();
 
-    if( myConfig.isTempF() )
-      temp = myPressureSensor.getTemperatureF();
+        if( myConfig.isTempF() )
+            temp = myPressureSensor.getTemperatureF();
 
 #if LOG_LEVEL==6
-    Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %c." CR), psi, temp, myConfig.getTempFormat() );
+        Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %c." CR), psi, temp, myConfig.getTempFormat() );
 #endif
 
 #if defined( ACTIVATE_PUSH )
-    myPushTarget.send( psi, temp, sleepModeActive );    // Force the transmission if we are going to sleep
+        myPushTarget.send( psi, temp, sleepModeActive );    // Force the transmission if we are going to sleep
 #endif
 
-    if( sleepModeActive ) {
-      unsigned long runTime = millis() - startMillis;
+        if( sleepModeActive ) {
+            unsigned long runTime = millis() - startMillis;
 
-      // Enter sleep mode...
-      Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
-      drd->stop();
-      delay(500);
-      deepSleep( myConfig.getPushInterval() ); 
+            // Enter sleep mode...
+            Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
+            drd->stop();
+            delay(500);
+            deepSleep( myConfig.getPushInterval() ); 
+        }
+
+        // Do these checks if we are running in normal mode (not sleep mode)
+        checkSleepMode( psi, myBatteryVoltage.getVoltage() );
+        myPressureSensor.loop();
+        myBatteryVoltage.read();
+        lastMillis = millis();
     }
 
-    // Do these checks if we are running in normal mode (not sleep mode)
-    checkSleepMode( psi, myBatteryVoltage.getVoltage() );
-    myPressureSensor.loop();
-    myBatteryVoltage.read();
-    lastMillis = millis();
-  }
-
-  myWebServer.loop();
+    myWebServer.loop();
 }
 
 // EOF

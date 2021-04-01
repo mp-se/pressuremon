@@ -114,7 +114,8 @@
 
           <div class="form-group row">
             <label for="calibrate-btn" class="col-sm-4 col-form-label">Current calibration values:</label>
-            <label for="gyro-calibration-data" class="col-sm-4 col-form-label" id="pressure-corr">Loading...</label>
+            <label for="calibrate-btn" class="col-sm-4 col-form-label" id="pressure-corr">Loading...</label>
+            <label for="pressure-corr" class="col-sm-4 col-form-label" id="pressure">Loading...</label>
             <div class="col-sm-8 offset-sm-4">
               <button type="button" class="btn btn-warning" id="calibrate-btn">Calibrate device</button>
             </div>
@@ -288,6 +289,7 @@
       $("#voltage-factor").val(cfg["voltage-factor"]);
       $("#battery").text(cfg["battery"] + " V");
       $("#pressure-corr").text(cfg["pressure-corr"] );
+      $("#pressure").text(cfg["pressure"] );
       $("#min-pressure").val(cfg["min-pressure"]);
       $("#max-pressure").val(cfg["max-pressure"]);
     })

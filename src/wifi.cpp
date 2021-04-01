@@ -31,12 +31,12 @@ SOFTWARE.
 #include <LittleFS.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
-#include <ESP_WiFiManager.h>   
+#include <WiFiManager.h>   
 #include <ESP8266HTTPClient.h>
 #include <ESP8266httpUpdate.h>
 
 Wifi myWifi;
-ESP_WiFiManager myWifiManager; 
+WiFiManager myWifiManager; 
 bool shouldSaveConfig = false;
 
 //
@@ -56,21 +56,21 @@ bool Wifi::connect( bool showPortal ) {
 #if LOG_LEVEL==6
     Log.verbose(F("WIFI: Connecting to WIFI via connection manager (portal=%s)." CR), showPortal?"true":"false");
     myWifiManager.setDebugOutput(true);    
-#else
-    myWifiManager.setDebugOutput(false);    
 #endif
     unsigned long startMillis = millis();
 
-    myWifiManager.setConfigPortalTimeout( WIFI_PORTAL_TIMEOUT );
-
-    ESP_WMParameter mdnsParam("mDNS name", "hostname", myConfig.getMDNS(), 20);
-    myWifiManager.setSaveConfigCallback(saveConfigCallback);
-    myWifiManager.addParameter( &mdnsParam );
-
     if( showPortal ) {
         Log.notice(F("WIFI: Starting wifi portal." CR));
-        myWifiManager.setMinimumSignalQuality(-1);  // Ignore under 8%
-        connectedFlag = myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
+        myWifiManager.setBreakAfterConfig( true );
+        myWifiManager.setSaveConfigCallback(saveConfigCallback);
+        myWifiManager.setMinimumSignalQuality(10);  
+        myWifiManager.setClass("invert");
+        myWifiManager.setHostname( myConfig.getMDNS() );
+
+        WiFiManagerParameter mdnsParam("mDNS", "hostname", myConfig.getMDNS(), 20);
+        myWifiManager.addParameter( &mdnsParam );
+
+        myWifiManager.startConfigPortal( WIFI_DEFAULT_SSID, WIFI_DEFAULT_PWD );
 
         if( shouldSaveConfig ) {
             myConfig.setMDNS( mdnsParam.getValue() );
