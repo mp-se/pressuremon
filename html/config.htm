@@ -193,7 +193,6 @@
               <script>
                 function updateSensorRange() {
                   console.log("Current value=" + $("#abp-sensor").val());
-
                   min = 0;
                   max = 150;
 
@@ -208,6 +207,22 @@
 
                   $("#sensor-min-pressure").val(min)
                   $("#sensor-max-pressure").val(max)
+                }
+
+                function setSensorRangeChoise() {
+                  min = $("#sensor-min-pressure").val();
+                  max = $("#sensor-max-pressure").val();
+
+                  console.log("Sensor min=" + String(min) + " max=" + String(max));
+
+                  switch(max) {
+                    case "5": $("#abp-sensor").val("005PGSx3"); break;
+                    case "15": $("#abp-sensor").val("015PGSx3"); break;
+                    case "30": $("#abp-sensor").val("030PGSx3"); break;
+                    case "60": $("#abp-sensor").val("060PGSx3"); break;
+                    case "100": $("#abp-sensor").val("100PGSx3"); break;
+                    case "150": $("#abp-sensor").val("150PGSx3"); break;
+                  }
                 }
               </script>
 
@@ -350,32 +365,6 @@
                   </select>
                 </div>
               </div>
-<!--
-              <hr>
-
-              <div class="row mb-3">
-                <div class="col-sm-3">
-                  <input class="form-check-input" type="checkbox" name="password-toggle" id="password-toggle" checked data-bs-toggle="tooltip" title="Hide sensitive fields">
-                  <label class="form-check-label" for="password-toggle">Hide sensitive data</label>
-                </div>
-              </div>
-
-              <script>
-                function toggleElementPassword(x) {
-                  if (x.type === "password") {
-                    x.type = "text";
-                  } else {
-                    x.type = "password";
-                  }
-                }
-
-                $("#password-toggle").click(function (e) {
-                  toggleElementPassword(document.getElementById("mqtt-user"));
-                  toggleElementPassword(document.getElementById("mqtt-pass"));
-                });
-              </script>
--->
-
               <div class="row mb-3">
                 <div class="col-sm-2 offset-sm-2">
                   <button type="submit" class="btn btn-primary" id="integration-btn" data-bs-toggle="tooltip" title="Save changes in this section">Save</button>
@@ -456,7 +445,7 @@
         setButtonDisabled(true);
 
         var url = "/api/config";
-        //var url = "/test/config.json";
+        // var url = "/test/config.json";
         $('#spinner').show();
         $.getJSON(url, function (cfg) {
           console.log(cfg);
@@ -471,6 +460,8 @@
 
           $("#sensor-min-pressure").val(cfg["sensor-min-pressure"]);
           $("#sensor-max-pressure").val(cfg["sensor-max-pressure"]);
+          setSensorRangeChoise();
+
           $("#pressure-zero-correction").text(cfg["pressure-zero-correction"]);
           $("#voltage-factor").val(cfg["voltage-factor"]);
           $("#battery").text(cfg["battery"] + " V");
@@ -487,7 +478,7 @@
 
           if (cfg["temp-format"] == "C") $("#temp-format-c").click();
           else $("#temp-format-f").click();
-         
+      
           if (cfg["pressure-format"] == "psi") $("#pressure-format-psi").click();
           else if (cfg["pressure-format"] == "bar") $("#pressure-format-bar").click();
           else $("#pressure-format-hpa").click();
