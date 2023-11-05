@@ -21,41 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _PRESSURESENSOR_H
-#define _PRESSURESENSOR_H
+#include <batteryvoltage.hpp>
+#include <main.hpp>
 
-// Includes
-#include <HoneywellTruStabilitySPI.h>
+BatteryVoltage::BatteryVoltage(int pin) {
+  _pin = pin;
+#if defined(ESP8266)
+  pinMode(_pin, INPUT);
+#else
+  pinMode(_pin, INPUT_PULLDOWN);
+#endif
+}
 
-// Definnitions
-#define ABP_SENSOR_MIN_PRESSURE 0       // The sensor used is range 0-150 psi for the prototype, 
-#define ABP_SENSOR_MAX_PRESSURE 150     // will change to 0-60 for the next build.
+void BatteryVoltage::read(float factor) {
+  int v = analogRead(_pin);
 
-// classes
-class PressureSensor {
-    private:
-        TruStabilityPressureSensor *sensor = 0;
-        bool sensorActive = false;
-        float zeroCorrection = 0;
+#if defined(ESP8266)
+  _batteryLevel = ((3.3 / 1023) * v) * factor;
+#else  // defined (ESP32)
+  _batteryLevel = ((3.3 / 4095) * v) * factor;
+#endif
 
-    public:
-        void  setup();    
-        void  loop();    
-        bool  isSensorActive() { return sensorActive; };
-
-        float getPressurePsi( bool doCorrection = true );
-        float getTemperatureC();
-        float getTemperatureF() { return (getTemperatureC() * 1.8 ) + 32.0; };
-
-        void  calibrateSensor();
-
-        float convertPressure2Bar( float psi ) { return psi * 0.0689475729; };
-        float convertPressure2HPa( float psi ) { return psi * 68.947572932; }; 
-};
-
-// Global instance created
-extern PressureSensor myPressureSensor;
-
-#endif // _PRESSURESENSOR_H
+#if LOG_LEVEL == 6
+  Log.verbose(
+      F("BATT: Reading voltage level. Factor=%F Value=%d, Voltage=%F." CR),
+      factor, v, _batteryLevel);
+#endif
+}
 
 // EOF

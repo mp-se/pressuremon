@@ -21,126 +21,109 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "pressuresensor.h"
-#include "config.h"
-#include "helper.h"
-
-#define ABP_SENSOR_CS           D8      // 
+#include <pressureconfig.hpp>
+#include <pressuresensor.hpp>
+#include <utils.hpp>
 
 PressureSensor myPressureSensor;
 
-//
-// Setup temp sensors
-//
 void PressureSensor::setup() {
-#if LOG_LEVEL==6
+#if LOG_LEVEL == 6
   Log.verbose(F("PRES: Looking for pressure sensors." CR));
 #endif
 
   zeroCorrection = myConfig.getPressureZeroCorrection();
 
-#if !defined( SIMULATE_SENSOR )
-  sensor = new TruStabilityPressureSensor( ABP_SENSOR_CS, ABP_SENSOR_MIN_PRESSURE, ABP_SENSOR_MAX_PRESSURE );
+  sensor = new TruStabilityPressureSensor(PIN_PRESSURE,
+                                          myConfig.getSensorMinPressure(),
+                                          myConfig.getSensorMaxPressure());
   sensor->begin();
-  SPI.begin();
-  Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR), sensor->status(), zeroCorrection );
-#endif
+  SPI.begin(SCK, MISO, MOSI, SS);
+  Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR),
+             sensor->status(), zeroCorrection);
 }
 
-//
-// Done in loop, reading sensor values
-//
 void PressureSensor::loop() {
-
-#if defined( SIMULATE_SENSOR )
-  sensorActive = true;
-#else
-  switch( sensor->readSensor() ) {
-      case 0:
-#if LOG_LEVEL==6
-//       Log.verbose(F("PRES: Sensor status NORMAL." CR));
+  switch (sensor->readSensor()) {
+    case 0:
+#if LOG_LEVEL == 6
+      Log.verbose(F("PRES: Sensor status NORMAL." CR));
 #endif
-        sensorActive = true;
-      break; 
-      case 1:
-        Log.warning(F("PRES: Sensor status COMMAND MODE." CR));
-        sensorActive = false;
-      break; 
-      case 2:
-        Log.warning(F("PRES: Sensor status STALE DATA." CR));
-        sensorActive = false;
-      break; 
-      case 3:
-        Log.warning(F("PRES: Sensor status DIAG MODE." CR));
-        sensorActive = false;
-      break; 
+      sensorActive = true;
+      break;
+    case 1:
+      Log.warning(F("PRES: Sensor status COMMAND MODE." CR));
+      sensorActive = false;
+      break;
+    case 2:
+      Log.warning(F("PRES: Sensor status STALE DATA." CR));
+      sensorActive = false;
+      break;
+    case 3:
+      Log.warning(F("PRES: Sensor status DIAG MODE." CR));
+      sensorActive = false;
+      break;
   }
-#endif
 }
 
-//
-// Retrieving value from tempsensor within pressuresensor
-//
 void PressureSensor::calibrateSensor() {
   Log.notice(F("PRES: Starting auto calibration." CR));
   float zero = 0;
 
-  for( int i = 0; i < 10; i++ ) {
+  for (int i = 0; i < 10; i++) {
     loop();
-    float f = getPressurePsi( false );
-    Log.notice(F("PRES: Step %d, Pressure = %F." CR), i+1, f);
+    float f = getPressurePsi(false);
+    Log.notice(F("PRES: Step %d, Pressure = %F." CR), i + 1, f);
     zero += f;
     delay(500);
   }
 
-  Log.notice(F("PRES: Measured difference %F." CR), zero/10);
-  char buf[20];
-
-  dtostrf(zero/10, 5, 4, &buf[0]);
-  myConfig.setPressureZeroCorrection( &buf[0] );
+  Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
+  myConfig.setPressureZeroCorrection(zero / 10);
   myConfig.saveFile();
   zeroCorrection = myConfig.getPressureZeroCorrection();
 }
 
-//
-// Retrieving value from tempsensor within pressuresensor
-//
 float PressureSensor::getTemperatureC() {
-  if( !isSensorActive() )
-    return 0;
+  if (!isSensorActive()) return 0;
 
-#if defined( SIMULATE_SENSOR )
-  return 20.5;
-#else
   float f = sensor->temperature();
-#if LOG_LEVEL==6
-//  Log.verbose(F("PRES: Reciving temp value for sensor %F C." CR), f);
+#if LOG_LEVEL == 6
+  Log.verbose(F("PRES: Reciving temp value for sensor %F C." CR), f);
 #endif
   return f;
-#endif // SIMUALTE_SENSOR
 }
 
-//
-// Retrieving value from pressure sensor
-//
-float PressureSensor::getPressurePsi( bool doCorrection ) {
-  if( !isSensorActive() )
-    return 0;
+float PressureSensor::getPressurePsi(bool doCorrection) {
+  if (!isSensorActive()) return 0;
 
-#if defined( SIMULATE_SENSOR )
-  float f = 11.1;
-#else
   float f = sensor->pressure();
 
-#if LOG_LEVEL==6
-//  Log.verbose(F("PRES: Reciving pressure value for sensor %F psi, correction = %F." CR), f, zeroCorrection);
+#if LOG_LEVEL == 6
+//  Log.verbose(F("PRES: Reciving pressure value for sensor %F psi, correction =
+//  %F." CR), f, zeroCorrection);
 #endif
-#endif // SIMUALTE_SENSOR
 
-  if( doCorrection )
-    return f - zeroCorrection;
-
+  if (doCorrection) return f - zeroCorrection;
   return f;
 }
 
-// EOF 
+float PressureSensor::getPressure(bool doCorrection) {
+  float p = getPressurePsi(doCorrection);
+
+  switch (myConfig.getPressureFormatType()) {
+    case PressureFormatType::Bar:
+      return convertPressure2Bar(p);
+    case PressureFormatType::hPA:
+      return convertPressure2HPa(p);
+  }
+  return p;
+}
+
+float PressureSensor::getTemperature() {
+  if (myConfig.getTempFormat() == 'C') return getTemperatureC();
+
+  return getTemperatureF();
+}
+
+// EOF

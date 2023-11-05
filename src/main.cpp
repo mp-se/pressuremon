@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2022 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,155 +21,168 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "helper.h"
-#include "config.h"
-#include "wifi.h"
-#include "webserver.h"
-#include "pushtarget.h"
-#include "pressuresensor.h"
-
-// Settings for double reset detector.
-#define ESP8266_DRD_USE_RTC       true
-#define DRD_TIMEOUT               2
-#define DRD_ADDRESS               0
-#define DOUBLERESETDETECTOR_DEBUG true
-#include <ESP_DoubleResetDetector.h>            
-DoubleResetDetector *drd;
-
-// Define constats for this program
-const int interval = 5000;                  // ms, time to wait between changes to output
-unsigned long lastMillis = 0;
-unsigned long startMillis;
-bool sleepModeActive = false;
-bool sleepModeAlwaysSkip = false;           // Web interface can override normal behaviour
-
-//
-// Check if we should be in sleep mode
-//
-void checkSleepMode( float psi, float volt ) {
-#if defined( SKIP_SLEEPMODE )
-    sleepModeActive = false;
-    Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
-    return;
+#include <batteryvoltage.hpp>
+#include <main.hpp>
+#include <pressureconfig.hpp>
+#include <pressurepush.hpp>
+#include <pressuresensor.hpp>
+#include <pressurewebhandler.hpp>
+#include <scheduler.hpp>
+#include <serialws.hpp>
+#include <utils.hpp>
+#include <wificonnection.hpp>
+#if CONFIG_IDF_TARGET_ESP32
+#include <esp32/rom/rtc.h>
 #endif
-
-    if( sleepModeAlwaysSkip ) {
-        Log.notice(F("MAIN: Sleep mode disabled from web interface." CR) );
-        sleepModeActive = false;
-        return;
-    }
-
-    // Will not enter sleep mode if: charger is connected 
-    sleepModeActive = volt<4.15 ? true : false; 
-#if LOG_LEVEL==6
-    Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
+#if CONFIG_IDF_TARGET_ESP32S2
+#include <esp32s2/rom/rtc.h>
 #endif
-}
+#include <esp_core_dump.h>
 
-//
-// Main setup 
-//
+SerialDebug mySerial(115200L);
+PressureConfig myConfig(CFG_MDNSNAME, CFG_FILENAME);
+WifiConnection myWifi(&myConfig, CFG_APPNAME, "password", CFG_MDNSNAME);
+PressureWebHandler myWebHandler(&myConfig);
+SerialWebSocket mySerialWebSocket;
+Scheduler myScheduler;
+BatteryVoltage myBatteryVoltage(PIN_BATTERY);
+
+enum RunMode { Normal = 0, Sleep = 1 };
+
+const int loopInterval = 2000;
+int loopCounter = 0;
+uint32_t loopMillis = 0;
+uint32_t pushMillis = 0;
+RunMode runMode = RunMode::Normal;
+
+void checkCoreDump();
+void checkRunMode();
+
 void setup() {
-  // Record the starting time
-    startMillis = millis();
+  // see: rtc.h for reset reasons
+  Log.notice(F("Main: Reset reason %d." CR), rtc_get_reset_reason(0));
+  Log.notice(F("Core dump check %d." CR), esp_core_dump_image_check());
 
-#if defined( ACTIVATE_WIFI )
-    drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS); // Timeout, Address
-    bool dt = drd->detectDoubleReset();  
-#endif
+  char cbuf[30];
+  uint32_t chipId = 0;
+  for (int i = 0; i < 17; i = i + 8) {
+    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  }
+  snprintf(&cbuf[0], sizeof(cbuf), "%6x", chipId);
+  Log.notice(F("Main: Started setup for %s." CR), &cbuf[0]);
 
-    // Initialize pin outputs
-    Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
-    printBuildOptions();
-    powerLedOn();
-    Log.notice(F("Main: Loading configuration." CR));
-    myConfig.checkFileSystem();
-    myConfig.loadFile();
+  Log.notice(F("Main: Build options: %s (%s) LOGLEVEL %d " CR), CFG_APPVER,
+             CFG_GITREV, LOG_LEVEL);
 
-    // Setup watchdog
-    ESP.wdtDisable();
-    ESP.wdtEnable( interval*2 );
+  myConfig.checkFileSystem();
+  myConfig.loadFile();
+  checkRunMode();
+  myWifi.init();
 
-#if defined( ACTIVATE_WIFI )
-  if( dt ) 
-    Log.notice(F("Main: Detected doubletap on reset." CR));
+  // No stored config, move to portal
+  if (!myWifi.hasConfig() || myWifi.isDoubleResetDetected()) {
+    Log.notice(
+        F("Main: Missing wifi config or double reset detected, entering wifi "
+          "setup." CR));
+    myWifi.startPortal();
+  }
 
-  myWifi.connect( dt );
-  
-  if( myWifi.isConnected() )
-    Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
-#endif
+  myPressureSensor.setup();
+  checkCoreDump();
+  myWifi.connect();
 
-    // Activate the pressure sensor and check the value
-    myPressureSensor.setup();
-    myPressureSensor.loop();  
-    myBatteryVoltage.read();
-    checkSleepMode( myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
+  if (runMode == RunMode::Normal) {
+    // myWifi.timeSync();
 
-#if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA ) 
-    if( !sleepModeActive && myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
-        delay(500);
-        myWifi.updateFirmware();
-    }
-#endif
+    myWebHandler.setupAsyncWebServer();
+    mySerialWebSocket.begin(myWebHandler.getWebServer(), &EspSerial);
+    mySerial.begin(&mySerialWebSocket);
+    loopMillis = pushMillis = millis();
+  }
 
-#if defined( ACTIVATE_WIFI ) 
-    if( myWifi.isConnected() ) {
-        Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
+  Log.notice(F("Main: Setup completed." CR));
 
-  #if defined( ACTIVATE_OTA ) 
-        if( !sleepModeActive && myWifi.checkFirmwareVersion() ) {
-            myWifi.updateFirmware();
-        }
-  #endif
-        if( !sleepModeActive )
-            if( myWebServer.setupWebServer() )
-                Log.notice(F("Main: Webserver is running." CR) );
-    }
-#endif
+  if (runMode == RunMode::Sleep) {
+    Log.notice(F("Main: Running sleep mode." CR));
 
-  powerLedOff();
+    myPressureSensor.loop();
+    myBatteryVoltage.read(myConfig.getVoltageFactor());
+
+    PressurePush push(&myConfig);
+    push.push(myPressureSensor.getTemperature(),
+              myPressureSensor.getPressure(true),
+              myBatteryVoltage.getVoltage());
+
+    LittleFS.end();
+    delay(100);
+    deepSleep(myConfig.getPushInterval());
+  }
 }
 
-//
-// Main loop
-//
 void loop() {
-    drd->loop();
+  if (!myWifi.isConnected()) myWifi.connect();
 
-    if( sleepModeActive || abs(millis() - lastMillis) > interval ) {
-        float psi  = myPressureSensor.getPressurePsi();
-        float temp = myPressureSensor.getTemperatureC();
+  myWebHandler.loop();
+  myWifi.loop();
+  mySerialWebSocket.loop();
+  myScheduler.loop();
 
-        if( myConfig.isTempF() )
-            temp = myPressureSensor.getTemperatureF();
+  // Do normal housekeeping
+  if (abs((int32_t)(millis() - loopMillis)) >
+      loopInterval) {  // 2 seconds loop interval
+    loopMillis = millis();
+    loopCounter++;
 
-#if LOG_LEVEL==6
-        Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %c." CR), psi, temp, myConfig.getTempFormat() );
-#endif
+    Log.notice(F("Loop: Reading sensors." CR));
 
-#if defined( ACTIVATE_PUSH )
-        myPushTarget.send( psi, temp, sleepModeActive );    // Force the transmission if we are going to sleep
-#endif
+    myPressureSensor.loop();
+    myBatteryVoltage.read(myConfig.getVoltageFactor());
+  }
 
-        if( sleepModeActive ) {
-            unsigned long runTime = millis() - startMillis;
+  // Do push
+  if (abs((int32_t)(millis() - pushMillis)) >
+      (myConfig.getPushInterval() * 1000)) {
+    pushMillis = millis();
+    Log.notice(F("Loop: Pushing data to defined targets." CR));
 
-            // Enter sleep mode...
-            Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
-            drd->stop();
-            delay(500);
-            deepSleep( myConfig.getPushInterval() ); 
-        }
+    PressurePush push(&myConfig);
+    push.push(myPressureSensor.getTemperatureC(),
+              myPressureSensor.getPressurePsi(true),
+              myBatteryVoltage.getVoltage());
+  }
+}
 
-        // Do these checks if we are running in normal mode (not sleep mode)
-        checkSleepMode( psi, myBatteryVoltage.getVoltage() );
-        myPressureSensor.loop();
-        myBatteryVoltage.read();
-        lastMillis = millis();
+void checkCoreDump() {
+#if CONFIG_IDF_TARGET_ESP32S2
+  esp_core_dump_summary_t *summary = static_cast<esp_core_dump_summary_t *>(
+      malloc(sizeof(esp_core_dump_summary_t)));
+
+  if (summary) {
+    esp_log_level_set("esp_core_dump_elf", ESP_LOG_VERBOSE);
+
+    if (esp_core_dump_get_summary(summary) == ESP_OK) {
+      Log.notice(F("Exception cause %d." CR), summary->ex_info.exc_cause);
+      Log.notice(F("PC 0x%x." CR), summary->exc_pc);
+
+      for (int i = 0; i < summary->exc_bt_info.depth; i++) {
+        Log.notice(F("PC(%d) 0x%x." CR), i, summary->exc_bt_info.bt[i]);
+      }
     }
+  }
+#endif
+}
 
-    myWebServer.loop();
+void checkRunMode() {
+  myBatteryVoltage.read(myConfig.getVoltageFactor());
+  float b = myBatteryVoltage.getVoltage();
+
+  if (b < 3.0 || b > 4.2)
+    runMode = RunMode::Normal;
+  else
+    runMode = RunMode::Sleep;
+
+  Log.notice(F("Main: Runmode %s." CR),
+             runMode == RunMode::Normal ? "Normal" : "DeepSleep");
 }
 
 // EOF

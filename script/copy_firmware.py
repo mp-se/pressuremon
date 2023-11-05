@@ -11,24 +11,16 @@ def after_build(source, target, env):
     print( "Executing custom step " )
     dir    = env.GetLaunchDir()
     name   = env.get( "PIOENV" )
-    source = dir + "\\.pio\\build\\" + name + "\\firmware.bin"
-    if name == "pressuremon-debug" :
-        target = dir + "\\bin\\firmware-debug.bin"
-    if name == "pressuremon-release" :
-        target = dir + "\\bin\\firmware.bin"
-    print( "Copy file : " + source + " -> " + target )
-    shutil.copyfile( source, target )
+    if name == "press32-release" :
+        target = dir + "/bin/firmware32.bin"
+        source = dir + "/.pio/build/" + name + "/firmware.bin"
+        print( "Copy file : " + source + " -> " + target )
+        shutil.copyfile( source, target )
 
-    target = dir + "\\bin\\version.json"
-    ver = get_build_flag_value("CFG_APPVER")
-    print( "Creating version.json" )
-    f = open( target, "w" )
-    f.write( "{ \"project\":\"pressuremon\", \"version\":" + ver + " }" ) 
-    f.close()
+        target = dir + "/bin/partitions32.bin"
+        source = dir + "/.pio/build/" + name + "/partitions.bin"
+        print( "Copy file : " + source + " -> " + target )
+        shutil.copyfile( source, target )
 
-
-print( "Adding custom build step: ")
-#env.AddPreAction("buildprog", after_build)
+print( "Adding custom build step (copy firmware): ")
 env.AddPostAction("buildprog", after_build)
-#env.AddPreAction("upload", after_build)   
-#env.AddPostAction("upload", after_build)

@@ -6,7 +6,7 @@ Since I have started to ferment my beer under pressure I wanted to be able to me
 CAUTION!!! This project uses 3D printed models and these could break under too high pressure. I take no responsibility for a failed 3D printed part or any injuries that this may cause. Make sure you test the part in a safe way before using it for measuring pressure. 
 ```
 
-I have tested both analog and digital pressure senors and the key is to find a sensor that has a limited measurement range to have the best accuracy. Most of the analog sensors have a to wide measurement range which make them not accurate enough for this. The digital sensors work much better and can be adapted for the range that is of interrest.  
+I have tested both analog and digital pressure senors and the key is to find a sensor that has a limited measurement range to have the best accuracy. Most of the analog sensors have a to wide measurement range which make them not accurate enough for this. The digital sensors work much better and can be adapted for the range that is of interrest.
 
 Since we are measuring beer fermentation, a sensor in the range of 0-4 bar (or 0-60 psi) is enough for me, but the honeywell range have sensors that can handle higher pressure. But I'm not so sure how the 3D printed PLA adapter would handle that. We will most likley not end up above 2.5 bar since most fermentation vessels have this as a upper limit. The Honeywell sensors I selected can be obtained in a number of variations so it can be adapted to other pressure ranges with minimal changes to the code.
 
@@ -16,30 +16,18 @@ One key aspect is to have a connection that is leak proof. I ended up with creat
 
 ## Versions
 
-* 0.2.1 Fixed brewfather push target
-* 0.2.0 Added pcb, api interface, new adapter for a 3/8" hose and various improvements.
-* 0.1.0 First version based on Honeywell Digital pressure sensor.
+* 0.4.0 - alfa1 - Refactoring and base project on my espframework to simplify maintenance. Move to esp32 as base platform, first out is the esp32 d1 mini.
 
-## Future changes
-
-* Make 3d case 
-* Make pcb-board
-* Create webinterface for interacting with device
 
 ## How it works
 
 The device will measure the pressure and temperature (yes the honeywell sensors have a built in temperature sensor) and report these on an attached LED display or to one of the defined endpoints. Dont use display if you want long battery life. 
 
 The following endpoints are currently implemented:
-* Brewfather 
-* Fermentrack (Using the iSpindel interface for reporting pressure)
-* Thingsboard 
+* Brewfather
+* Any http post endpoint that can interpret a json document.
 
-__TOOD__ Test brewfather endpoint
-
-If the device is used with an battery it will go into sleep mode when the voltage is less than 4.5V and higher than 2.5V (indication of an attached battery). This is to prolong the lifespan of the device when on battery. If you run the device via a powersupply it will never to into sleep mode. 
-
-__TOOD__ Testing how long the device will work on a full battery.
+If the device is used with an battery it will go into sleep mode when the voltage is less than 4.2V and higher than 3V (indication of an attached battery). This is to prolong the lifespan of the device when on battery. If you run the device via a powersupply it will never to into deep sleep.
 
 ## 3D Print
 
@@ -51,9 +39,7 @@ The stl file can be found in the __cad/__ subdirectory.
 
 ## Installation
 
-You can use VisualStudio Code + Platform IO to handle the device flashing. 
-
-An option could be to use this tool; https://github.com/marcelstoer/nodemcu-pyflasher
+You can use VisualStudio Code + Platform IO to handle the device flashing.
 
 ## Setup
 
@@ -63,117 +49,9 @@ In the interface you can set some of the parameters for the device but it's also
 
 Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __pressuremonXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
 
-The device has the following endpoints that can be used to interact with it;
-
-* __/__ will show the name, version and chip ID
-* __/config__ will show the current configuration in json format
-* __/reset__ will reboot the device.
-* __/clearwifi__ will force the device into wifi configuration mode by erasing the wifi settings.
-* __/calibrate__ will do a zero level calibration so the sensor ports will be in synk.
-* __/api/config/get?param=__ will receive a configuration parameter.
-* __/api/config/set?id=X&param=Y&value=Z__ will set a configuration parameter. The ID is used to validate that the commands are for the correct device (ID = ChipID). This can be found on the main page or via the /config page. 
-
-Valid configuration parameters:
-
-* __id__ Chip ID (Read Only)
-* __mdns__ mDNS name of the device
-* __otaurl__ url to directory where new firmware versions are located
-* __fermentrackpush__ url to fermentrack endpoint (using ispindel for now)
-* __brewfatherpush__ url to brewfather endpoint
-* __httppush__ url to standard http endpoint
-* __pushinterval__ seconds between push
-* __tempformat__ temperature format (Valid: C or F)
-* __pressurecorr__ temperature correction value (from calibration)
-
-## Build Configuration
-
-I prefer to use Visual Studio Code with the extension PlatformIO which makes it quite easy to make a build.
-
-The following defintions can be used to enable/disable parts of the code
-
-* ACTIVATE_PUSH       Include push target code in build (requires wifi)
-* ACTIVATE_OTA        Include ota code in build (requires wifi)
-* ACTIVATE_WIFI       Include wifi access in build 
-
-Development related settings
-
-* LOG_LEVEL=6       Configure Arduino Log (6=Debug, 5=Trace, 4=Notice, 3=Warning, 2=Error, 1=Fatal, 0=Silent)
-* DISPLAY_SELFTEST  Runs some tests on the display at startup
-* SIMULATE_SENSOR   Will simulate sensor values (currently only fixed values)
-* SKIP_SLEEPMODE    WIll force the device to never go into sleep mode.
-
-## OTA function
-
-The software can do updates via OTA from a local web server over port 80. 
-
-For this to work, place the following files (version.json + firmware.bin) at the location that you pointed out in the mysecrets.h file. If the version number in the json file is newer than in the code the update will procced.
-
-Example; OTA URL (don't forget trailing dash) 
-```
-http://192.168.1.x/firmware/pressuremon/
-```
-
-Contents version.json
-```
-{ "project":"pressuremon", "version":"0.3.0" }
-```
-
 ## Pushtarget
 
-Fermentrack push targets (Using iSpindel endpoint to collect data)
-
-   doc["name"]        = myConfig.getMDNS();
-    doc["ID"]          = ESP.getChipId();
-    doc["token"]       = "fermentrack"; 
-    doc["angle"]       = reduceFloatPrecision(  pressure );                      
-    doc["temperature"] = reduceFloatPrecision( temp ); 
-    doc["temp_units"]  = myConfig.getTempFormat(); 
-    doc["battery"]     = reduceFloatPrecision( myBatteryVoltage.getVoltage() ); 
-    doc["gravity"]     = 0; 
-    doc["interval"]    = myConfig.getPushIntervalAsInt(); 
-    doc["RSSI"]        = WiFi.RSSI(); 
-
-```
-{
-    "name" : "mydevice",
-    "id" : "mychip",
-    "token" : "fermentrack",
-    "angle" : 4,2,              # pressure
-    "temperature" : 28.5,
-    "temp_unit" : "C',
-    "battery" : 4.2,
-    "gravity" : 0,
-    "interval" : 60,
-    "RSSI" : 4.2,
-}
-```
-
-Brewfather push targets
-
-```
-{
-    "name" : "mydevice",
-    "temp" : 28.5,
-    "temp_unit" : "C',
-    "pressure" : 1.0,
-    "pressure_unit" : "PSI",
-    "battery" : 4.2,
-}
-```
-
-Standard HTTP push targets
-
-```
-{
-    "name" : "mydevice",
-    "temp" : 28.5,
-    "temp_unit" : "C',
-    "pressure" : 1.0,
-    "pressure_unit" : "PSI",
-    "battery" : 4.2,
-    "rssi" : -58,
-}
-```
+Under development
 
 ## Materials
 

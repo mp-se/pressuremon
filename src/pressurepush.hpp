@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2023 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _PUSHTARGET_H
-#define _PUSHTARGET_H
+#ifndef SRC_PRESSUREPUSH_HPP_
+#define SRC_PRESSUREPUSH_HPP_
 
-// Includes
-#include "helper.h"
+#include <basepush.hpp>
+#include <pressureconfig.hpp>
 
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
+class PressurePush : public BasePush {
+ private:
+  PressureConfig* _pressConfig;
 
-// Classes
-class PushTarget {
-    private:
-        unsigned long ms;   // Used to check that we do not post to often 
+ public:
+  explicit PressurePush(PressureConfig* config);
 
-        void sendFermentrack(float pressure, float temp );
-        void sendBrewfather(float pressure, float temp );
-        void sendHttp(float pressure, float temp );
-
-    public:
-        PushTarget() { ms = millis(); }
-        void send(float pressure, float temp, bool force = false );
+  void push(float tempC, float pressurePsi, int runtime);
 };
 
-extern PushTarget myPushTarget;
-
-#endif // _PUSHTARGET_H
+#endif  // SRC_PRESSUREPUSH_HPP_
 
 // EOF

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2023 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,37 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef _WIFI_H
-#define _WIFI_H
+#include <pressuresensor.hpp>
+#include <scheduler.hpp>
 
-// Include 
-#include <ESP8266WiFi.h>
+void Scheduler::loop() {
+  if (_doSensorCalibration) loopSensorCalibration();
+}
 
-// classes
-class Wifi {
-    private:
-        // WIFI
-        bool   connectedFlag = false;
+void Scheduler::loopSensorCalibration() {
+  Log.notice(F("SCED: Running scheduled sensor calibration." CR));
 
-        // OTA
-        bool newFirmware = false;
-        bool parseFirmwareVersionString( int (&num)[3], const char *version );
+  myPressureSensor.calibrateSensor();
+  _doSensorCalibration = false;
 
-    public:
-        // WIFI
-        bool   connect( bool showPortal = false );
-        bool   disconnect();
-        bool   isConnected() { return connectedFlag; };
-        String getIPAddress() { return WiFi.localIP().toString(); };
-
-        // OTA
-        bool updateFirmware();
-        bool checkFirmwareVersion();
-};
-
-// Global instance created
-extern Wifi myWifi;
-
-#endif // _WIFI_H
+  Log.notice(F("SCED: Sensor calibration completed." CR));
+}
 
 // EOF

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <title>Pressure Monitor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <style>
+    .row-margin-10 {
+      margin-top: 1.0em;
+    }
+  </style>
+</head>
+
+<body class="py-4">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+  <!-- START MENU -->
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/index.htm">Pressure Monitor</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/index.htm">Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Configuration
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Configuration</a></li>
+              <li><a class="dropdown-item" href="/upload.htm">Upload firmware</a></li>
+              <li><a class="dropdown-item" href="/backup.htm">Backup and Restore</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about.htm">About</a>
+          </li>
+        </ul>
+      </div>
+      <div class="spinner-border text-light" id="spinner" role="status"></div>
+    </div>
+  </nav>
+
+  <!-- START MAIN INDEX -->
+
+  <div class="container row-margin-10">
+
+    <div class="alert alert-success alert-dismissible hide fade d-none" role="alert" id="alert">
+      <div id="alert-msg"></div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <script>
+      function showError(msg) {
+        $('#alert').removeClass('alert-success').addClass('alert-danger').removeClass('hide').addClass('show').removeClass('d-none');
+        $('#alert-msg').text(msg);
+      }
+
+      function showSuccess(msg) {
+        $('#alert').addClass('alert-success').removeClass('alert-danger').removeClass('hide').addClass('show').removeClass('d-none');
+        $('#alert-msg').text(msg);
+      }
+
+      $("#alert-btn").click(function (e) {
+        $('#alert').addClass('hide').removeClass('show').addClass('d-none');
+      });    
+    </script>
+
+
+    <div class="accordion" id="accordionConfig">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDev">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDev" aria-expanded="true" aria-controls="collapseDev">
+            <b>Device settings</b>
+          </button>
+        </h2>
+        <div id="collapseDev" class="accordion-collapse collapse show" aria-labelledby="headingDev" data-bs-parent="#accordionConfig">
+          <div class="accordion-body">
+            <form action="/api/config" method="post">
+              <input type="text" name="id" id="id1" hidden>
+              <input type="text" name="section" value="#headingDev" hidden>
+
+              <div class="row mb-3">
+                <label for="mdns" class="col-sm-2 col-form-label">Device name</label>
+                <div class="col-sm-3">
+                  <input type="text" maxlength="12" class="form-control" name="mdns" id="mdns" placeholder="kegmon" data-bs-toggle="tooltip" title="Name of the device. Will be used for identifying the device on your local network.">
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <label for="push-interval" class="col-sm-2 col-form-label">Interval (seconds)</label>
+                <div class="col-sm-2">
+                  <input type="number" min="10" max="3600" class="form-control" name="push-interval" id="push-interval" placeholder="300" data-bs-toggle="tooltip" title="The number of seconds between sending data. Recommended value is 300s">
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <fieldset class="form-group row">
+                  <legend class="col-form-label col-sm-2 float-sm-left pt-0">Temperature Format</legend>
+                  <div class="col-sm-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="temp-format" id="temp-format-c" value="C" checked data-bs-toggle="tooltip" title="Temperature format used with displaying data">
+                      <label class="form-check-label" for="temp-format-c">Celsius</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="temp-format" id="temp-format-f" value="F" data-bs-toggle="tooltip" title="Temperature format used with displaying data">
+                      <label class="form-check-label" for="temp-format-f">Fahrenheit</label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="row mb-3">
+                <fieldset class="form-group row">
+                  <legend class="col-form-label col-sm-2 float-sm-left pt-0">Pressure Unit</legend>
+                  <div class="col-sm-2">
+                    <div class="form-check">
+                      <input class="form-check-input" text="psi" type="radio" name="pressure-format" id="pressure-format-psi" value="psi" checked data-bs-toggle="tooltip" title="Pressure unit used when displaying">
+                      <label class="form-check-label" for="weight-unit-hpa">psi</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" text="bar" type="radio" name="pressure-format" id="pressure-format-bar" value="bar" checked data-bs-toggle="tooltip" title="Pressure unit used when displaying">
+                      <label class="form-check-label" for="weight-unit-hpa">bar</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" text="hPA" type="radio" name="pressure-format" id="pressure-format-hpa" value="hpa" checked data-bs-toggle="tooltip" title="Pressure unit used when displaying">
+                      <label class="form-check-label" for="weight-unit-hpa">hPA</label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-sm-2 offset-sm-2">
+                  <button type="submit" class="btn btn-primary" id="device-btn" data-bs-toggle="tooltip" title="Save changes in this section">Save</button>
+                </div>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingHw">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHw" aria-expanded="false" aria-controls="collapseHw">
+            <b>Hardware settings</b>
+          </button>
+        </h2>
+        <div id="collapseHw" class="accordion-collapse collapse" aria-labelledby="headingHw" data-bs-parent="#accordionConfig">
+          <div class="accordion-body">
+            <form action="/api/config" method="post">
+              <input type="text" name="id" id="id2" hidden>
+              <input type="text" name="section" value="#headingHw" hidden>
+
+              <div class="row mb-3">
+                <label for="voltage-factor" class="col-sm-2 col-form-label">Voltage factor</label>
+                <div class="col-sm-2">
+                  <input type="number" step=".01" class="form-control" name="voltage-factor" id="voltage-factor" placeholder="1.59" data-bs-toggle="tooltip" title="Factor used to calculate the battery voltage.">
+                </div>
+                <div class="col-sm-2">
+                  <label for="voltage-factor" class="col-sm-3 col-form-label" id="battery">Loading...</label>
+                </div>
+              </div>
+
+              <input type="number" name="sensor-min-pressure" id="sensor-min-pressure" hidden>
+              <input type="number" name="sensor-max-pressure" id="sensor-max-pressure" hidden>
+
+              <div class="row mb-3">
+                <label for="push-format" class="col-sm-2 col-form-label">Sensor</label>
+                <div class="col-sm-3">
+                  <select class="form-select" id="abp-sensor" onchange="updateSensorRange()" ondata-bs-toggle="tooltip" title="select the sensor used">
+                    <option value="005PGSx3">ABPxxxx005PGSx3</option>
+                    <option value="015PGSx3">ABPxxxx015PGSx3</option>
+                    <option value="030PGSx3">ABPxxxx030PGSx3</option>
+                    <option value="060PGSx3">ABPxxxx060PGSx3</option>
+                    <option value="100PGSx3">ABPxxxx100PGSx3</option>
+                    <option value="150PGSx3">ABPxxxx150PGSx3</option>
+                  </select>
+                </div>
+              </div>
+
+              <script>
+                function updateSensorRange() {
+                  console.log("Current value=" + $("#abp-sensor").val());
+
+                  min = 0;
+                  max = 150;
+
+                  switch($("#abp-sensor").val()) {
+                    case "005PGSx3": max = 5; break;
+                    case "015PGSx3": max = 15; break;
+                    case "030PGSx3": max = 30; break;
+                    case "060PGSx3": max = 60; break;
+                    case "100PGSx3": max = 100; break;
+                    case "150PGSx3": max = 150; break;
+                  }
+
+                  $("#sensor-min-pressure").val(min)
+                  $("#sensor-max-pressure").val(max)
+                }
+              </script>
+
+<!--
+              <div class="row mb-3">
+                <label for="sensor-min-pressure" class="col-sm-2 col-form-label">Sensor range</label>
+                <div class="col-sm-2">
+                  <input type="number" step="1" class="form-control" name="sensor-min-pressure" id="sensor-min-pressure" placeholder="0" data-bs-toggle="tooltip" title="Minium pressure range for sensor">
+                </div>
+                <div class="col-sm-2">
+                  <input type="number" step="1" class="form-control" name="sensor-max-pressure" id="sensor-max-pressure" placeholder="0" data-bs-toggle="tooltip" title="Minium pressure range for sensor">
+                </div>
+              </div>
+-->
+
+              <div class="form-group row">
+                <label for="calibrate-btn" class="col-sm-2 col-form-label">Sensor calibration:</label>
+                <label for="calibrate-btn" class="col-sm-2 col-form-label" id="pressure-zero-correction">Loading...</label>
+                <label for="pressure-corr" class="col-sm-2 col-form-label" id="pressure">Loading...</label>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-sm-6 offset-sm-2">
+                  <button type="submit" class="btn btn-primary" id="hardware-btn" data-bs-toggle="tooltip" title="Save changes in this section">Save</button>
+                  <button type="button" class="btn btn-warning" id="calibrate-btn">Calibrate sensor</button>
+                </div>
+              </div>
+            </form>
+
+            <script>
+              function checkCalibration() {
+                setButtonDisabled(true);
+                $.ajax( { 
+                  type: "GET",  
+                  url: "/api/calibrate", 
+                  data: { }, 
+                  success: function(result) { 
+                    if( result["status"] == true) {
+                      console.log("Calibration not yet ready");
+                      setTimeout(checkCalibration, 2000);
+                    } else {
+                      showSuccess('Calibration of sensor was completed successfully.'); 
+                      getConfig(); 
+                      setButtonDisabled(false);
+                    }
+                  },
+                  error: function(result) { 
+                    showError('Unable to calibrate device.'); 
+                    setButtonDisabled(false);
+                  }
+                });
+              };
+
+              // Trigger the calibration
+              $("#calibrate-btn").click(function(e){
+                console.log( "Calibrating..." );
+                setButtonDisabled(true);
+                $.ajax( { 
+                  type: "POST",  
+                  url: "/api/calibrate", 
+                  data: { id: $("#id1").val() }, 
+                  success: function(result) { 
+                    console.log("In success, scheduling status check");
+                    setTimeout(checkCalibration, 2000);
+                    //showSuccess('Calibration of sensor was completed successfully.'); getConfig(); 
+                  },
+                  error: function(result) { 
+                    showError('Unable to calibrate device.'); 
+                    setButtonDisabled(false);
+                  }
+                } );
+              });              
+            </script>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInt">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInt" aria-expanded="false" aria-controls="collapseInt">
+            <b>Integration settings</b>
+          </button>
+        </h2>
+        <div id="collapseInt" class="accordion-collapse collapse" aria-labelledby="headingInt" data-bs-parent="#accordionConfig">
+          <div class="accordion-body">
+
+            <form action="/api/config" method="post">
+              <input type="text" name="id" id="id3" hidden>
+              <input type="text" name="section" value="#headingInt" hidden>
+
+              <input type="text" name="http-post-header1" id="http-post-header1" hidden>
+              <input type="text" name="http-post-header2" id="http-post-header2" hidden>
+
+<!--
+              <div class="row mb-3">
+                <label for="mqtt-target" class="col-sm-2 col-form-label">HA mqtt server</label>
+                <div class="col-sm-3">
+                  <input type="text" maxlength="80" class="form-control" name="mqtt-target" id="mqtt-target" placeholder="" data-bs-toggle="tooltip" title="Adress to MQTT server used by Home Assistant.">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="mqtt-port" class="col-sm-2 col-form-label">HA mqtt port</label>
+                <div class="col-sm-3">
+                  <input type="number" min="0" max="65535" step="1" class="form-control" name="mqtt-port" id="mqtt-port" placeholder="" data-bs-toggle="tooltip" title="Port to MQTT server used by Home Assistant.">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="mqtt-user" class="col-sm-2 col-form-label">HA mqtt user</label>
+                <div class="col-sm-3">
+                  <input type="password" maxlength="30" class="form-control" name="mqtt-user" id="mqtt-user" placeholder="" data-bs-toggle="tooltip" title="User for MQTT server used by Home Assistant.">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="mqtt-pass" class="col-sm-2 col-form-label">HA mqtt password</label>
+                <div class="col-sm-3">
+                  <input type="password" maxlength="30" class="form-control" name="mqtt-pass" id="mqtt-pass" placeholder="" data-bs-toggle="tooltip" title="Password for MQTT server used by Home Assistant.">
+                </div>
+              </div>
+
+              <hr>
+-->
+
+              <div class="row mb-3">
+                <label for="http-post-target" class="col-sm-2 col-form-label">HTTP Post</label>
+                <div class="col-sm-7">
+                  <input type="url" maxlength="80" class="form-control" name="http-post-target" id="http-post-target" placeholder="" data-bs-toggle="tooltip" title="URL for http post target.">
+                </div>
+                <div class="col-sm-2">
+                  <button type="button" class="btn btn-secondary" data-field1="#http-post-header1" data-field2="#http-post-header2" data-bs-toggle="modal" data-bs-target="#modal-http" data-bs-toggle="tooltip" title="Edit the http headers for data format and authentication">Headers</button>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <label for="push-format" class="col-sm-2 col-form-label">Push Format</label>
+                <div class="col-sm-3">
+                  <select class="form-select" id="push-format" name="push-format" data-bs-toggle="tooltip" title="select push format to use for http post">
+                    <option value="0">Default</option>
+                    <option value="1">Brewfather</option>
+                  </select>
+                </div>
+              </div>
+<!--
+              <hr>
+
+              <div class="row mb-3">
+                <div class="col-sm-3">
+                  <input class="form-check-input" type="checkbox" name="password-toggle" id="password-toggle" checked data-bs-toggle="tooltip" title="Hide sensitive fields">
+                  <label class="form-check-label" for="password-toggle">Hide sensitive data</label>
+                </div>
+              </div>
+
+              <script>
+                function toggleElementPassword(x) {
+                  if (x.type === "password") {
+                    x.type = "text";
+                  } else {
+                    x.type = "password";
+                  }
+                }
+
+                $("#password-toggle").click(function (e) {
+                  toggleElementPassword(document.getElementById("mqtt-user"));
+                  toggleElementPassword(document.getElementById("mqtt-pass"));
+                });
+              </script>
+-->
+
+              <div class="row mb-3">
+                <div class="col-sm-2 offset-sm-2">
+                  <button type="submit" class="btn btn-primary" id="integration-btn" data-bs-toggle="tooltip" title="Save changes in this section">Save</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modal-http" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-header" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modal-header">Define HTTP headers</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <label for="http-header" class="col-form-label">Header 1 (Header: value)</label>
+              <input type="text" maxlength="100" class="form-control" id="header1" oninput="checkHeader(this)" placeholder="Content-Type: application/json" data-bs-toggle="tooltip" title="Set a http headers, empty string is skipped">
+              <label for="http-header" class="col-form-label">Header 2 (Header: value)</label>
+              <input type="text" maxlength="100" class="form-control" id="header2" oninput="checkHeader(this)" data-bs-toggle="tooltip" title="Set a http headers, empty string is skipped">
+              <input type="text" id="field1" hidden>
+              <input type="text" id="field2" hidden>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal"  data-bs-toggle="tooltip" title="Close dialog, press the save button in the section to save data">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        $('#modal-http').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget) 
+          var field1 = button.data('field1') 
+          var field2 = button.data('field2') 
+          var modal = $(this)
+          modal.find('.modal-body #header1').val($(field1).val())
+          modal.find('.modal-body #header2').val($(field2).val())
+          modal.find('.modal-body #field1').val(field1)
+          modal.find('.modal-body #field2').val(field2)
+        })
+        $('#modal-http').on('hide.bs.modal', function (event) {
+          console.log("2")
+          var modal = $(this)
+          field1 = modal.find('.modal-body #field1').val()
+          field2 = modal.find('.modal-body #field2').val()
+          $(field1).val(modal.find('.modal-body #header1').val())
+          $(field2).val(modal.find('.modal-body #header2').val())
+        })
+        function checkHeader(input) {
+          console.log( input.value );
+          if (input.value != "" && input.value.indexOf(":") == -1) {
+            $("#btn-close").prop("disabled", true);
+            $(input).removeClass("is-valid").addClass("is-invalid");
+          } else {
+            $("#btn-close").prop("disabled", false);
+            $(input).removeClass("is-invalid").addClass("is-valid");
+          }
+        }
+        </script>
+
+    <script>
+      window.onload = getConfig;
+
+      setButtonDisabled(true);
+
+      function setButtonDisabled(b) {
+        $("#config-btn").prop("disabled", b);
+        $("#calibrate-btn").prop("disabled", b);
+        $("#hardware-btn").prop("disabled", b);
+        $("#integration-btn").prop("disabled", b);
+      }
+
+      // Get the configuration values from the API
+      function getConfig() {
+        setButtonDisabled(true);
+
+        var url = "/api/config";
+        //var url = "/test/config.json";
+        $('#spinner').show();
+        $.getJSON(url, function (cfg) {
+          console.log(cfg);
+
+          $("#id1").val(cfg["id"]);
+          $("#id2").val(cfg["id"]);
+          $("#id3").val(cfg["id"]);
+          $("#id4").val(cfg["id"]);
+
+          $("#mdns").val(cfg["mdns"]);
+          $("#push-interval").val(cfg["push-interval"]);
+
+          $("#sensor-min-pressure").val(cfg["sensor-min-pressure"]);
+          $("#sensor-max-pressure").val(cfg["sensor-max-pressure"]);
+          $("#pressure-zero-correction").text(cfg["pressure-zero-correction"]);
+          $("#voltage-factor").val(cfg["voltage-factor"]);
+          $("#battery").text(cfg["battery"] + " V");
+          $("#pressure").text(cfg["pressure"] + " " + cfg["pressure-format"]);
+
+          $("#mqtt-target").val(cfg["mqtt-target"]);
+          $("#mqtt-port").val(cfg["mqtt-port"]);
+          $("#mqtt-user").val(cfg["mqtt-user"]);
+          $("#mqtt-pass").val(cfg["mqtt-pass"]);
+          $("#http-post-target").val(cfg["http-post-target"]);
+          $("#http-post-header1").val(cfg["http-post-header1"]);
+          $("#http-post-header2").val(cfg["http-post-header2"]);
+          $("#push-format").val(cfg["push-format"]);
+
+          if (cfg["temp-format"] == "C") $("#temp-format-c").click();
+          else $("#temp-format-f").click();
+         
+          if (cfg["pressure-format"] == "psi") $("#pressure-format-psi").click();
+          else if (cfg["pressure-format"] == "bar") $("#pressure-format-bar").click();
+          else $("#pressure-format-hpa").click();
+        })
+          .fail(function () {
+            showError('Unable to get data from the device.');
+          })
+          .always(function () {
+            $('#spinner').hide();
+            setButtonDisabled(false);
+          });
+      }
+    </script>
+
+    <!-- START FOOTER -->
+
+    <div class="container themed-container bg-primary text-light row-margin-10">(C) Copyright 2022-2023 Magnus Persson</div>
+  </div>
+</body>
+
+</html>

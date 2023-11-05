@@ -1,10 +1,16 @@
 {
     "id": "7376ef",
     "pressure": 10.10,
-    "temp-c": 10,
-    "temp-f": 43,
-    "battery": 1.6,
+    "pressure-format": "hPA",
+    "temp": 10,
     "temp-format": "C",
+    "battery": 1.6,
     "sleep-mode": false,
-    "rssi": -56
+    "rssi": -56,
+    "pressure-unit": "pa",
+    "app-ver": "0.0.1",
+    "app-build": "build",
+    "mdns": "hostname",
+    "platform": "esp32",
+    "wifi-ssid": "wifi"
 }
