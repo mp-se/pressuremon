@@ -21,32 +21,43 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <batteryvoltage.hpp>
-#include <main.hpp>
-
-BatteryVoltage::BatteryVoltage(int pin) {
-  _pin = pin;
-#if defined(ESP8266)
-  pinMode(_pin, INPUT);
-#else
-  pinMode(_pin, INPUT_PULLDOWN);
-#endif
-}
-
-void BatteryVoltage::read(float factor) {
-  int v = analogRead(_pin);
+#ifndef SRC_PRESSWEBHANDLER_HPP_
+#define SRC_PRESSWEBHANDLER_HPP_
 
 #if defined(ESP8266)
-  _batteryLevel = ((3.3 / 1023) * v) * factor;
-#else  // defined (ESP32)
-  _batteryLevel = ((3.3 / 4095) * v) * factor;
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#elif defined(ESP32S2) || defined(ESP32S3)
+#include <WiFi.h>
 #endif
 
-#if LOG_LEVEL == 6
-  Log.verbose(
-      F("BATT: Reading voltage level. Factor=%F Value=%d, Voltage=%F." CR),
-      factor, v, _batteryLevel);
-#endif
-}
+#include <basewebserver.hpp>
+#include <pressconfig.hpp>
+
+class PressWebHandler : public BaseWebServer {
+ protected:
+  PressConfig *_config;
+  volatile bool _hardwareScanTask = false;
+
+  String _hardwareScanData;
+
+  void setupWebHandlers();
+
+  void webSensorCalibrate(AsyncWebServerRequest *request);
+  void webHardwareScan(AsyncWebServerRequest *request);
+  void webHardwareScanStatus(AsyncWebServerRequest *request);
+  void webConfigGet(AsyncWebServerRequest *request);
+  void webConfigPost(AsyncWebServerRequest *request, JsonVariant &json);
+  void webStatus(AsyncWebServerRequest *request);
+  void webHandleLogsClear(AsyncWebServerRequest *request);
+  void webHandleFactoryDefaults(AsyncWebServerRequest *request);
+
+ public:
+  explicit PressWebHandler(PressConfig *config);
+
+  void loop();
+};
+
+#endif  // SRC_PRESSWEBHANDLER_HPP_
 
 // EOF

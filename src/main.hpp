@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-23 Magnus
+Copyright (c) 2021-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,25 +26,24 @@ SOFTWARE.
 
 #include <LittleFS.h>
 #include <stdlib.h>
-
 #include <log.hpp>
 
-constexpr auto CFG_APPNAME = "PressureMon";      // Name of firmware
-constexpr auto CFG_MDNSNAME = "PressureMon";     // Network name
-constexpr auto CFG_FILENAME = "/pressmon.json";  // Name of config file
-constexpr auto STARTUP_FILENAME = "/startup.log";
+constexpr auto CFG_APPNAME = "PressureMon";
+constexpr auto CFG_MDNSNAME = "PressMon";
+constexpr auto CFG_FILENAME = "/pressmon.json";
 
 constexpr auto JSON_BUFFER = 3000;
 
-#if defined(ESP32)
-#define ESP_RESET ESP.restart
-constexpr auto PIN_LED = 2;
-constexpr auto PIN_PRESSURE = D8;
-constexpr auto PIN_BATTERY = A0;
-#elif defined(ESP32S2)
-#define ESP_RESET ESP.restart
+enum RunMode {
+  normalMode = 0,
+  sleepMode = 1,
+  wifiSetupMode = 2,
+};
+extern RunMode runMode;
+
+#if defined(ESP32S2)
 constexpr auto PIN_LED = BUILTIN_LED;
-constexpr auto PIN_PRESSURE = D8;
+constexpr auto PIN_PRESSURE = A11;
 constexpr auto PIN_BATTERY = A0;
 #else
 #error "Undefined target platform"

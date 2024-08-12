@@ -21,32 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <batteryvoltage.hpp>
-#include <main.hpp>
+#ifndef SRC_PRESSPUSH_HPP_
+#define SRC_PRESSPUSH_HPP_
 
-BatteryVoltage::BatteryVoltage(int pin) {
-  _pin = pin;
-#if defined(ESP8266)
-  pinMode(_pin, INPUT);
-#else
-  pinMode(_pin, INPUT_PULLDOWN);
-#endif
-}
+#include <basepush.hpp>
+#include <pressconfig.hpp>
 
-void BatteryVoltage::read(float factor) {
-  int v = analogRead(_pin);
+class PressPushHandler : public BasePush {
+ private:
 
-#if defined(ESP8266)
-  _batteryLevel = ((3.3 / 1023) * v) * factor;
-#else  // defined (ESP32)
-  _batteryLevel = ((3.3 / 4095) * v) * factor;
-#endif
+ public:
+  explicit PressPushHandler(PressConfig* config) : BasePush(config) {
+  }
+};
 
-#if LOG_LEVEL == 6
-  Log.verbose(
-      F("BATT: Reading voltage level. Factor=%F Value=%d, Voltage=%F." CR),
-      factor, v, _batteryLevel);
-#endif
-}
+extern PressPushHandler myPush;
+
+#endif  // SRC_PRESSPUSH_HPP_
 
 // EOF

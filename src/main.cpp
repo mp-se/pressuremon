@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022 Magnus
+Copyright (c) 2022-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@ SOFTWARE.
  */
 #include <batteryvoltage.hpp>
 #include <main.hpp>
-#include <pressureconfig.hpp>
-#include <pressurepush.hpp>
+#include <pressconfig.hpp>
+#include <presspush.hpp>
 #include <pressuresensor.hpp>
-#include <pressurewebhandler.hpp>
+#include <presswebhandler.hpp>
 #include <scheduler.hpp>
 #include <serialws.hpp>
 #include <utils.hpp>
@@ -40,25 +40,28 @@ SOFTWARE.
 #include <esp_core_dump.h>
 
 SerialDebug mySerial(115200L);
-PressureConfig myConfig(CFG_MDNSNAME, CFG_FILENAME);
+PressConfig myConfig(CFG_MDNSNAME, CFG_FILENAME);
 WifiConnection myWifi(&myConfig, CFG_APPNAME, "password", CFG_MDNSNAME);
-PressureWebHandler myWebHandler(&myConfig);
+PressWebHandler myWebHandler(&myConfig);
 SerialWebSocket mySerialWebSocket;
 Scheduler myScheduler;
 BatteryVoltage myBatteryVoltage(PIN_BATTERY);
-
-enum RunMode { Normal = 0, Sleep = 1 };
 
 const int loopInterval = 2000;
 int loopCounter = 0;
 uint32_t loopMillis = 0;
 uint32_t pushMillis = 0;
-RunMode runMode = RunMode::Normal;
+uint32_t runTimeMillis = 0;
+RunMode runMode = RunMode::normalMode;
 
 void checkCoreDump();
 void checkRunMode();
 
 void setup() {
+  runTimeMillis = millis();
+
+  delay(2000);
+
   // see: rtc.h for reset reasons
   Log.notice(F("Main: Reset reason %d." CR), rtc_get_reset_reason(0));
   Log.notice(F("Core dump check %d." CR), esp_core_dump_image_check());
@@ -84,43 +87,52 @@ void setup() {
     Log.notice(
         F("Main: Missing wifi config or double reset detected, entering wifi "
           "setup." CR));
-    myWifi.startPortal();
+    myWifi.startAP();
+    runMode = RunMode::wifiSetupMode;
   }
 
   myPressureSensor.setup();
   checkCoreDump();
-  myWifi.connect();
 
-  if (runMode == RunMode::Normal) {
-    // myWifi.timeSync();
+  switch (runMode) {
+    case RunMode::normalMode:
+    case RunMode::sleepMode:
+      myWifi.connect();
+      // myWifi.timeSync();
+      break;
 
-    myWebHandler.setupAsyncWebServer();
+    case RunMode::wifiSetupMode:
+      break;
+  }
+
+  if (runMode == RunMode::sleepMode) {
+    Log.notice(F("Main: Running sleep mode." CR));
+
+    myPressureSensor.loop();
+    myBatteryVoltage.read(myConfig.getVoltageFactor());
+
+    PressPushHandler push(&myConfig);
+    /*push.push(myPressureSensor.getTemperature(),
+              myPressureSensor.getPressure(true),
+              myBatteryVoltage.getVoltage(),
+              (millis() - runTimeMillis) / 1000);*/
+
+    LittleFS.end();
+    delay(100);
+    deepSleep(myConfig.getPushInterval());
+  } else {
+    myWebHandler.setupWebServer();
     mySerialWebSocket.begin(myWebHandler.getWebServer(), &EspSerial);
     mySerial.begin(&mySerialWebSocket);
     loopMillis = pushMillis = millis();
   }
 
   Log.notice(F("Main: Setup completed." CR));
-
-  if (runMode == RunMode::Sleep) {
-    Log.notice(F("Main: Running sleep mode." CR));
-
-    myPressureSensor.loop();
-    myBatteryVoltage.read(myConfig.getVoltageFactor());
-
-    PressurePush push(&myConfig);
-    push.push(myPressureSensor.getTemperature(),
-              myPressureSensor.getPressure(true),
-              myBatteryVoltage.getVoltage());
-
-    LittleFS.end();
-    delay(100);
-    deepSleep(myConfig.getPushInterval());
-  }
 }
 
 void loop() {
-  if (!myWifi.isConnected()) myWifi.connect();
+  if (runMode != RunMode::wifiSetupMode && !myWifi.isConnected()) 
+    myWifi.connect();
 
   myWebHandler.loop();
   myWifi.loop();
@@ -145,10 +157,11 @@ void loop() {
     pushMillis = millis();
     Log.notice(F("Loop: Pushing data to defined targets." CR));
 
-    PressurePush push(&myConfig);
-    push.push(myPressureSensor.getTemperatureC(),
+    PressPushHandler push(&myConfig);
+    /*push.push(myPressureSensor.getTemperatureC(),
               myPressureSensor.getPressurePsi(true),
-              myBatteryVoltage.getVoltage());
+              myBatteryVoltage.getVoltage(),
+              0.0);*/
   }
 }
 
@@ -176,13 +189,14 @@ void checkRunMode() {
   myBatteryVoltage.read(myConfig.getVoltageFactor());
   float b = myBatteryVoltage.getVoltage();
 
-  if (b < 3.0 || b > 4.2)
-    runMode = RunMode::Normal;
-  else
-    runMode = RunMode::Sleep;
+  if (b < 3.0 || b > 4.2) {
+    runMode = RunMode::normalMode;
+  } else {
+    runMode = RunMode::sleepMode;
+  }
 
   Log.notice(F("Main: Runmode %s." CR),
-             runMode == RunMode::Normal ? "Normal" : "DeepSleep");
+             runMode == RunMode::normalMode ? "Normal" : "DeepSleep");
 }
 
 // EOF

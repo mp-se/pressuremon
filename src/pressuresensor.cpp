@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2021-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressureconfig.hpp>
+#include <pressconfig.hpp>
 #include <pressuresensor.hpp>
 #include <utils.hpp>
 
@@ -35,8 +35,8 @@ void PressureSensor::setup() {
   zeroCorrection = myConfig.getPressureZeroCorrection();
 
   sensor = new TruStabilityPressureSensor(PIN_PRESSURE,
-                                          myConfig.getSensorMinPressure(),
-                                          myConfig.getSensorMaxPressure());
+                                          myConfig.getPressureSensorMin(),
+                                          myConfig.getPressureSensorMax());
   sensor->begin();
   SPI.begin(SCK, MISO, MOSI, SS);
   Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR),
@@ -111,12 +111,12 @@ float PressureSensor::getPressurePsi(bool doCorrection) {
 float PressureSensor::getPressure(bool doCorrection) {
   float p = getPressurePsi(doCorrection);
 
-  switch (myConfig.getPressureFormatType()) {
-    case PressureFormatType::Bar:
-      return convertPressure2Bar(p);
-    case PressureFormatType::hPA:
+  if (myConfig.getPressureUnitAsString() == PRESSURE_BAR) {
+    return convertPressure2Bar(p);
+  } else if(myConfig.getPressureUnitAsString() == PRESSURE_HPA) {
       return convertPressure2HPa(p);
   }
+
   return p;
 }
 
