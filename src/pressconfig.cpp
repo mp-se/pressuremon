@@ -39,7 +39,7 @@ void PressConfig::createJson(JsonObject& doc) {
   createJsonPush(doc);
 
   // Handle project specific config
-  doc[PARAM_PRESSURE_UNIT] = getPressureUnit();
+  doc[PARAM_PRESSURE_FORMAT] = getPressureFormat();
   doc[PARAM_PRESSURE_SENSOR_TYPE] = getPressureSensorTypeAsInt();
 
   doc[PARAM_PRESSURE_ZERO_CORRECTION] = serialized(String(getPressureZeroCorrection(), 4));
@@ -57,7 +57,7 @@ void PressConfig::parseJson(JsonObject& doc) {
   parseJsonPush(doc);
 
   // Handle project specific config
-  if (!doc[PARAM_PRESSURE_UNIT].isNull()) setPressureUnit(doc[PARAM_PRESSURE_UNIT].as<String>());
+  if (!doc[PARAM_PRESSURE_FORMAT].isNull()) setPressureFormat(doc[PARAM_PRESSURE_FORMAT].as<String>());
   if (!doc[PARAM_PRESSURE_SENSOR_TYPE].isNull()) setPressureSensorType(doc[PARAM_PRESSURE_SENSOR_TYPE].as<int>());
   if (!doc[PARAM_PRESSURE_ZERO_CORRECTION].isNull()) setPressureZeroCorrection(doc[PARAM_PRESSURE_ZERO_CORRECTION].as<float>());
   if (!doc[PARAM_SENSOR_MIN_PRESSURE].isNull()) setPressureSensorMin(doc[PARAM_SENSOR_MIN_PRESSURE].as<int>());

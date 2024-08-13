@@ -27,7 +27,7 @@ SOFTWARE.
 #include <baseconfig.hpp>
 #include <main.hpp>
 
-constexpr auto PARAM_PRESSURE_UNIT = "pressure_unit";
+constexpr auto PARAM_PRESSURE_FORMAT = "pressure_format";
 constexpr auto PARAM_PRESSURE_ZERO_CORRECTION = "pressure_zero_correction";
 constexpr auto PARAM_PRESSURE_SENSOR_TYPE = "pressure_sensor_type";
 constexpr auto PARAM_SENSOR_MIN_PRESSURE = "pressure_sensor_min";
@@ -44,7 +44,7 @@ enum PressureSensorType {
 
 class PressConfig : public BaseConfig {
  private:
-  String _pressureUnit = PRESSURE_PSI;
+  String _pressureFormat = PRESSURE_PSI;
   PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywell;
 
   float _pressureZeroCorrection = 0;
@@ -61,14 +61,14 @@ class PressConfig : public BaseConfig {
   void parseJson(JsonObject& doc);
   void migrateSettings();
 
-  const char* getPressureUnit() {
-    return _pressureUnit.c_str();
+  const char* getPressureFormat() {
+    return _pressureFormat.c_str();
   }
-  String getPressureUnitAsString() {
-    return _pressureUnit;
+  String getPressureFormatAsString() {
+    return _pressureFormat;
   }
-  void setPressureUnit(String s) {
-    _pressureUnit = s;
+  void setPressureFormat(String s) {
+    _pressureFormat = s;
     _saveNeeded = true;
   }
 
