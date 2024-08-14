@@ -109,8 +109,9 @@ void setup() {
     myPressureSensor.loop();
     myBatteryVoltage.read();
     PressPush push(&myConfig);
-    // TODO Add push of data when on battery
-    push.push(...);
+    float tempC = myPressureSensor.getTemperatureC();
+    float pressurePsi = myPressureSensor.getPressurePsi(true);
+    push.sendAll(pressurePsi, tempC, myBatteryVoltage.getVoltage());
     LittleFS.end();
     delay(100);
     deepSleep(myConfig.getPushInterval());
@@ -140,10 +141,10 @@ void loop() {
     Log.notice(F("Loop: Reading sensors." CR));
     myPressureSensor.loop();
     myBatteryVoltage.read();
-    float temp = myPressureSensor.getTemperatureC();
-    float pressure = myPressureSensor.getPressurePsi(true);
-    Log.notice(F("Loop: Reading sensors, pressure=%F, tempC=%F." CR), pressure,
-               temp);
+    float tempC = myPressureSensor.getTemperatureC();
+    float pressurePsi = myPressureSensor.getPressurePsi(true);
+    Log.notice(F("Loop: Reading sensors, pressure=%F psi, temp=%F C." CR), pressurePsi,
+               tempC);
   }
 
   // Do push
@@ -152,11 +153,12 @@ void loop() {
     pushMillis = millis();
     Log.notice(F("Loop: Pushing data to defined targets." CR));
     PressPush push(&myConfig);
-    // TODO Enable push of data
-    /*push.push(myPressureSensor.getTemperatureC(),
-              myPressureSensor.getPressurePsi(true),
-              myBatteryVoltage.getVoltage(),
-              0.0);*/
+
+    float tempC = myPressureSensor.getTemperatureC();
+    float pressurePsi = myPressureSensor.getPressurePsi(true);
+
+    // TODO: Add voltage when
+    push.sendAll(pressurePsi, tempC, 0);
   }
 }
 

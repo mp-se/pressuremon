@@ -3,5 +3,4 @@
 .vscode/*
 cad/*.?#?
 cad/*.zip
-test/env/*
 .DS_Store

@@ -211,7 +211,8 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
       new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
   JsonObject obj = response->getRoot().as<JsonObject>();
 
-  // TODO: Add the pressure sensor values
+  obj[PARAM_PRESSURE] = myPressureSensor.getPressure();
+  obj[PARAM_PRESSURE_FORMAT] = String(myConfig.getPressureFormat());
 
   obj[PARAM_MDNS] = myConfig.getMDNS();
   obj[PARAM_ID] = myConfig.getID();
@@ -225,8 +226,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_APP_VER] = CFG_APPVER;
   obj[PARAM_APP_BUILD] = CFG_GITREV;
 
-  // TODO: Add pressure unit
-  // obj[PARAM_WEIGHT_UNIT] = myConfig.getWeightUnit();
+  obj[PARAM_PRESSURE] = myPressureSensor.getTemperature();
   obj[PARAM_TEMP_FORMAT] = String(myConfig.getTempFormat());
 
   obj[PARAM_UPTIME_SECONDS] = myUptime.getSeconds();
@@ -318,11 +318,7 @@ bool PressWebHandler::writeFile(String fname, String data) {
     File file = LittleFS.open(fname, "w");
     if (file) {
       Log.notice(F("WEB : Storing template data in %s." CR), fname.c_str());
-#if defined(ESP8266)
-      file.write(data.c_str());
-#else  // defined (ESP32)
       file.write((unsigned char *)data.c_str(), data.length());
-#endif
       file.close();
       return true;
     }
