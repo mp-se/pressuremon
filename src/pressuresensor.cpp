@@ -102,9 +102,9 @@ float PressureSensor::getPressurePsi(bool doCorrection) {
 float PressureSensor::getPressure(bool doCorrection) {
   float p = getPressurePsi(doCorrection);
 
-  if (myConfig.getPressureFormatAsString() == PRESSURE_BAR) {
+  if (myConfig.getPressureUnitAsString() == PRESSURE_BAR) {
     return convertPressure2Bar(p);
-  } else if (myConfig.getPressureFormatAsString() == PRESSURE_HPA) {
+  } else if (myConfig.getPressureUnitAsString() == PRESSURE_HPA) {
     return convertPressure2HPa(p);
   }
 

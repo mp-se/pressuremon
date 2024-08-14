@@ -48,25 +48,25 @@ const char httpGetFormat[] PROGMEM =
     "&id=${id}"
     "&interval=${sleep-interval}"
     "&temp=${temp}"
-    "&temp_format=${temp-format}"
+    "&temp_unit=${temp-unit}"
     "&pressure=${pressure}"
-    "&pressure_format=${pressure-format}"
+    "&pressure_unit=${pressure-unit}"
     "&battery=${battery}"
     "&rssi=${rssi}";
 
 const char influxDbFormat[] PROGMEM =
-    "measurement,host=${mdns},device=${id},temp_format=${temp-format},pressure-"
-    "format=${pressure-format} "
+    "measurement,host=${mdns},device=${id},temp_unit=${temp-unit},pressure-"
+    "unit=${pressure-unit} "
     "pressure=${pressure},temp=${"
     "temp},battery=${battery},"
     "rssi=${rssi}\n";
 
 const char mqttFormat[] PROGMEM =
     "pressmon/${mdns}/temp:${temp}|"
-    "pressmon/${mdns}/temp_format:${temp-format}|"
+    "pressmon/${mdns}/temp_unit:${temp-unit}|"
     "pressmon/${mdns}/battery:${battery}|"
     "pressmon/${mdns}/pressure:${pressure}|"
-    "pressmon/${mdns}/pressure_format:${pressure-format}|"
+    "pressmon/${mdns}/pressure_unit:${pressure-unit}|"
     "pressmon/${mdns}/interval:${sleep-interval}|"
     "pressmon/${mdns}/rssi:${rssi}|";
 
@@ -176,7 +176,7 @@ void PressPush::setupTemplateEngine(TemplatingEngine& engine, float pressure,
 
   engine.setVal(TPL_TEMP_C, tempC, DECIMALS_TEMP);
   engine.setVal(TPL_TEMP_F, convertCtoF(tempC), DECIMALS_TEMP);
-  engine.setVal(TPL_TEMP_UNITS, myConfig.getTempFormat());
+  engine.setVal(TPL_TEMP_UNITS, myConfig.getTempUnit());
 
   // Battery & Timer
   engine.setVal(TPL_BATTERY, voltage, DECIMALS_BATTERY);
@@ -218,7 +218,7 @@ void PressPush::setupTemplateEngine(TemplatingEngine& engine, float pressure,
   engine.setVal(TPL_PRESSURE_HPA, pressure * 68.9476, DECIMALS_PRESSURE);
   engine.setVal(TPL_PRESSURE_BAR, pressure == 0 ? 0 : pressure / 14.5038,
                 DECIMALS_PRESSURE);
-  engine.setVal(TPL_PRESSURE_FORMAT, myConfig.getPressureFormatAsString());
+  engine.setVal(TPL_PRESSURE_UNIT, myConfig.getPressureUnitAsString());
 
   engine.setVal(TPL_APP_VER, CFG_APPVER);
   engine.setVal(TPL_APP_BUILD, CFG_GITREV);

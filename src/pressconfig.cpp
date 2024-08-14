@@ -33,11 +33,11 @@ void PressConfig::createJson(JsonObject& doc) {
   // Call base class functions
   createJsonBase(doc);
   createJsonWifi(doc);
-  createJsonOta(doc);
+  // createJsonOta(doc);
   createJsonPush(doc);
 
   // Handle project specific config
-  doc[PARAM_PRESSURE_FORMAT] = getPressureFormat();
+  doc[PARAM_PRESSURE_UNIT] = getPressureUnit();
   doc[PARAM_PRESSURE_SENSOR_TYPE] = getPressureSensorTypeAsInt();
 
   doc[PARAM_PRESSURE_ZERO_CORRECTION] =
@@ -49,12 +49,12 @@ void PressConfig::parseJson(JsonObject& doc) {
   // Call base class functions
   parseJsonBase(doc);
   parseJsonWifi(doc);
-  parseJsonOta(doc);
+  // parseJsonOta(doc);
   parseJsonPush(doc);
 
   // Handle project specific config
-  if (!doc[PARAM_PRESSURE_FORMAT].isNull())
-    setPressureFormat(doc[PARAM_PRESSURE_FORMAT].as<String>());
+  if (!doc[PARAM_PRESSURE_UNIT].isNull())
+    setPressureUnit(doc[PARAM_PRESSURE_UNIT].as<String>());
   if (!doc[PARAM_PRESSURE_SENSOR_TYPE].isNull())
     setPressureSensorType(doc[PARAM_PRESSURE_SENSOR_TYPE].as<int>());
   if (!doc[PARAM_PRESSURE_ZERO_CORRECTION].isNull())

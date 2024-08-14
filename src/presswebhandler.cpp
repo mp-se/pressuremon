@@ -212,7 +212,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   JsonObject obj = response->getRoot().as<JsonObject>();
 
   obj[PARAM_PRESSURE] = myPressureSensor.getPressure();
-  obj[PARAM_PRESSURE_FORMAT] = String(myConfig.getPressureFormat());
+  obj[PARAM_PRESSURE_UNIT] = String(myConfig.getPressureUnit());
 
   obj[PARAM_MDNS] = myConfig.getMDNS();
   obj[PARAM_ID] = myConfig.getID();

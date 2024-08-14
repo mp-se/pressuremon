@@ -37,7 +37,7 @@ enum PressureSensorType {
 
 class PressConfig : public BaseConfig {
  private:
-  String _pressureFormat = PRESSURE_PSI;
+  String _pressureUnit = PRESSURE_PSI;
 
   PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywellGaugePsi_30;
   int _pressureSensorMin = 0;
@@ -55,10 +55,10 @@ class PressConfig : public BaseConfig {
   void parseJson(JsonObject& doc);
   void migrateSettings();
 
-  const char* getPressureFormat() { return _pressureFormat.c_str(); }
-  String getPressureFormatAsString() { return _pressureFormat; }
-  void setPressureFormat(String s) {
-    _pressureFormat = s;
+  const char* getPressureUnit() { return _pressureUnit.c_str(); }
+  String getPressureUnitAsString() { return _pressureUnit; }
+  void setPressureUnit(String s) {
+    _pressureUnit = s;
     _saveNeeded = true;
   }
 

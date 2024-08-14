@@ -24,7 +24,7 @@ SOFTWARE.
 #ifndef SRC_RESOURCES_HPP_
 #define SRC_RESOURCES_HPP_
 
-constexpr auto PARAM_PRESSURE_FORMAT = "pressure_format";
+constexpr auto PARAM_PRESSURE_UNIT = "pressure_unit";
 constexpr auto PARAM_PRESSURE_ZERO_CORRECTION = "pressure_zero_correction";
 constexpr auto PARAM_PRESSURE_SENSOR_TYPE = "pressure_sensor_type";
 constexpr auto PARAM_VOLTAGE_FACTOR = "voltage_factor";
