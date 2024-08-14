@@ -226,7 +226,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_APP_VER] = CFG_APPVER;
   obj[PARAM_APP_BUILD] = CFG_GITREV;
 
-  obj[PARAM_PRESSURE] = myPressureSensor.getTemperature();
+  obj[PARAM_TEMP] = myPressureSensor.getTemperature();
   obj[PARAM_TEMP_FORMAT] = String(myConfig.getTempFormat());
 
   obj[PARAM_UPTIME_SECONDS] = myUptime.getSeconds();

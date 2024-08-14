@@ -38,6 +38,7 @@ constexpr auto PARAM_APP_VER = "app_ver";
 constexpr auto PARAM_APP_BUILD = "app_build";
 constexpr auto PARAM_PLATFORM = "platform";
 constexpr auto PARAM_PRESSURE = "pressure";
+constexpr auto PARAM_TEMP = "temp";
 
 // Other values
 constexpr auto PARAM_TOTAL_HEAP = "total_heap";
