@@ -26,16 +26,62 @@ SOFTWARE.
 
 #include <basepush.hpp>
 #include <pressconfig.hpp>
+#include <templating.hpp>
 
-class PressPushHandler : public BasePush {
+constexpr auto TPL_MDNS = "${mdns}";
+constexpr auto TPL_ID = "${id}";
+constexpr auto TPL_SLEEP_INTERVAL = "${sleep-interval}";
+constexpr auto TPL_TEMP = "${temp}";
+constexpr auto TPL_TEMP_C = "${temp-c}";
+constexpr auto TPL_TEMP_F = "${temp-f}";
+constexpr auto TPL_TEMP_UNITS = "${temp-unit}";  // C or F
+constexpr auto TPL_BATTERY = "${battery}";
+constexpr auto TPL_BATTERY_PERCENT = "${battery-percent}";
+constexpr auto TPL_RSSI = "${rssi}";
+constexpr auto TPL_PRESSURE = "${pressure}";
+constexpr auto TPL_PRESSURE_FORMAT = "${pressure-format}";
+constexpr auto TPL_PRESSURE_PSI = "${pressure-psi}";
+constexpr auto TPL_PRESSURE_BAR = "${pressure-bar}";
+constexpr auto TPL_PRESSURE_HPA = "${pressure-hpa}";
+constexpr auto TPL_APP_VER = "${app-ver}";
+constexpr auto TPL_APP_BUILD = "${app-build}";
+
+constexpr auto TPL_FNAME_POST = "/http-1.tpl";
+constexpr auto TPL_FNAME_POST2 = "/http-2.tpl";
+constexpr auto TPL_FNAME_GET = "/http-3.tpl";
+constexpr auto TPL_FNAME_INFLUXDB = "/influxdb.tpl";
+constexpr auto TPL_FNAME_MQTT = "/mqtt.tpl";
+
+extern const char httpPostFormat[] PROGMEM;
+extern const char httpGetFormat[] PROGMEM;
+extern const char influxDbFormat[] PROGMEM;
+extern const char mqttFormat[] PROGMEM;
+
+class PressPush : public BasePush {
  private:
+  PressConfig* _pressConfig;
+  String _baseTemplate;
 
  public:
-  explicit PressPushHandler(PressConfig* config) : BasePush(config) {
-  }
-};
+  explicit PressPush(PressConfig* pressConfig);
 
-extern PressPushHandler myPush;
+  enum Templates {
+    TEMPLATE_HTTP1 = 0,
+    TEMPLATE_HTTP2 = 1,
+    TEMPLATE_HTTP3 = 2,
+    TEMPLATE_INFLUX = 3,
+    TEMPLATE_MQTT = 4
+  };
+
+  void sendAll(float pressure, float tempC, float voltage);
+
+  const char* getTemplate(Templates t, bool useDefaultTemplate = false);
+  void clearTemplate() { _baseTemplate.clear(); }
+  void setupTemplateEngine(TemplatingEngine& engine, float pressure,
+                           float tempC, float voltage);
+  int getLastCode() { return _lastResponseCode; }
+  bool getLastSuccess() { return _lastSuccess; }
+};
 
 #endif  // SRC_PRESSPUSH_HPP_
 

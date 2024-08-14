@@ -21,12 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressconfig.hpp>
 #include <log.hpp>
 #include <main.hpp>
+#include <pressconfig.hpp>
 #include <utils.hpp>
-
-constexpr auto PARAM_PLATFORM = "platform";
 
 PressConfig::PressConfig(String baseMDNS, String fileName)
     : BaseConfig(baseMDNS, fileName, JSON_BUFFER) {}
@@ -42,11 +40,11 @@ void PressConfig::createJson(JsonObject& doc) {
   doc[PARAM_PRESSURE_FORMAT] = getPressureFormat();
   doc[PARAM_PRESSURE_SENSOR_TYPE] = getPressureSensorTypeAsInt();
 
-  doc[PARAM_PRESSURE_ZERO_CORRECTION] = serialized(String(getPressureZeroCorrection(), 4));
+  doc[PARAM_PRESSURE_ZERO_CORRECTION] =
+      serialized(String(getPressureZeroCorrection(), 4));
   doc[PARAM_SENSOR_MIN_PRESSURE] = getPressureSensorMin();
   doc[PARAM_SENSOR_MAX_PRESSURE] = getPressureSensorMax();
   doc[PARAM_VOLTAGE_FACTOR] = serialized(String(getVoltageFactor(), 2));
-
 }
 
 void PressConfig::parseJson(JsonObject& doc) {
@@ -57,12 +55,18 @@ void PressConfig::parseJson(JsonObject& doc) {
   parseJsonPush(doc);
 
   // Handle project specific config
-  if (!doc[PARAM_PRESSURE_FORMAT].isNull()) setPressureFormat(doc[PARAM_PRESSURE_FORMAT].as<String>());
-  if (!doc[PARAM_PRESSURE_SENSOR_TYPE].isNull()) setPressureSensorType(doc[PARAM_PRESSURE_SENSOR_TYPE].as<int>());
-  if (!doc[PARAM_PRESSURE_ZERO_CORRECTION].isNull()) setPressureZeroCorrection(doc[PARAM_PRESSURE_ZERO_CORRECTION].as<float>());
-  if (!doc[PARAM_SENSOR_MIN_PRESSURE].isNull()) setPressureSensorMin(doc[PARAM_SENSOR_MIN_PRESSURE].as<int>());
-  if (!doc[PARAM_SENSOR_MAX_PRESSURE].isNull()) setPressureSensorMax(doc[PARAM_SENSOR_MAX_PRESSURE].as<int>());
-  if (!doc[PARAM_VOLTAGE_FACTOR].isNull()) setVoltageFactor(doc[PARAM_VOLTAGE_FACTOR].as<float>());
+  if (!doc[PARAM_PRESSURE_FORMAT].isNull())
+    setPressureFormat(doc[PARAM_PRESSURE_FORMAT].as<String>());
+  if (!doc[PARAM_PRESSURE_SENSOR_TYPE].isNull())
+    setPressureSensorType(doc[PARAM_PRESSURE_SENSOR_TYPE].as<int>());
+  if (!doc[PARAM_PRESSURE_ZERO_CORRECTION].isNull())
+    setPressureZeroCorrection(doc[PARAM_PRESSURE_ZERO_CORRECTION].as<float>());
+  if (!doc[PARAM_SENSOR_MIN_PRESSURE].isNull())
+    setPressureSensorMin(doc[PARAM_SENSOR_MIN_PRESSURE].as<int>());
+  if (!doc[PARAM_SENSOR_MAX_PRESSURE].isNull())
+    setPressureSensorMax(doc[PARAM_SENSOR_MAX_PRESSURE].as<int>());
+  if (!doc[PARAM_VOLTAGE_FACTOR].isNull())
+    setVoltageFactor(doc[PARAM_VOLTAGE_FACTOR].as<float>());
 }
 
 // EOF

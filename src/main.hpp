@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <LittleFS.h>
 #include <stdlib.h>
+
 #include <log.hpp>
 
 constexpr auto CFG_APPNAME = "PressureMon";
@@ -43,10 +44,14 @@ extern RunMode runMode;
 
 #if defined(ESP32S2)
 constexpr auto PIN_LED = BUILTIN_LED;
-constexpr auto PIN_PRESSURE = A11;
+// Honywell sensor uses pins SS (12), MOSI (9), SCK (7)
 constexpr auto PIN_BATTERY = A0;
 #else
 #error "Undefined target platform"
 #endif
+
+constexpr auto DECIMALS_PRESSURE = 2;
+constexpr auto DECIMALS_TEMP = 2;
+constexpr auto DECIMALS_BATTERY = 2;
 
 #endif  // SRC_MAIN_HPP_

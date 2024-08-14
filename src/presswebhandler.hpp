@@ -24,12 +24,7 @@ SOFTWARE.
 #ifndef SRC_PRESSWEBHANDLER_HPP_
 #define SRC_PRESSWEBHANDLER_HPP_
 
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#elif defined(ESP32S2) || defined(ESP32S3)
 #include <WiFi.h>
-#endif
 
 #include <basewebserver.hpp>
 #include <pressconfig.hpp>
@@ -38,19 +33,27 @@ class PressWebHandler : public BaseWebServer {
  protected:
   PressConfig *_config;
   volatile bool _hardwareScanTask = false;
+  volatile bool _calibrateTask = false;
 
   String _hardwareScanData;
 
   void setupWebHandlers();
 
   void webSensorCalibrate(AsyncWebServerRequest *request);
+  void webSensorCalibrateStatus(AsyncWebServerRequest *request);
   void webHardwareScan(AsyncWebServerRequest *request);
   void webHardwareScanStatus(AsyncWebServerRequest *request);
   void webConfigGet(AsyncWebServerRequest *request);
   void webConfigPost(AsyncWebServerRequest *request, JsonVariant &json);
+  void webHandleConfigFormatRead(AsyncWebServerRequest *request);
+  void webHandleConfigFormatWrite(AsyncWebServerRequest *request,
+                                  JsonVariant &json);
   void webStatus(AsyncWebServerRequest *request);
   void webHandleLogsClear(AsyncWebServerRequest *request);
   void webHandleFactoryDefaults(AsyncWebServerRequest *request);
+
+  String readFile(String fname);
+  bool writeFile(String fname, String data);
 
  public:
   explicit PressWebHandler(PressConfig *config);

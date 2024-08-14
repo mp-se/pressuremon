@@ -21,39 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <presspush.hpp>
-#include <presswebhandler.hpp>
 #include <main.hpp>
+#include <presspush.hpp>
 #include <pressuresensor.hpp>
+#include <presswebhandler.hpp>
+#include <resources.hpp>
 #include <uptime.hpp>
 #include <utils.hpp>
-
-// Configuration or api params
-constexpr auto PARAM_APP_VER = "app_ver";
-constexpr auto PARAM_APP_BUILD = "app_build";
-constexpr auto PARAM_PLATFORM = "platform";
-constexpr auto PARAM_PRESSURE = "pressure";
-
-// Other values
-constexpr auto PARAM_TOTAL_HEAP = "total_heap";
-constexpr auto PARAM_FREE_HEAP = "free_heap";
-constexpr auto PARAM_IP = "ip";
-constexpr auto PARAM_I2C = "i2c";
-// constexpr auto PARAM_ONEWIRE = "onewire";
-// constexpr auto PARAM_RESOLUTION = "resolution";
-constexpr auto PARAM_ADRESS = "adress";
-constexpr auto PARAM_FAMILY = "family";
-constexpr auto PARAM_CHIP = "chip";
-constexpr auto PARAM_REVISION = "revision";
-constexpr auto PARAM_CORES = "cores";
-constexpr auto PARAM_FEATURES = "features";
-constexpr auto PARAM_WIFI_SETUP = "wifi_setup";
-constexpr auto PARAM_ONEWIRE = "onewire";
-constexpr auto PARAM_RESOLUTION = "resolution";
-constexpr auto PARAM_UPTIME_SECONDS = "uptime_seconds";
-constexpr auto PARAM_UPTIME_MINUTES = "uptime_minutes";
-constexpr auto PARAM_UPTIME_HOURS = "uptime_hours";
-constexpr auto PARAM_UPTIME_DAYS = "uptime_days";
 
 PressWebHandler::PressWebHandler(PressConfig *config)
     : BaseWebServer(config, JSON_BUFFER) {
@@ -64,15 +38,25 @@ void PressWebHandler::setupWebHandlers() {
   Log.notice(F("WEB : Setting up pressure web handlers." CR));
 
   BaseWebServer::setupWebHandlers();
-
   MDNS.addService("pressmon", "tcp", 80);
 
   // Note! For the async implementation the order matters
-
   AsyncCallbackJsonWebHandler *handler;
-  _server->on(
-      "/api/calibrate", HTTP_GET,
-      std::bind(&PressWebHandler::webSensorCalibrate, this, std::placeholders::_1));
+  _server->on("/api/format", HTTP_GET,
+              std::bind(&PressWebHandler::webHandleConfigFormatRead, this,
+                        std::placeholders::_1));
+  handler = new AsyncCallbackJsonWebHandler(
+      "/api/format",
+      std::bind(&PressWebHandler::webHandleConfigFormatWrite, this,
+                std::placeholders::_1, std::placeholders::_2),
+      JSON_BUFFER_SIZE_L);
+  _server->addHandler(handler);
+  _server->on("/api/calibrate/status", HTTP_GET,
+              std::bind(&PressWebHandler::webSensorCalibrateStatus, this,
+                        std::placeholders::_1));
+  _server->on("/api/calibrate", HTTP_GET,
+              std::bind(&PressWebHandler::webSensorCalibrate, this,
+                        std::placeholders::_1));
   handler = new AsyncCallbackJsonWebHandler(
       "/api/config",
       std::bind(&PressWebHandler::webConfigPost, this, std::placeholders::_1,
@@ -91,9 +75,9 @@ void PressWebHandler::setupWebHandlers() {
   _server->on("/api/hardware/status", HTTP_GET,
               std::bind(&PressWebHandler::webHardwareScanStatus, this,
                         std::placeholders::_1));
-  _server->on(
-      "/api/hardware", HTTP_GET,
-      std::bind(&PressWebHandler::webHardwareScan, this, std::placeholders::_1));
+  _server->on("/api/hardware", HTTP_GET,
+              std::bind(&PressWebHandler::webHardwareScan, this,
+                        std::placeholders::_1));
   _server->on("/api/factory", HTTP_GET,
               std::bind(&PressWebHandler::webHandleFactoryDefaults, this,
                         std::placeholders::_1));
@@ -136,7 +120,7 @@ void PressWebHandler::webHandleFactoryDefaults(AsyncWebServerRequest *request) {
 }
 
 void PressWebHandler::webConfigPost(AsyncWebServerRequest *request,
-                                  JsonVariant &json) {
+                                    JsonVariant &json) {
   if (!isAuthenticated(request)) {
     return;
   }
@@ -187,7 +171,7 @@ void PressWebHandler::webSensorCalibrate(AsyncWebServerRequest *request) {
 
   Log.notice(F("WEB : webServer callback /api/calibrate." CR));
 
-  // TODO: Calibrate sensor
+  _calibrateTask = true;
 
   AsyncJsonResponse *response =
       new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
@@ -196,6 +180,28 @@ void PressWebHandler::webSensorCalibrate(AsyncWebServerRequest *request) {
   obj2[PARAM_MESSAGE] = "Sensor calibration completed";
   response->setLength();
   request->send(response);
+}
+
+void PressWebHandler::webSensorCalibrateStatus(AsyncWebServerRequest *request) {
+  if (!isAuthenticated(request)) {
+    return;
+  }
+
+  Log.notice(F("WEB : webServer callback for /api/calibrate/status." CR));
+
+  if (_calibrateTask) {
+    AsyncJsonResponse *response =
+        new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
+    JsonObject obj = response->getRoot().as<JsonObject>();
+    obj[PARAM_STATUS] = static_cast<bool>(_calibrateTask);
+    obj[PARAM_SUCCESS] = false;
+    obj[PARAM_MESSAGE] =
+        _calibrateTask ? "Calibration running" : "No calibration running";
+    response->setLength();
+    request->send(response);
+  } else {
+    request->send(200, "application/json");
+  }
 }
 
 void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
@@ -211,18 +217,14 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_ID] = myConfig.getID();
   obj[PARAM_RSSI] = WiFi.RSSI();
   obj[PARAM_SSID] = myConfig.getWifiSSID(0);
-#if defined(ESP8266)
-  obj[PARAM_PLATFORM] = "esp8266";
-#elif defined(ESP32S2)
+#if defined(ESP32S2)
   obj[PARAM_PLATFORM] = "esp32s2";
-#elif defined(ESP32S3)
-  obj[PARAM_PLATFORM] = "esp32s3";
 #else
 #error "Undefined target"
 #endif
   obj[PARAM_APP_VER] = CFG_APPVER;
   obj[PARAM_APP_BUILD] = CFG_GITREV;
-  
+
   // TODO: Add pressure unit
   // obj[PARAM_WEIGHT_UNIT] = myConfig.getWeightUnit();
   obj[PARAM_TEMP_FORMAT] = String(myConfig.getTempFormat());
@@ -250,17 +252,10 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
     obj[PARAM_PRESSURE] = serialized(String(p, 2));
   }*/
 
-#if defined(ESP8266)
-  obj[PARAM_TOTAL_HEAP] = 81920;
-  obj[PARAM_FREE_HEAP] = ESP.getFreeHeap();
-  obj[PARAM_IP] = WiFi.localIP().toString();
-#else
   obj[PARAM_TOTAL_HEAP] = ESP.getHeapSize();
   obj[PARAM_FREE_HEAP] = ESP.getFreeHeap();
   obj[PARAM_IP] = WiFi.localIP().toString();
-#endif
   obj[PARAM_WIFI_SETUP] = (runMode == RunMode::wifiSetupMode) ? true : false;
-
   response->setLength();
   request->send(response);
 }
@@ -304,11 +299,121 @@ void PressWebHandler::webHardwareScanStatus(AsyncWebServerRequest *request) {
   }
 }
 
-void PressWebHandler::loop() {
+String PressWebHandler::readFile(String fname) {
+  File file = LittleFS.open(fname, "r");
+  if (file) {
+    char buf[file.size() + 1];
+    memset(&buf[0], 0, file.size() + 1);
+    file.readBytes(&buf[0], file.size());
+    file.close();
+    Log.notice(F("WEB : Read template data from %s." CR), fname.c_str());
+    return String(&buf[0]);
+  }
+  return "";
+}
+
+bool PressWebHandler::writeFile(String fname, String data) {
+  if (data.length()) {
+    data = urldecode(data);
+    File file = LittleFS.open(fname, "w");
+    if (file) {
+      Log.notice(F("WEB : Storing template data in %s." CR), fname.c_str());
 #if defined(ESP8266)
-  MDNS.update();
+      file.write(data.c_str());
+#else  // defined (ESP32)
+      file.write((unsigned char *)data.c_str(), data.length());
 #endif
+      file.close();
+      return true;
+    }
+  } else {
+    Log.notice(
+        F("WEB : No template data to store in %s, reverting to default." CR),
+        fname.c_str());
+    LittleFS.remove(fname);
+    return true;
+  }
+
+  return false;
+}
+
+void PressWebHandler::webHandleConfigFormatWrite(AsyncWebServerRequest *request,
+                                                 JsonVariant &json) {
+  if (!isAuthenticated(request)) {
+    return;
+  }
+
+  Log.notice(F("WEB : webServer callback for /api/config/format(post)." CR));
+
+  JsonObject obj = json.as<JsonObject>();
+  int success = 0;
+
+  if (!obj[PARAM_FORMAT_POST].isNull()) {
+    success += writeFile(TPL_FNAME_POST, obj[PARAM_FORMAT_POST]) ? 1 : 0;
+  }
+  if (!obj[PARAM_FORMAT_POST2].isNull()) {
+    success += writeFile(TPL_FNAME_POST2, obj[PARAM_FORMAT_POST2]) ? 1 : 0;
+  }
+  if (!obj[PARAM_FORMAT_GET].isNull()) {
+    success += writeFile(TPL_FNAME_GET, obj[PARAM_FORMAT_GET]) ? 1 : 0;
+  }
+  if (!obj[PARAM_FORMAT_INFLUXDB].isNull()) {
+    success +=
+        writeFile(TPL_FNAME_INFLUXDB, obj[PARAM_FORMAT_INFLUXDB]) ? 1 : 0;
+  }
+  if (!obj[PARAM_FORMAT_MQTT].isNull()) {
+    success += writeFile(TPL_FNAME_MQTT, obj[PARAM_FORMAT_MQTT]) ? 1 : 0;
+  }
+
+  AsyncJsonResponse *response =
+      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+  obj = response->getRoot().as<JsonObject>();
+  obj[PARAM_SUCCESS] = success > 0 ? true : false;
+  obj[PARAM_MESSAGE] = success > 0 ? "Format template stored"
+                                   : "Failed to store format template";
+  response->setLength();
+  request->send(response);
+}
+
+void PressWebHandler::webHandleConfigFormatRead(
+    AsyncWebServerRequest *request) {
+  if (!isAuthenticated(request)) {
+    return;
+  }
+  Log.notice(F("WEB : webServer callback for /api/config/format(read)." CR));
+
+  AsyncJsonResponse *response =
+      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_XL);
+  JsonObject obj = response->getRoot().as<JsonObject>();
+  String s;
+
+  s = readFile(TPL_FNAME_POST);
+  obj[PARAM_FORMAT_POST] =
+      s.length() ? urlencode(s) : urlencode(String(&httpPostFormat[0]));
+  s = readFile(TPL_FNAME_POST2);
+  obj[PARAM_FORMAT_POST2] =
+      s.length() ? urlencode(s) : urlencode(String(&httpPostFormat[0]));
+  s = readFile(TPL_FNAME_GET);
+  obj[PARAM_FORMAT_GET] =
+      s.length() ? urlencode(s) : urlencode(String(&httpGetFormat[0]));
+  s = readFile(TPL_FNAME_INFLUXDB);
+  obj[PARAM_FORMAT_INFLUXDB] =
+      s.length() ? urlencode(s) : urlencode(String(&influxDbFormat[0]));
+  s = readFile(TPL_FNAME_MQTT);
+  obj[PARAM_FORMAT_MQTT] =
+      s.length() ? urlencode(s) : urlencode(String(&mqttFormat[0]));
+
+  response->setLength();
+  request->send(response);
+}
+
+void PressWebHandler::loop() {
   BaseWebServer::loop();
+
+  if (_calibrateTask) {
+    myPressureSensor.calibrateSensor();
+    _calibrateTask = false;
+  }
 
   if (_hardwareScanTask) {
     DynamicJsonDocument doc(JSON_BUFFER_SIZE_L);
@@ -371,9 +476,6 @@ void PressWebHandler::loop() {
 
     JsonObject cpu = obj.createNestedObject(PARAM_CHIP);
 
-#if defined(ESP8266)
-    cpu[PARAM_FAMILY] = "ESP8266";
-#else
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
 
@@ -414,7 +516,6 @@ void PressWebHandler::loop() {
         cpu[PARAM_FAMILY] = String(chip_info.model);
         break;
     }
-#endif
 
     serializeJson(obj, _hardwareScanData);
     Log.notice(F("WEB : Scan complete %s." CR), _hardwareScanData.c_str());

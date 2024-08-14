@@ -21,32 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <batteryvoltage.hpp>
-#include <main.hpp>
+#ifndef SRC_BATTERY_HPP_
+#define SRC_BATTERY_HPP_
 
-BatteryVoltage::BatteryVoltage(int pin) {
-  _pin = pin;
-#if defined(ESP8266)
-  pinMode(_pin, INPUT);
-#else
-  pinMode(_pin, INPUT_PULLDOWN);
-#endif
-}
+class BatteryVoltage {
+ private:
+  float _batteryLevel = 0;
 
-void BatteryVoltage::read(float factor) {
-  int v = analogRead(_pin);
+ public:
+  BatteryVoltage();
+  void read();
+  float getVoltage() { return _batteryLevel; }
+};
 
-#if defined(ESP8266)
-  _batteryLevel = ((3.3 / 1023) * v) * factor;
-#else  // defined (ESP32)
-  _batteryLevel = ((3.3 / 4095) * v) * factor;
-#endif
+extern BatteryVoltage myBatteryVoltage;
 
-#if LOG_LEVEL == 6
-  Log.verbose(
-      F("BATT: Reading voltage level. Factor=%F Value=%d, Voltage=%F." CR),
-      factor, v, _batteryLevel);
-#endif
-}
+#endif  // SRC_BATTERY_HPP_
 
 // EOF

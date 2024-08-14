@@ -21,19 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <batteryvoltage.hpp>
+#include <battery.hpp>
 #include <main.hpp>
 #include <pressconfig.hpp>
 #include <presspush.hpp>
 #include <pressuresensor.hpp>
 #include <presswebhandler.hpp>
-#include <scheduler.hpp>
 #include <serialws.hpp>
 #include <utils.hpp>
 #include <wificonnection.hpp>
-#if CONFIG_IDF_TARGET_ESP32
-#include <esp32/rom/rtc.h>
-#endif
 #if CONFIG_IDF_TARGET_ESP32S2
 #include <esp32s2/rom/rtc.h>
 #endif
@@ -44,8 +40,7 @@ PressConfig myConfig(CFG_MDNSNAME, CFG_FILENAME);
 WifiConnection myWifi(&myConfig, CFG_APPNAME, "password", CFG_MDNSNAME);
 PressWebHandler myWebHandler(&myConfig);
 SerialWebSocket mySerialWebSocket;
-Scheduler myScheduler;
-BatteryVoltage myBatteryVoltage(PIN_BATTERY);
+BatteryVoltage myBatteryVoltage;
 
 const int loopInterval = 2000;
 int loopCounter = 0;
@@ -60,7 +55,7 @@ void checkRunMode();
 void setup() {
   runTimeMillis = millis();
 
-  delay(2000);
+  // delay(2000);
 
   // see: rtc.h for reset reasons
   Log.notice(F("Main: Reset reason %d." CR), rtc_get_reset_reason(0));
@@ -73,13 +68,16 @@ void setup() {
   }
   snprintf(&cbuf[0], sizeof(cbuf), "%6x", chipId);
   Log.notice(F("Main: Started setup for %s." CR), &cbuf[0]);
-
   Log.notice(F("Main: Build options: %s (%s) LOGLEVEL %d " CR), CFG_APPVER,
              CFG_GITREV, LOG_LEVEL);
 
+  checkCoreDump();
   myConfig.checkFileSystem();
   myConfig.loadFile();
-  checkRunMode();
+
+  // TODO: Add option to run on battery
+  // checkRunMode();
+
   myWifi.init();
 
   // No stored config, move to portal
@@ -92,7 +90,6 @@ void setup() {
   }
 
   myPressureSensor.setup();
-  checkCoreDump();
 
   switch (runMode) {
     case RunMode::normalMode:
@@ -105,50 +102,48 @@ void setup() {
       break;
   }
 
+  // TODO: Add option to run on battery
+  /*
   if (runMode == RunMode::sleepMode) {
     Log.notice(F("Main: Running sleep mode." CR));
-
     myPressureSensor.loop();
-    myBatteryVoltage.read(myConfig.getVoltageFactor());
-
-    PressPushHandler push(&myConfig);
-    /*push.push(myPressureSensor.getTemperature(),
-              myPressureSensor.getPressure(true),
-              myBatteryVoltage.getVoltage(),
-              (millis() - runTimeMillis) / 1000);*/
-
+    myBatteryVoltage.read();
+    PressPush push(&myConfig);
+    // TODO Add push of data when on battery
+    push.push(...);
     LittleFS.end();
     delay(100);
     deepSleep(myConfig.getPushInterval());
-  } else {
-    myWebHandler.setupWebServer();
-    mySerialWebSocket.begin(myWebHandler.getWebServer(), &EspSerial);
-    mySerial.begin(&mySerialWebSocket);
-    loopMillis = pushMillis = millis();
-  }
+  } else {*/
+  myWebHandler.setupWebServer();
+  mySerialWebSocket.begin(myWebHandler.getWebServer(), &EspSerial);
+  mySerial.begin(&mySerialWebSocket);
+  loopMillis = pushMillis = millis();
+  /*}*/
 
   Log.notice(F("Main: Setup completed." CR));
 }
 
 void loop() {
-  if (runMode != RunMode::wifiSetupMode && !myWifi.isConnected()) 
+  if (runMode != RunMode::wifiSetupMode && !myWifi.isConnected())
     myWifi.connect();
 
   myWebHandler.loop();
   myWifi.loop();
   mySerialWebSocket.loop();
-  myScheduler.loop();
 
   // Do normal housekeeping
   if (abs((int32_t)(millis() - loopMillis)) >
       loopInterval) {  // 2 seconds loop interval
     loopMillis = millis();
     loopCounter++;
-
     Log.notice(F("Loop: Reading sensors." CR));
-
     myPressureSensor.loop();
-    myBatteryVoltage.read(myConfig.getVoltageFactor());
+    myBatteryVoltage.read();
+    float temp = myPressureSensor.getTemperatureC();
+    float pressure = myPressureSensor.getPressurePsi(true);
+    Log.notice(F("Loop: Reading sensors, pressure=%F, tempC=%F." CR), pressure,
+               temp);
   }
 
   // Do push
@@ -156,8 +151,8 @@ void loop() {
       (myConfig.getPushInterval() * 1000)) {
     pushMillis = millis();
     Log.notice(F("Loop: Pushing data to defined targets." CR));
-
-    PressPushHandler push(&myConfig);
+    PressPush push(&myConfig);
+    // TODO Enable push of data
     /*push.push(myPressureSensor.getTemperatureC(),
               myPressureSensor.getPressurePsi(true),
               myBatteryVoltage.getVoltage(),
@@ -166,7 +161,6 @@ void loop() {
 }
 
 void checkCoreDump() {
-#if CONFIG_IDF_TARGET_ESP32S2
   esp_core_dump_summary_t *summary = static_cast<esp_core_dump_summary_t *>(
       malloc(sizeof(esp_core_dump_summary_t)));
 
@@ -182,11 +176,12 @@ void checkCoreDump() {
       }
     }
   }
-#endif
 }
 
+// TODO: Add option to run on battery
+/*
 void checkRunMode() {
-  myBatteryVoltage.read(myConfig.getVoltageFactor());
+  myBatteryVoltage.read();
   float b = myBatteryVoltage.getVoltage();
 
   if (b < 3.0 || b > 4.2) {
@@ -197,6 +192,6 @@ void checkRunMode() {
 
   Log.notice(F("Main: Runmode %s." CR),
              runMode == RunMode::normalMode ? "Normal" : "DeepSleep");
-}
+}*/
 
 // EOF

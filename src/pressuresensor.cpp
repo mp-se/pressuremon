@@ -28,17 +28,13 @@ SOFTWARE.
 PressureSensor myPressureSensor;
 
 void PressureSensor::setup() {
-#if LOG_LEVEL == 6
   Log.verbose(F("PRES: Looking for pressure sensors." CR));
-#endif
 
   zeroCorrection = myConfig.getPressureZeroCorrection();
-
-  sensor = new TruStabilityPressureSensor(PIN_PRESSURE,
-                                          myConfig.getPressureSensorMin(),
+  sensor = new TruStabilityPressureSensor(SS, myConfig.getPressureSensorMin(),
                                           myConfig.getPressureSensorMax());
   sensor->begin();
-  SPI.begin(SCK, MISO, MOSI, SS);
+  SPI.begin();
   Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR),
              sensor->status(), zeroCorrection);
 }
@@ -99,11 +95,6 @@ float PressureSensor::getPressurePsi(bool doCorrection) {
 
   float f = sensor->pressure();
 
-#if LOG_LEVEL == 6
-//  Log.verbose(F("PRES: Reciving pressure value for sensor %F psi, correction =
-//  %F." CR), f, zeroCorrection);
-#endif
-
   if (doCorrection) return f - zeroCorrection;
   return f;
 }
@@ -113,8 +104,8 @@ float PressureSensor::getPressure(bool doCorrection) {
 
   if (myConfig.getPressureFormatAsString() == PRESSURE_BAR) {
     return convertPressure2Bar(p);
-  } else if(myConfig.getPressureFormatAsString() == PRESSURE_HPA) {
-      return convertPressure2HPa(p);
+  } else if (myConfig.getPressureFormatAsString() == PRESSURE_HPA) {
+    return convertPressure2HPa(p);
   }
 
   return p;
