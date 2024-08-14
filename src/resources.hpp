@@ -27,8 +27,6 @@ SOFTWARE.
 constexpr auto PARAM_PRESSURE_FORMAT = "pressure_format";
 constexpr auto PARAM_PRESSURE_ZERO_CORRECTION = "pressure_zero_correction";
 constexpr auto PARAM_PRESSURE_SENSOR_TYPE = "pressure_sensor_type";
-constexpr auto PARAM_SENSOR_MIN_PRESSURE = "pressure_sensor_min";
-constexpr auto PARAM_SENSOR_MAX_PRESSURE = "pressure_sensor_max";
 constexpr auto PARAM_VOLTAGE_FACTOR = "voltage_factor";
 
 constexpr auto PRESSURE_HPA = "hpa";

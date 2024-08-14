@@ -29,17 +29,21 @@ SOFTWARE.
 #include <resources.hpp>
 
 enum PressureSensorType {
-  SensorHoneywell = 0,
+  SensorHoneywellGaugePsi_30 = 0,
+  SensorHoneywellGaugePsi_60 = 1,
+  SensorHoneywellGaugePsi_100 = 2,
+  SensorHoneywellGaugePsi_150 = 3,
 };
 
 class PressConfig : public BaseConfig {
  private:
   String _pressureFormat = PRESSURE_PSI;
-  PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywell;
+
+  PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywellGaugePsi_30;
+  int _pressureSensorMin = 0;
+  int _pressureSensorMax = 30;
 
   float _pressureZeroCorrection = 0;
-  int _pressureSensorMin = 0;
-  int _pressureSensorMax = 150;
 
   int _pushInterval = 300;
   float _voltageFactor = 1.59;
@@ -62,6 +66,29 @@ class PressConfig : public BaseConfig {
   int getPressureSensorTypeAsInt() { return static_cast<int>(_pressureSensor); }
   void setPressureSensorType(int s) {
     _pressureSensor = (PressureSensorType)s;
+
+    switch(_pressureSensor) {
+      case PressureSensorType::SensorHoneywellGaugePsi_30:
+        _pressureSensorMin = 0;
+        _pressureSensorMax = 30;
+        break;
+
+      case PressureSensorType::SensorHoneywellGaugePsi_60:
+        _pressureSensorMin = 0;
+        _pressureSensorMax = 60;
+        break;
+
+      case PressureSensorType::SensorHoneywellGaugePsi_100:
+        _pressureSensorMin = 0;
+        _pressureSensorMax = 100;
+        break;
+
+      case PressureSensorType::SensorHoneywellGaugePsi_150:
+        _pressureSensorMin = 0;
+        _pressureSensorMax = 150;
+        break;
+    }
+
     _saveNeeded = true;
   }
 
@@ -84,17 +111,7 @@ class PressConfig : public BaseConfig {
   }
 
   int getPressureSensorMin() { return _pressureSensorMin; }
-  void setPressureSensorMin(int v) {
-    _pressureSensorMin = v;
-    _saveNeeded = true;
-  }
-
   int getPressureSensorMax() { return _pressureSensorMax; }
-  void setPressureSensorMax(int v) {
-    _pressureSensorMax = v;
-    _saveNeeded = true;
-  }
-
   int getVoltagePin() { return PIN_BATTERY; }
 };
 

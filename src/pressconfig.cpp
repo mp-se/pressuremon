@@ -42,8 +42,6 @@ void PressConfig::createJson(JsonObject& doc) {
 
   doc[PARAM_PRESSURE_ZERO_CORRECTION] =
       serialized(String(getPressureZeroCorrection(), 4));
-  doc[PARAM_SENSOR_MIN_PRESSURE] = getPressureSensorMin();
-  doc[PARAM_SENSOR_MAX_PRESSURE] = getPressureSensorMax();
   doc[PARAM_VOLTAGE_FACTOR] = serialized(String(getVoltageFactor(), 2));
 }
 
@@ -61,10 +59,6 @@ void PressConfig::parseJson(JsonObject& doc) {
     setPressureSensorType(doc[PARAM_PRESSURE_SENSOR_TYPE].as<int>());
   if (!doc[PARAM_PRESSURE_ZERO_CORRECTION].isNull())
     setPressureZeroCorrection(doc[PARAM_PRESSURE_ZERO_CORRECTION].as<float>());
-  if (!doc[PARAM_SENSOR_MIN_PRESSURE].isNull())
-    setPressureSensorMin(doc[PARAM_SENSOR_MIN_PRESSURE].as<int>());
-  if (!doc[PARAM_SENSOR_MAX_PRESSURE].isNull())
-    setPressureSensorMax(doc[PARAM_SENSOR_MAX_PRESSURE].as<int>());
   if (!doc[PARAM_VOLTAGE_FACTOR].isNull())
     setVoltageFactor(doc[PARAM_VOLTAGE_FACTOR].as<float>());
 }
