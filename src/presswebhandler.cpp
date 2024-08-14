@@ -211,7 +211,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
       new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
   JsonObject obj = response->getRoot().as<JsonObject>();
 
-  obj[PARAM_PRESSURE] = myPressureSensor.getPressure();
+  obj[PARAM_PRESSURE] = serialized(String(myPressureSensor.getPressure(), DECIMALS_PRESSURE));
   obj[PARAM_PRESSURE_UNIT] = String(myConfig.getPressureUnit());
 
   obj[PARAM_MDNS] = myConfig.getMDNS();
@@ -226,7 +226,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_APP_VER] = CFG_APPVER;
   obj[PARAM_APP_BUILD] = CFG_GITREV;
 
-  obj[PARAM_TEMP] = myPressureSensor.getTemperature();
+  obj[PARAM_TEMP] = serialized(String(myPressureSensor.getTemperature(), DECIMALS_TEMP));
   obj[PARAM_TEMP_FORMAT] = String(myConfig.getTempFormat());
 
   obj[PARAM_UPTIME_SECONDS] = myUptime.getSeconds();
@@ -234,23 +234,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_UPTIME_HOURS] = myUptime.getHours();
   obj[PARAM_UPTIME_DAYS] = myUptime.getDays();
 
-  /*float f = myTemp.getLastTempC();
-
-  if (!isnan(f)) {
-    obj[PARAM_TEMP] = serialized(String(convertOutgoingTemperature(f), 2));
-  }
-
-  float h = myTemp.getLastHumidity();
-
-  if (!isnan(h)) {
-    obj[PARAM_HUMIDITY] = serialized(String(h, 2));
-  }
-
-  float p = myTemp.getLastPressure();
-
-  if (!isnan(p)) {
-    obj[PARAM_PRESSURE] = serialized(String(p, 2));
-  }*/
+  // TODO: Add battery
 
   obj[PARAM_TOTAL_HEAP] = ESP.getHeapSize();
   obj[PARAM_FREE_HEAP] = ESP.getFreeHeap();
