@@ -22,47 +22,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include <pressconfig.hpp>
-#include <pressuresensor.hpp>
-#include <utils.hpp>
+#include <pressure.hpp>
 
-PressureSensor myPressureSensor;
-
-void PressureSensor::setup() {
-  Log.verbose(F("PRES: Looking for pressure sensors." CR));
-
-  zeroCorrection = myConfig.getPressureZeroCorrection();
-  sensor = new TruStabilityPressureSensor(SS, myConfig.getPressureSensorMin(),
-                                          myConfig.getPressureSensorMax());
-  sensor->begin();
+void HonewywellPressureSensor::setup() {
+  _zeroCorrection = myConfig.getPressureZeroCorrection();
+  _honeywellSensor = new TruStabilityPressureSensor(
+      SS, myConfig.getPressureSensorMin(), myConfig.getPressureSensorMax());
+  _honeywellSensor->begin();
   SPI.begin();
-  Log.notice(F("PRES: Sensor reported code %d, zero correction = %F" CR),
-             sensor->status(), zeroCorrection);
+  Log.notice(
+      F("PRES: Honeywell sensor reported code %d, zero correction = %F" CR),
+      _honeywellSensor->status(), _zeroCorrection);
 }
 
-void PressureSensor::loop() {
-  switch (sensor->readSensor()) {
+void HonewywellPressureSensor::loop() {
+  switch (_honeywellSensor->readSensor()) {
     case 0:
 #if LOG_LEVEL == 6
       Log.verbose(F("PRES: Sensor status NORMAL." CR));
 #endif
-      sensorActive = true;
+      _sensorActive = true;
       break;
     case 1:
       Log.warning(F("PRES: Sensor status COMMAND MODE." CR));
-      sensorActive = false;
+      _sensorActive = false;
       break;
     case 2:
       Log.warning(F("PRES: Sensor status STALE DATA." CR));
-      sensorActive = false;
+      _sensorActive = false;
       break;
     case 3:
       Log.warning(F("PRES: Sensor status DIAG MODE." CR));
-      sensorActive = false;
+      _sensorActive = false;
       break;
   }
 }
 
-void PressureSensor::calibrateSensor() {
+void HonewywellPressureSensor::calibrateSensor() {
   Log.notice(F("PRES: Starting auto calibration." CR));
   float zero = 0;
 
@@ -77,44 +73,26 @@ void PressureSensor::calibrateSensor() {
   Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
   myConfig.setPressureZeroCorrection(zero / 10);
   myConfig.saveFile();
-  zeroCorrection = myConfig.getPressureZeroCorrection();
+  _zeroCorrection = myConfig.getPressureZeroCorrection();
 }
 
-float PressureSensor::getTemperatureC() {
+float HonewywellPressureSensor::getTemperatureC() {
   if (!isSensorActive()) return 0;
 
-  float f = sensor->temperature();
+  float f = _honeywellSensor->temperature();
 #if LOG_LEVEL == 6
   Log.verbose(F("PRES: Reciving temp value for sensor %F C." CR), f);
 #endif
   return f;
 }
 
-float PressureSensor::getPressurePsi(bool doCorrection) {
+float HonewywellPressureSensor::getPressurePsi(bool doCorrection) {
   if (!isSensorActive()) return 0;
 
-  float f = sensor->pressure();
+  float pressure = _honeywellSensor->pressure();
 
-  if (doCorrection) return f - zeroCorrection;
-  return f;
-}
-
-float PressureSensor::getPressure(bool doCorrection) {
-  float p = getPressurePsi(doCorrection);
-
-  if (myConfig.getPressureUnitAsString() == PRESSURE_BAR) {
-    return convertPressure2Bar(p);
-  } else if (myConfig.getPressureUnitAsString() == PRESSURE_HPA) {
-    return convertPressure2HPa(p);
-  }
-
-  return p;
-}
-
-float PressureSensor::getTemperature() {
-  if (myConfig.getTempFormat() == 'C') return getTemperatureC();
-
-  return getTemperatureF();
+  if (doCorrection) return pressure - _zeroCorrection;
+  return pressure;
 }
 
 // EOF

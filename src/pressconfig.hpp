@@ -33,15 +33,19 @@ enum PressureSensorType {
   SensorHoneywellGaugePsi_60 = 1,
   SensorHoneywellGaugePsi_100 = 2,
   SensorHoneywellGaugePsi_150 = 3,
+  SensorCFSensorXGZP6847DGaugeKPa_700 = 10,   // 0 - 700 kPa
+  SensorCFSensorXGZP6847DGaugeKPa_1000 = 11,  // -100 - 1000 kPa
 };
 
 class PressConfig : public BaseConfig {
  private:
   String _pressureUnit = PRESSURE_PSI;
 
-  PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywellGaugePsi_30;
-  int _pressureSensorMin = 0;
-  int _pressureSensorMax = 30;
+  PressureSensorType _pressureSensor =
+      PressureSensorType::SensorHoneywellGaugePsi_30;
+  int _pressureSensorMin = 0;   // For Honeywell sensors
+  int _pressureSensorMax = 30;  // For Honeywell sensors
+  int _pressureSensorK = 0;     // For CFSensor sensors
 
   float _pressureZeroCorrection = 0;
 
@@ -67,7 +71,7 @@ class PressConfig : public BaseConfig {
   void setPressureSensorType(int s) {
     _pressureSensor = (PressureSensorType)s;
 
-    switch(_pressureSensor) {
+    switch (_pressureSensor) {
       case PressureSensorType::SensorHoneywellGaugePsi_30:
         _pressureSensorMin = 0;
         _pressureSensorMax = 30;
@@ -86,6 +90,11 @@ class PressConfig : public BaseConfig {
       case PressureSensorType::SensorHoneywellGaugePsi_150:
         _pressureSensorMin = 0;
         _pressureSensorMax = 150;
+        break;
+
+      case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700:
+      case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_1000:
+        _pressureSensorK = 64;
         break;
     }
 
@@ -112,6 +121,7 @@ class PressConfig : public BaseConfig {
 
   int getPressureSensorMin() { return _pressureSensorMin; }
   int getPressureSensorMax() { return _pressureSensorMax; }
+  int getPressureSensorK() { return _pressureSensorK; }
   int getVoltagePin() { return PIN_BATTERY; }
 };
 

@@ -23,7 +23,7 @@ SOFTWARE.
  */
 #include <main.hpp>
 #include <presspush.hpp>
-#include <pressuresensor.hpp>
+#include <pressure.hpp>
 #include <presswebhandler.hpp>
 #include <resources.hpp>
 #include <uptime.hpp>
@@ -211,7 +211,8 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
       new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
   JsonObject obj = response->getRoot().as<JsonObject>();
 
-  obj[PARAM_PRESSURE] = serialized(String(myPressureSensor.getPressure(), DECIMALS_PRESSURE));
+  obj[PARAM_PRESSURE] =
+      serialized(String(myPressureSensor.getPressure(), DECIMALS_PRESSURE));
   obj[PARAM_PRESSURE_UNIT] = String(myConfig.getPressureUnit());
 
   obj[PARAM_MDNS] = myConfig.getMDNS();
@@ -226,7 +227,8 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   obj[PARAM_APP_VER] = CFG_APPVER;
   obj[PARAM_APP_BUILD] = CFG_GITREV;
 
-  obj[PARAM_TEMP] = serialized(String(myPressureSensor.getTemperature(), DECIMALS_TEMP));
+  obj[PARAM_TEMP] =
+      serialized(String(myPressureSensor.getTemperature(), DECIMALS_TEMP));
   obj[PARAM_TEMP_FORMAT] = String(myConfig.getTempFormat());
 
   obj[PARAM_UPTIME_SECONDS] = myUptime.getSeconds();

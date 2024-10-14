@@ -25,7 +25,7 @@ SOFTWARE.
 #include <main.hpp>
 #include <pressconfig.hpp>
 #include <presspush.hpp>
-#include <pressuresensor.hpp>
+#include <pressure.hpp>
 #include <presswebhandler.hpp>
 #include <serialws.hpp>
 #include <utils.hpp>
@@ -143,8 +143,8 @@ void loop() {
     myBatteryVoltage.read();
     float tempC = myPressureSensor.getTemperatureC();
     float pressurePsi = myPressureSensor.getPressurePsi(true);
-    Log.notice(F("Loop: Reading sensors, pressure=%F psi, temp=%F C." CR), pressurePsi,
-               tempC);
+    Log.notice(F("Loop: Reading sensors, pressure=%F psi, temp=%F C." CR),
+               pressurePsi, tempC);
   }
 
   // Do push
