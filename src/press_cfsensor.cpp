@@ -27,9 +27,9 @@ SOFTWARE.
 void CFSensorPressureSensor::setup() {
   _zeroCorrection = myConfig.getPressureZeroCorrection();
   _cfsensorSensor = new XGZP6897D(myConfig.getPressureSensorK(), &Wire);
-  bool status = _cfsensorSensor->begin();
+  _sensorActive = _cfsensorSensor->begin();
   Log.notice(
-      F("PRES: CFSensor sensor initialized %s, zero correction = %F" CR), status ? "true" : "false", _zeroCorrection);
+      F("PRES: CFSensor sensor initialized %s, zero correction = %F" CR), _sensorActive ? "true" : "false", _zeroCorrection);
 }
 
 void CFSensorPressureSensor::loop() {
