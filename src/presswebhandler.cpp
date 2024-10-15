@@ -30,7 +30,7 @@ SOFTWARE.
 #include <utils.hpp>
 
 PressWebHandler::PressWebHandler(PressConfig *config)
-    : BaseWebServer(config, JSON_BUFFER) {
+    : BaseWebServer(config) {
   _config = config;
 }
 
@@ -48,8 +48,7 @@ void PressWebHandler::setupWebHandlers() {
   handler = new AsyncCallbackJsonWebHandler(
       "/api/format",
       std::bind(&PressWebHandler::webHandleConfigFormatWrite, this,
-                std::placeholders::_1, std::placeholders::_2),
-      JSON_BUFFER_SIZE_L);
+                std::placeholders::_1, std::placeholders::_2));
   _server->addHandler(handler);
   _server->on("/api/calibrate/status", HTTP_GET,
               std::bind(&PressWebHandler::webSensorCalibrateStatus, this,
@@ -60,8 +59,7 @@ void PressWebHandler::setupWebHandlers() {
   handler = new AsyncCallbackJsonWebHandler(
       "/api/config",
       std::bind(&PressWebHandler::webConfigPost, this, std::placeholders::_1,
-                std::placeholders::_2),
-      JSON_BUFFER_SIZE_L);
+                std::placeholders::_2));
   _server->addHandler(handler);
   _server->on(
       "/api/config", HTTP_GET,
@@ -90,7 +88,7 @@ void PressWebHandler::webConfigGet(AsyncWebServerRequest *request) {
 
   Log.notice(F("WEB : webServer callback for /api/config(read)." CR));
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_XL);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
   myConfig.createJson(obj);
   response->setLength();
@@ -109,7 +107,7 @@ void PressWebHandler::webHandleFactoryDefaults(AsyncWebServerRequest *request) {
   Log.notice(F("WEB : Deleted files in filesystem, rebooting." CR));
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
   obj[PARAM_SUCCESS] = true;
   obj[PARAM_MESSAGE] = "Factory reset completed, rebooting";
@@ -138,7 +136,7 @@ void PressWebHandler::webConfigPost(AsyncWebServerRequest *request,
   myConfig.saveFile();
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   obj = response->getRoot().as<JsonObject>();
   obj[PARAM_SUCCESS] = true;
   obj[PARAM_MESSAGE] = "Configuration updated";
@@ -156,7 +154,7 @@ void PressWebHandler::webHandleLogsClear(AsyncWebServerRequest *request) {
   LittleFS.remove(ERR_FILENAME2);
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
   obj[PARAM_SUCCESS] = true;
   obj[PARAM_MESSAGE] = "Logfiles removed";
@@ -174,7 +172,7 @@ void PressWebHandler::webSensorCalibrate(AsyncWebServerRequest *request) {
   _calibrateTask = true;
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   JsonObject obj2 = response->getRoot().as<JsonObject>();
   obj2[PARAM_SUCCESS] = true;
   obj2[PARAM_MESSAGE] = "Sensor calibration completed";
@@ -191,7 +189,7 @@ void PressWebHandler::webSensorCalibrateStatus(AsyncWebServerRequest *request) {
 
   if (_calibrateTask) {
     AsyncJsonResponse *response =
-        new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
+        new AsyncJsonResponse(false);
     JsonObject obj = response->getRoot().as<JsonObject>();
     obj[PARAM_STATUS] = static_cast<bool>(_calibrateTask);
     obj[PARAM_SUCCESS] = false;
@@ -208,7 +206,7 @@ void PressWebHandler::webStatus(AsyncWebServerRequest *request) {
   Log.notice(F("WEB : webServer callback /api/status." CR));
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
 
   obj[PARAM_PRESSURE] =
@@ -255,7 +253,7 @@ void PressWebHandler::webHardwareScan(AsyncWebServerRequest *request) {
   _hardwareScanTask = true;
   _hardwareScanData = "";
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
   obj[PARAM_SUCCESS] = true;
   obj[PARAM_MESSAGE] = "Scheduled hardware scanning";
@@ -272,7 +270,7 @@ void PressWebHandler::webHardwareScanStatus(AsyncWebServerRequest *request) {
 
   if (_hardwareScanTask || !_hardwareScanData.length()) {
     AsyncJsonResponse *response =
-        new AsyncJsonResponse(false, JSON_BUFFER_SIZE_L);
+        new AsyncJsonResponse(false);
     JsonObject obj = response->getRoot().as<JsonObject>();
     obj[PARAM_STATUS] = static_cast<bool>(_hardwareScanTask);
     obj[PARAM_SUCCESS] = false;
@@ -348,7 +346,7 @@ void PressWebHandler::webHandleConfigFormatWrite(AsyncWebServerRequest *request,
   }
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_S);
+      new AsyncJsonResponse(false);
   obj = response->getRoot().as<JsonObject>();
   obj[PARAM_SUCCESS] = success > 0 ? true : false;
   obj[PARAM_MESSAGE] = success > 0 ? "Format template stored"
@@ -365,7 +363,7 @@ void PressWebHandler::webHandleConfigFormatRead(
   Log.notice(F("WEB : webServer callback for /api/config/format(read)." CR));
 
   AsyncJsonResponse *response =
-      new AsyncJsonResponse(false, JSON_BUFFER_SIZE_XL);
+      new AsyncJsonResponse(false);
   JsonObject obj = response->getRoot().as<JsonObject>();
   String s;
 
@@ -398,15 +396,14 @@ void PressWebHandler::loop() {
   }
 
   if (_hardwareScanTask) {
-    DynamicJsonDocument doc(JSON_BUFFER_SIZE_L);
-    JsonObject obj = doc.createNestedObject();
+    JsonDocument doc;
+    JsonObject obj = doc.as<JsonObject>();
     obj[PARAM_STATUS] = false;
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "";
     Log.notice(F("WEB : Scanning hardware." CR));
 
     // Scan the i2c bus for devices
-    /*
     JsonArray i2c = obj.createNestedArray(PARAM_I2C);
 
     // Scan bus #1
@@ -422,7 +419,6 @@ void PressWebHandler::loop() {
         sensor[PARAM_ADRESS] = "0x" + String(i, 16);
       }
     }
-    */
 
     // Scan onewire
     /*

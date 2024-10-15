@@ -27,7 +27,7 @@ SOFTWARE.
 #include <utils.hpp>
 
 PressConfig::PressConfig(String baseMDNS, String fileName)
-    : BaseConfig(baseMDNS, fileName, JSON_BUFFER) {}
+    : BaseConfig(baseMDNS, fileName) {}
 
 void PressConfig::createJson(JsonObject& doc) {
   // Call base class functions
