@@ -24,34 +24,4 @@ SOFTWARE.
 #ifndef SRC_MAIN_HPP_
 #define SRC_MAIN_HPP_
 
-#include <LittleFS.h>
-#include <stdlib.h>
-
-#include <log.hpp>
-
-constexpr auto CFG_APPNAME = "PressureMon";
-constexpr auto CFG_MDNSNAME = "PressMon";
-constexpr auto CFG_FILENAME = "/pressmon.json";
-
-constexpr auto JSON_BUFFER = 3000;
-
-enum RunMode {
-  normalMode = 0,
-  sleepMode = 1,
-  wifiSetupMode = 2,
-};
-extern RunMode runMode;
-
-#if defined(ESP32S2)
-constexpr auto PIN_LED = BUILTIN_LED;
-// Honywell sensor uses pins SS (12), MOSI (9), SCK (7)
-constexpr auto PIN_BATTERY = A0;
-#else
-#error "Undefined target platform"
-#endif
-
-constexpr auto DECIMALS_PRESSURE = 2;
-constexpr auto DECIMALS_TEMP = 2;
-constexpr auto DECIMALS_BATTERY = 2;
-
 #endif  // SRC_MAIN_HPP_

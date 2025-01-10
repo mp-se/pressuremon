@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2024 Magnus
+Copyright (c) 2021-2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_BATTERY_HPP_
-#define SRC_BATTERY_HPP_
+#ifndef SRC_PRESSURE_HONEYWELL_HPP_
+#define SRC_PRESSURE_HONEYWELL_HPP_
 
-class BatteryVoltage {
- private:
-  float _batteryLevel = 0;
+#include <pressure.hpp>
 
- public:
-  BatteryVoltage();
-  void read();
-  float getVoltage() { return _batteryLevel; }
+#include <HoneywellTruStabilitySPI.h>
+
+class HonewywellPressureSensor : public PressureSensorInterface {
+  private:
+    std::unique_ptr<TruStabilityPressureSensor>  _honeywellSensor;
+    float _zeroCorrection = 0;
+    bool _sensorActive = false;
+
+  public:
+    HonewywellPressureSensor() {}
+
+    void setup(int min, int max);
+    void loop();
+
+    bool isSensorActive() { return _sensorActive; }
+    float getPressurePsi(bool doCorrection = true);
+    float getTemperatureC();
+    void calibrateSensor();
 };
 
-extern BatteryVoltage myBatteryVoltage;
-
-#endif  // SRC_BATTERY_HPP_
+#endif  // SRC_PRESSURE_HONEYWELL_HPP_
 
 // EOF

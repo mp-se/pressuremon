@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,40 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <main.hpp>
+#ifndef SRC_PRESSURE_XIDIBEI_HPP_
+#define SRC_PRESSURE_XIDIBEI_HPP_
+
 #include <pressure.hpp>
-#include <config.hpp>
-#include <looptimer.hpp>
 
-SerialDebug mySerial(115200L);
-PressConfig myConfig;
-PressureSensor myPressureSensor;
+#include <XIDIBEI.hpp>
 
-void setup()
-{
-  Log.notice(F("Main: Starting up." CR));
+class XIDIBEIPressureSensor : public PressureSensorInterface {
+  private:
+    std::unique_ptr<XIDIBEI> _xidibeiSensor;
+    float _zeroCorrection = 0;
+    bool _sensorActive = false;
+    float _pressure, _temperature;
 
-  // This is just for testing and evaluating the sensors
+  public:
+    XIDIBEIPressureSensor() {}
 
-  // Code base will be merged into the gravitymon project to enable sharing of the common code and make maintenance easier
+    void setup(float maxPressure);
+    void loop();
 
-  myConfig.setPressureSensorType(PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700);
-  myPressureSensor.setup();
-  Log.notice(F("Main: Setup completed." CR));
-}
+    bool isSensorActive() { return _sensorActive; }
+    float getPressurePsi(bool doCorrection = true);
+    float getTemperatureC();
+    void calibrateSensor();
+};
 
-LoopTimer timer(2000);
-
-void loop()
-{
-
-  if (timer.hasExipred())
-  {
-    timer.reset();
-    myPressureSensor.loop();
-
-    Log.notice(F("Loop: Pressure %.4F psi, Temp %.2F C." CR), myPressureSensor.getPressurePsi(), myPressureSensor.getTemperatureC());
-  }
-}
+#endif  // SRC_PRESSURE_XIDIBEI_HPP_
 
 // EOF

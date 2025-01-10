@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2024 Magnus
+Copyright (c) 2021-2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressconfig.hpp>
-#include <pressure.hpp>
+#include <pressure_honeywell.hpp>
+#include <config.hpp>
 
-void HonewywellPressureSensor::setup() {
-  _zeroCorrection = myConfig.getPressureZeroCorrection();
-  _honeywellSensor = new TruStabilityPressureSensor(
-      SS, myConfig.getPressureSensorMin(), myConfig.getPressureSensorMax());
+#include <memory>
+
+void HonewywellPressureSensor::setup(int min, int max) {
+  _zeroCorrection = myConfig.getHoneywellZeroCorrection();
+  _honeywellSensor.reset(new TruStabilityPressureSensor(SS, min, max));
   _honeywellSensor->begin();
   SPI.begin();
   Log.notice(
@@ -36,6 +37,9 @@ void HonewywellPressureSensor::setup() {
 }
 
 void HonewywellPressureSensor::loop() {
+  if(!_honeywellSensor)
+    return;
+
   switch (_honeywellSensor->readSensor()) {
     case 0:
 #if LOG_LEVEL == 6
@@ -71,9 +75,9 @@ void HonewywellPressureSensor::calibrateSensor() {
   }
 
   Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
-  myConfig.setPressureZeroCorrection(zero / 10);
+  myConfig.setHoneywellZeroCorrection(zero / 10);
   myConfig.saveFile();
-  _zeroCorrection = myConfig.getPressureZeroCorrection();
+  _zeroCorrection = myConfig.getHoneywellZeroCorrection();
 }
 
 float HonewywellPressureSensor::getTemperatureC() {

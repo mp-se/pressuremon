@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2024 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressconfig.hpp>
-#include <pressure.hpp>
+#include <pressure_xidibei.hpp>
+#include <config.hpp>
 
-void CFSensorPressureSensor::setup() {
-  _zeroCorrection = myConfig.getPressureZeroCorrection();
-  _cfsensorSensor = new XGZP6897D(myConfig.getPressureSensorK(), &Wire);
-  _sensorActive = _cfsensorSensor->begin();
+#include <memory>
+
+void XIDIBEIPressureSensor::setup(float maxPressure) {
+  _zeroCorrection = myConfig.getCfZeroCorrection();
+  _xidibeiSensor.reset(new XIDIBEI(maxPressure, &Wire));
+  _sensorActive = _xidibeiSensor->begin();
   Log.notice(
-      F("PRES: CFSensor sensor initialized %s, zero correction = %F" CR), _sensorActive ? "true" : "false", _zeroCorrection);
+      F("PRES: XIDIBEI sensor initialized %s, max pressure = %F zero correction = %F" CR), _sensorActive ? "true" : "false", maxPressure, _zeroCorrection);
 }
 
-void CFSensorPressureSensor::loop() {
+void XIDIBEIPressureSensor::loop() {
 }
 
-void CFSensorPressureSensor::calibrateSensor() {
+void XIDIBEIPressureSensor::calibrateSensor() {
   Log.notice(F("PRES: Starting auto calibration." CR));
   float zero = 0;
 
@@ -48,21 +50,21 @@ void CFSensorPressureSensor::calibrateSensor() {
   }
 
   Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
-  myConfig.setPressureZeroCorrection(zero / 10);
+  myConfig.setCfZeroCorrection(zero / 10);
   myConfig.saveFile();
-  _zeroCorrection = myConfig.getPressureZeroCorrection();
+  _zeroCorrection = myConfig.getCfZeroCorrection();
 }
 
-float CFSensorPressureSensor::getTemperatureC() {
+float XIDIBEIPressureSensor::getTemperatureC() {
   return _temperature;
 }
 
-float CFSensorPressureSensor::getPressurePsi(bool doCorrection) {
+float XIDIBEIPressureSensor::getPressurePsi(bool doCorrection) {
   float pressure;
 
-  // Returns temperature in C and pressure in Pa
-  _cfsensorSensor->readSensor(_temperature, pressure);
-  _pressure = convertPressure2Psi(pressure);
+  // Returns temperature in C and pressure in kPa
+  _xidibeiSensor->readSensor(_temperature, pressure);
+  _pressure = convertPaPressureToPsi(pressure*1000);
 
   if (doCorrection) return _pressure - _zeroCorrection;
   return _pressure;

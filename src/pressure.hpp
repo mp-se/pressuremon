@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2024 Magnus
+Copyright (c) 2021-2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,12 @@ SOFTWARE.
 #define SRC_PRESSURE_HPP_
 
 #include <Arduino.h>
-#include <HoneywellTruStabilitySPI.h>
-#include <XGZP6897D.h>
+#include <log.hpp>
 
+#include <memory>
 class PressureSensorInterface {
   public:
   PressureSensorInterface() = default;
-  virtual void setup();
   virtual void loop();
 
   virtual bool isSensorActive();
@@ -40,65 +39,33 @@ class PressureSensorInterface {
   virtual void calibrateSensor();
 };
 
-class HonewywellPressureSensor : public PressureSensorInterface {
-  private:
-    TruStabilityPressureSensor *_honeywellSensor = 0;
-    float _zeroCorrection = 0;
-    bool _sensorActive = false;
-
-  public:
-    HonewywellPressureSensor() {}
-    void setup();
-    void loop();
-
-    bool isSensorActive() { return _sensorActive; }
-    float getPressurePsi(bool doCorrection = true);
-    float getTemperatureC();
-    void calibrateSensor();
-};
-
-class CFSensorPressureSensor : public PressureSensorInterface {
-  private:
-    XGZP6897D *_cfsensorSensor = 0;
-    float _zeroCorrection = 0;
-    bool _sensorActive = false;
-    float _pressure, _temperature;
-
-    float convertPressure2Psi(float pa) { return pa * 0.000145038; }
-
-  public:
-    CFSensorPressureSensor() {}
-    void setup();
-    void loop();
-
-    bool isSensorActive() { return _sensorActive; }
-    float getPressurePsi(bool doCorrection = true);
-    float getTemperatureC();
-    void calibrateSensor();
-};
-
 class PressureSensor {
  private:
-  PressureSensorInterface *_impl = 0;
+  std::unique_ptr<PressureSensorInterface> _impl;
 
  public:
   void setup();
   void loop() { if(_impl) loop(); }
-  bool isSensorActive() { return _impl == 0 ? false : _impl->isSensorActive(); }
+  bool isSensorActive() { return _impl == nullptr ? false : _impl->isSensorActive(); }
 
-  float getPressurePsi(bool doCorrection = true) { return _impl == 0 ? NAN : _impl->getPressurePsi(doCorrection); }
+  float getPressurePsi(bool doCorrection = true) { return _impl == nullptr ? NAN : _impl->getPressurePsi(doCorrection); }
   float getTemperatureC() { return _impl == 0 ? NAN : _impl->getTemperatureC(); }
   float getTemperatureF() { return (getTemperatureC() * 1.8) + 32.0; }
 
   void calibrateSensor() { if(_impl) _impl->calibrateSensor(); }
-  float convertPressure2Bar(float psi) { return psi * 0.0689475729; }
-  float convertPressure2HPa(float psi) { return psi * 68.947572932; }
+
+  // When reading the values always read pressure first and then temperature. 
+  // Some sensors have one way of getting the data which is implemented in 
+  // the getPressure method.
 
   float getPressure(bool doCorrection = true); // Returns in chosen device format
   float getTemperature(); // Returns in chosen device format
 };
 
-extern PressureSensor myPressureSensor;
+float convertPsiPressureToBar(float psi);
+float convertPsiPressureToHPa(float psi);
+
+float convertPaPressureToPsi(float pa);
 
 #endif  // SRC_PRESSURE_HPP_
 

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2022-2024 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,40 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <main.hpp>
-#include <pressure.hpp>
-#include <config.hpp>
-#include <looptimer.hpp>
+#ifndef SRC_XIDIBEI_HPP
+#define SRC_XIDIBEI_HPP
 
-SerialDebug mySerial(115200L);
-PressConfig myConfig;
-PressureSensor myPressureSensor;
+#include <Arduino.h>
+#include <Wire.h>
 
-void setup()
-{
-  Log.notice(F("Main: Starting up." CR));
+constexpr auto XIDIBEI_I2C_ADDRESS = 0x6D;
 
-  // This is just for testing and evaluating the sensors
+class XIDIBEI {
+public:
+  // Max pressure is the maximum value that the sensor can handle. 
+  XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
 
-  // Code base will be merged into the gravitymon project to enable sharing of the common code and make maintenance easier
+  bool begin();
+  // Pressure is returned in the same unit as the sensor
+  // Temperature is in degrees C
+  void readSensor(float &pressure, float &temperature);
 
-  myConfig.setPressureSensorType(PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700);
-  myPressureSensor.setup();
-  Log.notice(F("Main: Setup completed." CR));
-}
+private:
+  TwoWire *_wire;
+  uint16_t _maxPressure;
+};
 
-LoopTimer timer(2000);
-
-void loop()
-{
-
-  if (timer.hasExipred())
-  {
-    timer.reset();
-    myPressureSensor.loop();
-
-    Log.notice(F("Loop: Pressure %.4F psi, Temp %.2F C." CR), myPressureSensor.getPressurePsi(), myPressureSensor.getTemperatureC());
-  }
-}
-
-// EOF
+#endif // SRC_XIDIBEI_HPP

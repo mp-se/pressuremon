@@ -11,13 +11,13 @@ def after_build(source, target, env):
     print( "Executing custom step " )
     dir    = env.GetLaunchDir()
     name   = env.get( "PIOENV" )
-    if name == "press32s2-release" :
-        target = dir + "/bin/firmware32s2.bin"
+    if name == "press32s3-release" :
+        target = dir + "/bin/firmware32s3.bin"
         source = dir + "/.pio/build/" + name + "/firmware.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-        target = dir + "/bin/partitions32s2.bin"
+        target = dir + "/bin/partitions32s3.bin"
         source = dir + "/.pio/build/" + name + "/partitions.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
