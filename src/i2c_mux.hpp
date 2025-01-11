@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2025 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +21,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_PRESSURE_HONEYWELL_HPP_
-#define SRC_PRESSURE_HONEYWELL_HPP_
+#ifndef SRC_I2C_MUX_HPP_
+#define SRC_I2C_MUX_HPP_
 
-#include <pressure.hpp>
+#include <Arduino.h>
+#include <Wire.h>
 
-#include <HoneywellTruStabilitySPI.h>
+// i2c Multiplexer driver, build to support TCA9548A (8 channel mux)
+//
+// Addresses are selected using pins A0-A2
+//
+// A0   A1	 A2	  Addr
+// -------------------
+// LOW	LOW	 LOW	0x70
+// HIGH	LOW	 LOW	0x71
+// LOW	HIGH LOW	0x72
+// HIGH	HIGH LOW	0x73
+// LOW	LOW	 HIGH	0x74
+// HIGH	LOW	 HIGH	0x75
+// LOW	HIGH HIGH	0x76
+// HIGH	HIGH HIGH	0x77
 
-class HonewywellPressureSensor : public PressureSensorInterface {
-  private:
-    std::unique_ptr<TruStabilityPressureSensor>  _honeywellSensor;
-    float _zeroCorrection = 0;
-    bool _sensorActive = false;
+class I2CMux {
+ private:
+  TwoWire *_wire = nullptr;
+  int _bus;
+  int _addr;
+  bool _found = false;
 
-  public:
-    HonewywellPressureSensor() {}
+ public:
+  explicit I2CMux(int addr = 0x70);
 
-    void setup(int min, int max);
-    void loop();
+  bool begin(TwoWire *wire);
 
-    bool isSensorActive() { return _sensorActive; }
-    float getPressurePsi(bool doCorrection = true);
-    float getTemperatureC();
-    void calibrateSensor();
+  bool selectBus(int bus);
+  int getSelectedBus() { return _bus; }
+
+  bool isMuxFound() { return _found; }
 };
 
-#endif  // SRC_PRESSURE_HONEYWELL_HPP_
+#endif  // SRC_I2C_MUX_HPP_
 
 // EOF

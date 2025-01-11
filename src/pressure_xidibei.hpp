@@ -24,27 +24,27 @@ SOFTWARE.
 #ifndef SRC_PRESSURE_XIDIBEI_HPP_
 #define SRC_PRESSURE_XIDIBEI_HPP_
 
-#include <pressure.hpp>
-
 #include <XIDIBEI.hpp>
-
+#include <memory>
+#include <pressure.hpp>
 class XIDIBEIPressureSensor : public PressureSensorInterface {
-  private:
-    std::unique_ptr<XIDIBEI> _xidibeiSensor;
-    float _zeroCorrection = 0;
-    bool _sensorActive = false;
-    float _pressure, _temperature;
+ private:
+  std::unique_ptr<XIDIBEI> _xidibeiSensor;
+  uint8_t _idx;
+  float _zeroCorrection = 0;
+  float _pressure, _temperature;
+  bool _sensorActive = false;
 
-  public:
-    XIDIBEIPressureSensor() {}
+ public:
+  XIDIBEIPressureSensor() {}
 
-    void setup(float maxPressure);
-    void loop();
+  void setup(float maxPressure, uint8_t idx);
+  bool readSensor();
 
-    bool isSensorActive() { return _sensorActive; }
-    float getPressurePsi(bool doCorrection = true);
-    float getTemperatureC();
-    void calibrateSensor();
+  bool isSensorActive() { return _sensorActive; }
+  float getPressurePsi(bool doCorrection = true);
+  float getTemperatureC();
+  void calibrateSensor();
 };
 
 #endif  // SRC_PRESSURE_XIDIBEI_HPP_

@@ -24,27 +24,40 @@ SOFTWARE.
 #ifndef SRC_PRESSURE_CFSENSOR_HPP_
 #define SRC_PRESSURE_CFSENSOR_HPP_
 
+#include <XGZP6897D.hpp>
+#include <memory>
 #include <pressure.hpp>
 
-#include <XGZP6897D.h>
-
+// CFSensor pinout (from top). Pin 2 is below the notch in the sensor.
+//
+//  6 5 4
+//  1 ^ 3
+//
+// 1 = SCL
+// 2 = NC
+// 3 = GND
+// 4 = VCC
+// 5 = SDA
+// 6 = NC
+//
 class CFSensorPressureSensor : public PressureSensorInterface {
-  private:
-    std::unique_ptr<XGZP6897D> _cfsensorSensor;
-    float _zeroCorrection = 0;
-    bool _sensorActive = false;
-    float _pressure, _temperature;
+ private:
+  std::unique_ptr<XGZP6897D> _cfsensorSensor;
+  uint8_t _idx;
+  float _zeroCorrection = 0;
+  float _pressure, _temperature;
+  bool _sensorActive = false;
 
-  public:
-    CFSensorPressureSensor() {}
+ public:
+  CFSensorPressureSensor() {}
 
-    void setup(uint16_t k);
-    void loop();
+  void setup(uint16_t k, uint8_t idx);
+  bool readSensor();
 
-    bool isSensorActive() { return _sensorActive; }
-    float getPressurePsi(bool doCorrection = true);
-    float getTemperatureC();
-    void calibrateSensor();
+  bool isSensorActive() { return _sensorActive; }
+  float getPressurePsi(bool doCorrection = true);
+  float getTemperatureC();
+  void calibrateSensor();
 };
 
 #endif  // SRC_PRESSURE_CFSENSOR_HPP_

@@ -25,13 +25,15 @@ SOFTWARE.
 #define SRC_PRESSURE_HPP_
 
 #include <Arduino.h>
-#include <log.hpp>
 
+#include <i2c_mux.hpp>
+#include <log.hpp>
 #include <memory>
 class PressureSensorInterface {
-  public:
+ public:
   PressureSensorInterface() = default;
-  virtual void loop();
+
+  virtual bool readSensor();
 
   virtual bool isSensorActive();
   virtual float getPressurePsi(bool doCorrection = true);
@@ -42,24 +44,24 @@ class PressureSensorInterface {
 class PressureSensor {
  private:
   std::unique_ptr<PressureSensorInterface> _impl;
+  I2CMux *_mux = nullptr;
+  int _idx = 0;
 
  public:
-  void setup();
-  void loop() { if(_impl) loop(); }
-  bool isSensorActive() { return _impl == nullptr ? false : _impl->isSensorActive(); }
+  void setup(uint8_t idx, I2CMux *mux = nullptr);
 
-  float getPressurePsi(bool doCorrection = true) { return _impl == nullptr ? NAN : _impl->getPressurePsi(doCorrection); }
-  float getTemperatureC() { return _impl == 0 ? NAN : _impl->getTemperatureC(); }
+  bool readSensor();
+  bool isSensorActive();
+
+  float getPressurePsi(bool doCorrection = true);
+  float getTemperatureC();
   float getTemperatureF() { return (getTemperatureC() * 1.8) + 32.0; }
 
-  void calibrateSensor() { if(_impl) _impl->calibrateSensor(); }
+  void calibrateSensor();
 
-  // When reading the values always read pressure first and then temperature. 
-  // Some sensors have one way of getting the data which is implemented in 
-  // the getPressure method.
-
-  float getPressure(bool doCorrection = true); // Returns in chosen device format
-  float getTemperature(); // Returns in chosen device format
+  float getPressure(
+      bool doCorrection = true);  // Returns in chosen device format
+  float getTemperature();         // Returns in chosen device format
 };
 
 float convertPsiPressureToBar(float psi);

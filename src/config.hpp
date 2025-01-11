@@ -21,44 +21,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_PRESSCONFIG_HPP_
-#define SRC_PRESSCONFIG_HPP_
+#ifndef SRC_CONFIG_HPP_
+#define SRC_CONFIG_HPP_
 
 #include <Arduino.h>
+
 #include <main.hpp>
 
 enum PressureSensorType {
-  // Honewywell
-  SensorHoneywellGaugePsi_30 = 0,
-  SensorHoneywellGaugePsi_60 = 1,
-  SensorHoneywellGaugePsi_100 = 2,
-  SensorHoneywellGaugePsi_150 = 3,
+  SensorNone = 0,
   // CFSensor
-  SensorCFSensorXGZP6847DGaugeKPa_700 = 100,   // 0 - 700 kPa
-  SensorCFSensorXGZP6847DGaugeKPa_1000 = 101,  // -100 - 1000 kPa
+  SensorCFSensorXGZP6847DGaugeKPa_700 = 200,   // 0 - 700 kPa
+  SensorCFSensorXGZP6847DGaugeKPa_1000 = 201,  // -100 - 1000 kPa
   // XIDIBEI
-  SensorXidibeiXDB401_KPa_300 = 200, // 0-0.3 MPa
-  SensorXidibeiXDB401_KPa_400 = 201, // 0-0.4 MPa
-  SensorXidibeiXDB401_KPa_500 = 202, // 0-0.5 MPa
-  SensorXidibeiXDB401_KPa_600 = 203, // 0-0.6 MPa
+  SensorXidibeiXDB401_KPa_300 = 300,  // 0-0.3 MPa
+  SensorXidibeiXDB401_KPa_400 = 301,  // 0-0.4 MPa
+  SensorXidibeiXDB401_KPa_500 = 302,  // 0-0.5 MPa
+  SensorXidibeiXDB401_KPa_600 = 303,  // 0-0.6 MPa
 };
 
 constexpr auto PRESSURE_HPA = "hpa";
 constexpr auto PRESSURE_BAR = "bar";
 constexpr auto PRESSURE_PSI = "psi";
 
+constexpr auto MAX_PRESSURE_DEVICES = 8;
+
 class PressConfig {
  private:
   String _pressureUnit = PRESSURE_PSI;
   char _tempFormat = 'C';
 
-  PressureSensorType _pressureSensor = PressureSensorType::SensorHoneywellGaugePsi_30;
+  PressureSensorType _pressureSensor[MAX_PRESSURE_DEVICES] = {
+      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
+      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
+      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
+      PressureSensorType::SensorNone, PressureSensorType::SensorNone};
 
   // Honeywell specific settings
-  float _honeywellZeroCorrection = 0;
+  float _honeywellZeroCorrection[MAX_PRESSURE_DEVICES] = {0, 0, 0, 0,
+                                                          0, 0, 0, 0};
 
   // CF Sensor specific settings
-  float _cfZeroCorrection = 0;
+  float _cfZeroCorrection[MAX_PRESSURE_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   bool _saveNeeded = false;
 
@@ -74,22 +78,31 @@ class PressConfig {
     _saveNeeded = true;
   }
 
-  PressureSensorType getPressureSensorType() { return _pressureSensor; }
-  int getPressureSensorTypeAsInt() { return static_cast<int>(_pressureSensor); }
-  void setPressureSensorType(int s) {
-    _pressureSensor = (PressureSensorType)s;
+  PressureSensorType getPressureSensorType(int idx) {
+    return _pressureSensor[idx];
+  }
+  int getPressureSensorTypeAsInt(int idx) {
+    return static_cast<int>(_pressureSensor[idx]);
+  }
+  void setPressureSensorType(PressureSensorType s, int idx) {
+    _pressureSensor[idx] = s;
+    _saveNeeded = true;
+  }
+  void setPressureSensorType(int s, int idx) {
+    setPressureSensorType((PressureSensorType)s, idx);
+  }
+
+  float getHoneywellZeroCorrection(int idx) {
+    return _honeywellZeroCorrection[idx];
+  }
+  void setHoneywellZeroCorrection(float v, int idx) {
+    _honeywellZeroCorrection[idx] = v;
     _saveNeeded = true;
   }
 
-  float getHoneywellZeroCorrection() { return _honeywellZeroCorrection; }
-  void setHoneywellZeroCorrection(float v) {
-    _honeywellZeroCorrection = v;
-    _saveNeeded = true;
-  }
-
-  float getCfZeroCorrection() { return _cfZeroCorrection; }
-  void setCfZeroCorrection(float v) {
-    _cfZeroCorrection = v;
+  float getCfZeroCorrection(int idx) { return _cfZeroCorrection[idx]; }
+  void setCfZeroCorrection(float v, int idx) {
+    _cfZeroCorrection[idx] = v;
     _saveNeeded = true;
   }
 
@@ -98,6 +111,6 @@ class PressConfig {
 
 extern PressConfig myConfig;
 
-#endif  // SRC_PRESSCONFIG_HPP_
+#endif  // SRC_CONFIG_HPP_
 
 // EOF

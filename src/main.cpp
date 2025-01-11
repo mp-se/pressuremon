@@ -21,45 +21,57 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <main.hpp>
-#include <pressure.hpp>
-#include <config.hpp>
-#include <looptimer.hpp>
 #include <Wire.h>
 #include <pins_arduino.h>
 
+#include <config.hpp>
+#include <i2c_mux.hpp>
+#include <looptimer.hpp>
+#include <main.hpp>
+#include <pressure.hpp>
+
 SerialDebug mySerial(115200L);
 PressConfig myConfig;
-PressureSensor myPressureSensor;
+PressureSensor myPressureSensor[MAX_PRESSURE_DEVICES];
+I2CMux myMux;
 
 void scanI2C() {
-  for (int i = 1, j = 0; i < 127; i++) {
-    // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
-    // a device did acknowledge to the address.
+  for (uint8_t i = 1, j = 0; i < 127; i++) {
     Wire.beginTransmission(i);
-    int err = Wire.endTransmission();
-
-    if (err == 0) {
-      Log.notice(F("WEB : Found device at 0x%02X." CR), i);
+    if (Wire.endTransmission() == 0) {
+      Log.notice(F("Main : Found device at %X." CR), i);
       j++;
     }
   }
 }
 
 void setup() {
-  delay(2000); // Allow for usbc serial to connect
+  delay(5000);  // Allow for usbc serial to connect
 
   Log.notice(F("Main: Starting up." CR));
   Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
 
-  scanI2C();
+  Wire.begin(SDA, SCL);
+
+  bool b = myMux.begin(&Wire);
+  // scanI2C();
+
+  /*for(int i = 0; i < MAX_PRESSURE_DEVICES; i ++) {
+    Log.notice(F("Main: Scanning bus %d." CR), i);
+    myMux.selectBus(i);
+    scanI2C();
+  }*/
 
   // This is just for testing and evaluating the sensors
-  // Code base will be merged into the gravitymon project to enable sharing of the common code and make maintenance easier
+  // Code base will be merged into the gravitymon project to enable sharing of
+  // the common code and make maintenance easier
 
-  myConfig.setPressureSensorType(PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700);
-  myPressureSensor.setup();
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 0);
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 1);
+  myPressureSensor[0].setup(0, &myMux);
+  myPressureSensor[1].setup(1, &myMux);
   Log.notice(F("Main: Setup completed." CR));
 }
 
@@ -68,9 +80,13 @@ LoopTimer timer(2000);
 void loop() {
   if (timer.hasExipred()) {
     timer.reset();
-    myPressureSensor.loop();
 
-    Log.notice(F("Loop: Pressure %.4F psi, Temp %.2F C." CR), myPressureSensor.getPressurePsi(), myPressureSensor.getTemperatureC());
+    for(int i = 0; i < MAX_PRESSURE_DEVICES; i++ ) {
+      if(myConfig.getPressureSensorType(i) != PressureSensorType::SensorNone) {
+        myPressureSensor[i].readSensor();
+        Log.notice(F("Loop: Pressure %d %F psi, Temp %F C." CR), i, myPressureSensor[i].getPressurePsi(), myPressureSensor[i].getTemperatureC());
+      }
+    }
   }
 }
 

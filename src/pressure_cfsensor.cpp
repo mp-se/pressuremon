@@ -21,53 +21,52 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressure_cfsensor.hpp>
 #include <config.hpp>
-
 #include <memory>
+#include <pressure_cfsensor.hpp>
 
-void CFSensorPressureSensor::setup(uint16_t k) {
-  _zeroCorrection = myConfig.getCfZeroCorrection();
+void CFSensorPressureSensor::setup(uint16_t k, uint8_t idx) {
+  _zeroCorrection = myConfig.getCfZeroCorrection(idx);
+  _idx = idx;
   _cfsensorSensor.reset(new XGZP6897D(k, &Wire));
   _sensorActive = _cfsensorSensor->begin();
-  Log.notice(
-      F("PRES: CFSensor sensor initialized %s, k = %d zero correction = %F" CR), _sensorActive ? "true" : "false", k, _zeroCorrection);
-}
-
-void CFSensorPressureSensor::loop() {
+  Log.notice(F("PRES: CFSensor sensor initialized %s, k = %d zero correction = "
+               "%F (%d)" CR),
+             _sensorActive ? "true" : "false", k, _zeroCorrection, _idx);
 }
 
 void CFSensorPressureSensor::calibrateSensor() {
-  Log.notice(F("PRES: Starting auto calibration." CR));
+  Log.notice(F("PRES: Starting auto calibration (%d)." CR), _idx);
   float zero = 0;
 
   for (int i = 0; i < 10; i++) {
     loop();
     float f = getPressurePsi(false);
-    Log.notice(F("PRES: Step %d, Pressure = %F." CR), i + 1, f);
+    Log.notice(F("PRES: Step %d, Pressure = %F (%d)." CR), i + 1, f, _idx);
     zero += f;
     delay(500);
   }
 
-  Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
-  myConfig.setCfZeroCorrection(zero / 10);
+  Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / 10, _idx);
+  myConfig.setCfZeroCorrection(zero / 10, _idx);
   myConfig.saveFile();
-  _zeroCorrection = myConfig.getCfZeroCorrection();
+  _zeroCorrection = myConfig.getCfZeroCorrection(_idx);
 }
 
-float CFSensorPressureSensor::getTemperatureC() {
-  return _temperature;
-}
+float CFSensorPressureSensor::getTemperatureC() { return _temperature; }
 
 float CFSensorPressureSensor::getPressurePsi(bool doCorrection) {
+  if (doCorrection) return _pressure - _zeroCorrection;
+  return _pressure;
+}
+
+bool CFSensorPressureSensor::readSensor() {
   float pressure;
 
   // Returns temperature in C and pressure in Pa
-  _cfsensorSensor->readSensor(_temperature, pressure);
+  bool b = _cfsensorSensor->readSensor(_temperature, pressure);
   _pressure = convertPaPressureToPsi(pressure);
-
-  if (doCorrection) return _pressure - _zeroCorrection;
-  return _pressure;
+  return b;
 }
 
 // EOF

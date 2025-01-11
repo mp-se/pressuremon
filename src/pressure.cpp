@@ -21,75 +21,56 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#include <config.hpp>
 #include <pressure.hpp>
 #include <pressure_cfsensor.hpp>
-#include <pressure_honeywell.hpp>
 #include <pressure_xidibei.hpp>
-
 #include <utils.hpp>
-#include <config.hpp>
 
-// TODO: How many pressure sensors should we support ? 
-// TODO: What brands or sensors should be included ? 
 // TODO: Only digital or even analoge ? What is the difference i resolution ?
 
 float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
 float convertPsiPressureToHPa(float psi) { return psi * 68.947572932; }
 float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
 
-void PressureSensor::setup() {
-  Log.verbose(F("PRES: Looking for pressure sensors." CR));
+void PressureSensor::setup(uint8_t idx, I2CMux *mux) {
+  Log.verbose(F("PRES: Setting up pressuresensor index %d." CR), idx);
+  _idx = idx;
+  _mux = mux;
 
-  switch (myConfig.getPressureSensorType()) {
-    case PressureSensorType::SensorHoneywellGaugePsi_30:
-      _impl.reset(new HonewywellPressureSensor());
-      static_cast<HonewywellPressureSensor*>(_impl.get())->setup(0, 30);
-      break;
-
-    case PressureSensorType::SensorHoneywellGaugePsi_60:
-      _impl.reset(new HonewywellPressureSensor());
-      static_cast<HonewywellPressureSensor*>(_impl.get())->setup(0, 60);
-      break;
-
-    case PressureSensorType::SensorHoneywellGaugePsi_100:
-      _impl.reset(new HonewywellPressureSensor());
-      static_cast<HonewywellPressureSensor*>(_impl.get())->setup(0, 100);
-      break;
-
-    case PressureSensorType::SensorHoneywellGaugePsi_150:
-      _impl.reset(new HonewywellPressureSensor());
-      static_cast<HonewywellPressureSensor*>(_impl.get())->setup(0, 150);
-      break;
-
+  switch (myConfig.getPressureSensorType(idx)) {
     case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700:
     case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_1000:
       _impl.reset(new CFSensorPressureSensor());
-      static_cast<CFSensorPressureSensor*>(_impl.get())->setup(64);
+      static_cast<CFSensorPressureSensor *>(_impl.get())->setup(64, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_300:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor*>(_impl.get())->setup(300);
+      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_400:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor*>(_impl.get())->setup(400);
+      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(400, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_500:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor*>(_impl.get())->setup(500);
+      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(500, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor*>(_impl.get())->setup(600);
+      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, idx);
+      break;
+
+    case PressureSensorType::SensorNone:
       break;
 
     default:
       Log.notice(F("PRES: Unknown pressure sensor id %d" CR),
-                 myConfig.getPressureSensorType());
+                 myConfig.getPressureSensorType(idx));
       break;
   }
 }
@@ -110,6 +91,39 @@ float PressureSensor::getTemperature() {
   if (myConfig.getTempFormat() == 'C') return getTemperatureC();
 
   return getTemperatureF();
+}
+
+bool PressureSensor::readSensor() {
+  if (_impl) {
+    if(_mux) {
+      _mux->selectBus(_idx);
+    } else {
+      Log.error(F("PRES: Multiplexer not defined (%d)" CR), _idx);
+    }
+
+    return _impl->readSensor();
+  }
+
+
+  Log.error(F("PRES: Sensor not created (%d)" CR), _idx);
+  return false;
+}
+bool PressureSensor::isSensorActive() {
+  return _impl == nullptr ? false : _impl->isSensorActive();
+}
+
+float PressureSensor::getPressurePsi(bool doCorrection) {
+  return _impl == nullptr ? NAN : _impl->getPressurePsi(doCorrection);
+}
+float PressureSensor::getTemperatureC() {
+  return _impl == 0 ? NAN : _impl->getTemperatureC();
+}
+
+void PressureSensor::calibrateSensor() {
+  if (_impl) {
+    if(_mux) _mux->selectBus(_idx);
+    _impl->calibrateSensor();
+  }
 }
 
 // EOF

@@ -21,27 +21,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_XIDIBEI_HPP
-#define SRC_XIDIBEI_HPP
+#ifndef SRC_XIDIBEI_HPP_
+#define SRC_XIDIBEI_HPP_
 
 #include <Arduino.h>
 #include <Wire.h>
 
+#include <memory>
+
 constexpr auto XIDIBEI_I2C_ADDRESS = 0x6D;
 
 class XIDIBEI {
-public:
-  // Max pressure is the maximum value that the sensor can handle. 
-  XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
+ public:
+  // Max pressure is the maximum value that the sensor can handle.
+  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
 
   bool begin();
   // Pressure is returned in the same unit as the sensor
   // Temperature is in degrees C
-  void readSensor(float &pressure, float &temperature);
+  bool readSensor(float &pressure, float &temperature);
 
-private:
+ private:
   TwoWire *_wire;
   uint16_t _maxPressure;
 };
 
-#endif // SRC_XIDIBEI_HPP
+#endif  // SRC_XIDIBEI_HPP_

@@ -21,53 +21,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <pressure_xidibei.hpp>
 #include <config.hpp>
-
 #include <memory>
+#include <pressure_xidibei.hpp>
 
-void XIDIBEIPressureSensor::setup(float maxPressure) {
-  _zeroCorrection = myConfig.getCfZeroCorrection();
+void XIDIBEIPressureSensor::setup(float maxPressure, uint8_t idx) {
+  _zeroCorrection = myConfig.getCfZeroCorrection(idx);
+  _idx = idx;
   _xidibeiSensor.reset(new XIDIBEI(maxPressure, &Wire));
   _sensorActive = _xidibeiSensor->begin();
-  Log.notice(
-      F("PRES: XIDIBEI sensor initialized %s, max pressure = %F zero correction = %F" CR), _sensorActive ? "true" : "false", maxPressure, _zeroCorrection);
-}
-
-void XIDIBEIPressureSensor::loop() {
+  Log.notice(F("PRES: XIDIBEI sensor initialized %s, max pressure = %F zero "
+               "correction = %F (%d)" CR),
+             _sensorActive ? "true" : "false", maxPressure, _zeroCorrection,
+             _idx);
 }
 
 void XIDIBEIPressureSensor::calibrateSensor() {
-  Log.notice(F("PRES: Starting auto calibration." CR));
+  Log.notice(F("PRES: Starting auto calibration (%d)." CR), _idx);
   float zero = 0;
 
   for (int i = 0; i < 10; i++) {
-    loop();
+    readSensor();
     float f = getPressurePsi(false);
-    Log.notice(F("PRES: Step %d, Pressure = %F." CR), i + 1, f);
+    Log.notice(F("PRES: Step %d, Pressure = %F (%d)." CR), i + 1, f, _idx);
     zero += f;
     delay(500);
   }
 
-  Log.notice(F("PRES: Measured difference %F." CR), zero / 10);
-  myConfig.setCfZeroCorrection(zero / 10);
+  Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / 10, _idx);
+  myConfig.setCfZeroCorrection(zero / 10, _idx);
   myConfig.saveFile();
-  _zeroCorrection = myConfig.getCfZeroCorrection();
+  _zeroCorrection = myConfig.getCfZeroCorrection(_idx);
 }
 
-float XIDIBEIPressureSensor::getTemperatureC() {
-  return _temperature;
-}
+float XIDIBEIPressureSensor::getTemperatureC() { return _temperature; }
 
 float XIDIBEIPressureSensor::getPressurePsi(bool doCorrection) {
+  if (doCorrection) return _pressure - _zeroCorrection;
+  return _pressure;
+}
+
+bool XIDIBEIPressureSensor::readSensor() {
   float pressure;
 
   // Returns temperature in C and pressure in kPa
-  _xidibeiSensor->readSensor(_temperature, pressure);
-  _pressure = convertPaPressureToPsi(pressure*1000);
-
-  if (doCorrection) return _pressure - _zeroCorrection;
-  return _pressure;
+  bool b = _xidibeiSensor->readSensor(_temperature, pressure);
+  _pressure = convertPaPressureToPsi(pressure * 1000);
+  return b;
 }
 
 // EOF
