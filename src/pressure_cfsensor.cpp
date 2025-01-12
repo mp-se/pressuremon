@@ -25,14 +25,15 @@ SOFTWARE.
 #include <memory>
 #include <pressure_cfsensor.hpp>
 
-void CFSensorPressureSensor::setup(uint16_t k, uint8_t idx) {
+bool CFSensorPressureSensor::setup(uint16_t k, TwoWire *wire, uint8_t idx) {
   _zeroCorrection = myConfig.getCfZeroCorrection(idx);
   _idx = idx;
-  _cfsensorSensor.reset(new XGZP6897D(k, &Wire));
+  _cfsensorSensor.reset(new XGZP6897D(k, wire));
   _sensorActive = _cfsensorSensor->begin();
-  Log.notice(F("PRES: CFSensor sensor initialized %s, k = %d zero correction = "
+  Log.notice(F("PRES: CFSensor sensor initialized = %s, k = %d zero correction = "
                "%F (%d)" CR),
              _sensorActive ? "true" : "false", k, _zeroCorrection, _idx);
+  return _sensorActive;
 }
 
 void CFSensorPressureSensor::calibrateSensor() {

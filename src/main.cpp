@@ -35,44 +35,78 @@ PressConfig myConfig;
 PressureSensor myPressureSensor[MAX_PRESSURE_DEVICES];
 I2CMux myMux;
 
-void scanI2C() {
-  for (uint8_t i = 1, j = 0; i < 127; i++) {
-    Wire.beginTransmission(i);
-    if (Wire.endTransmission() == 0) {
+void scanI2C(TwoWire *wire) {
+  for (uint8_t i = 1; i < 127; i++) {
+    wire->beginTransmission(i);
+    if (wire->endTransmission() == 0) {
       Log.notice(F("Main : Found device at %X." CR), i);
-      j++;
     }
   }
 }
 
 void setup() {
-  delay(5000);  // Allow for usbc serial to connect
+  // delay(5000);  // Allow for usbc serial to connect
 
   Log.notice(F("Main: Starting up." CR));
-  Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
 
-  Wire.begin(SDA, SCL);
+  // ------------------------------------------------------------------------------------------------------------------------
+  // Example with multiplexer that allows for up to 8 sensors
+  //
+
+  /*
+  Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
+  Wire.setPins(SDA, SCL);
+  Wire.begin();
+  Wire.setClock(400000);
+  Log.notice(F("Main: Scanning I2C bus. Clock=%d, Timeout=%d" CR), Wire.getClock(), Wire.getTimeOut());
 
   bool b = myMux.begin(&Wire);
-  // scanI2C();
 
-  /*for(int i = 0; i < MAX_PRESSURE_DEVICES; i ++) {
-    Log.notice(F("Main: Scanning bus %d." CR), i);
+  for(int i = 0; i < MAX_PRESSURE_DEVICES; i ++) {
+    Log.notice(F("Main: Scanning I2C bus %d." CR), i);
     myMux.selectBus(i);
-    scanI2C();
-  }*/
-
-  // This is just for testing and evaluating the sensors
-  // Code base will be merged into the gravitymon project to enable sharing of
-  // the common code and make maintenance easier
+    scanI2C(&Wire);
+  }
 
   myConfig.setPressureSensorType(
       PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 0);
   myConfig.setPressureSensorType(
       PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 1);
-  myPressureSensor[0].setup(0, &myMux);
-  myPressureSensor[1].setup(1, &myMux);
-  Log.notice(F("Main: Setup completed." CR));
+  myPressureSensor[0].setup(0, &Wire, &myMux);
+  myPressureSensor[1].setup(1, &Wire, &myMux);
+  */
+
+  // ------------------------------------------------------------------------------------------------------------------------
+  // Example with two separate Wire bus that allows for two separate sensors
+  //
+
+  Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA, RX, TX);
+  Wire.setPins(SDA, SCL);
+  Wire.begin();
+  Wire.setClock(400000);
+
+  Wire1.setPins(RX, TX);
+  Wire1.begin();
+  Wire1.setClock(400000);
+
+  Log.notice(F("Main: Scanning I2C bus. Clock1=%d, Timeout1=%d, Clock2=%d, Timeout2=%d." CR), Wire.getClock(), Wire.getTimeOut(), Wire1.getClock(), Wire1.getTimeOut());
+
+  Log.notice(F("Main: Scanning I2C bus 1." CR));
+  scanI2C(&Wire);
+
+  Log.notice(F("Main: Scanning I2C bus 2." CR));
+  scanI2C(&Wire1);
+
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_KPa_300, 0);
+  myPressureSensor[0].setup(0, &Wire);
+
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_KPa_300, 1);
+  myPressureSensor[1].setup(1, &Wire1);
+
+
+ Log.notice(F("Main: Setup completed." CR));
 }
 
 LoopTimer timer(2000);
@@ -81,12 +115,28 @@ void loop() {
   if (timer.hasExipred()) {
     timer.reset();
 
+    // ------------------------------------------------------------------------------------------------------------------------
+    // Example with multiplexer that allows for up to 8 sensors
+    //
+
+    /*
     for(int i = 0; i < MAX_PRESSURE_DEVICES; i++ ) {
       if(myConfig.getPressureSensorType(i) != PressureSensorType::SensorNone) {
         myPressureSensor[i].readSensor();
         Log.notice(F("Loop: Pressure %d %F psi, Temp %F C." CR), i, myPressureSensor[i].getPressurePsi(), myPressureSensor[i].getTemperatureC());
       }
     }
+    */
+
+    // ------------------------------------------------------------------------------------------------------------------------
+    // Example with two separate Wire bus that allows for two separate sensors
+    //
+
+    myPressureSensor[0].readSensor();
+    Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C." CR), myPressureSensor[0].getPressurePsi(), myPressureSensor[0].getTemperatureC());
+    myPressureSensor[1].readSensor();
+    Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C." CR), myPressureSensor[1].getPressurePsi(), myPressureSensor[1].getTemperatureC());
+
   }
 }
 

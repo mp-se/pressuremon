@@ -34,7 +34,7 @@ bool I2CMux::begin(TwoWire *wire) {
 
   do {
     if(retry > 3) {
-      Log.notice(F("MUX : Multiplexer NOT found after 3 retries." CR));
+      Log.warning(F("MUX : Multiplexer NOT found after 3 retries." CR));
       return false;
     }
 
@@ -44,20 +44,22 @@ bool I2CMux::begin(TwoWire *wire) {
     retry++;
   } while(!_found);
 
-  Log.notice(F("MUX : Multiplexer found." CR));
+  // Log.notice(F("MUX : Multiplexer found." CR));
   return true;
 }
 
 bool I2CMux::selectBus(int bus) {
   if (_wire && _found) {
-    Log.notice(F("MUX : Selecting i2c bus %d." CR), bus);
+    // Log.notice(F("MUX : Selecting i2c bus %d." CR), bus);
 
     _bus = bus;
     _wire->beginTransmission(_addr);
     _wire->write(1 << _bus);
-    return _wire->endTransmission() == 0;
+    bool b = _wire->endTransmission() == 0;
+    delay(10);
+    return b;
   } else {
-    Log.notice(F("MUX : Unable to select bus %d." CR), bus);
+    // Log.notice(F("MUX : Unable to select bus %d." CR), bus);
   }
 
   return false;

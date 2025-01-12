@@ -51,7 +51,7 @@ class CFSensorPressureSensor : public PressureSensorInterface {
  public:
   CFSensorPressureSensor() {}
 
-  void setup(uint16_t k, uint8_t idx);
+  bool setup(uint16_t k, TwoWire *wire, uint8_t idx);
   bool readSensor();
 
   bool isSensorActive() { return _sensorActive; }

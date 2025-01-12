@@ -28,7 +28,9 @@ SOFTWARE.
 
 #include <i2c_mux.hpp>
 #include <log.hpp>
+
 #include <memory>
+
 class PressureSensorInterface {
  public:
   PressureSensorInterface() = default;
@@ -48,7 +50,7 @@ class PressureSensor {
   int _idx = 0;
 
  public:
-  void setup(uint8_t idx, I2CMux *mux = nullptr);
+  void setup(uint8_t idx, TwoWire *wire, I2CMux *mux = nullptr);
 
   bool readSensor();
   bool isSensorActive();

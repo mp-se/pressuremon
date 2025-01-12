@@ -25,15 +25,16 @@ SOFTWARE.
 #include <memory>
 #include <pressure_xidibei.hpp>
 
-void XIDIBEIPressureSensor::setup(float maxPressure, uint8_t idx) {
+bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire, uint8_t idx) {
   _zeroCorrection = myConfig.getCfZeroCorrection(idx);
   _idx = idx;
-  _xidibeiSensor.reset(new XIDIBEI(maxPressure, &Wire));
+  _xidibeiSensor.reset(new XIDIBEI(maxPressure, wire));
   _sensorActive = _xidibeiSensor->begin();
-  Log.notice(F("PRES: XIDIBEI sensor initialized %s, max pressure = %F zero "
+  Log.notice(F("PRES: XIDIBEI sensor initialized = %s, max pressure = %F zero "
                "correction = %F (%d)" CR),
              _sensorActive ? "true" : "false", maxPressure, _zeroCorrection,
              _idx);
+  return _sensorActive;
 }
 
 void XIDIBEIPressureSensor::calibrateSensor() {

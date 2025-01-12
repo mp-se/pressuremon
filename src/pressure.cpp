@@ -33,45 +33,55 @@ float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
 float convertPsiPressureToHPa(float psi) { return psi * 68.947572932; }
 float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
 
-void PressureSensor::setup(uint8_t idx, I2CMux *mux) {
+void PressureSensor::setup(uint8_t idx, TwoWire *wire, I2CMux *mux) {
   Log.verbose(F("PRES: Setting up pressuresensor index %d." CR), idx);
+  bool ret = false;
+
   _idx = idx;
   _mux = mux;
 
+  if(_mux) {
+    _mux->selectBus(_idx);
+  }
+
   switch (myConfig.getPressureSensorType(idx)) {
+    case PressureSensorType::SensorNone:
+      break;
+
     case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700:
     case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_1000:
       _impl.reset(new CFSensorPressureSensor());
-      static_cast<CFSensorPressureSensor *>(_impl.get())->setup(64, idx);
+      ret = static_cast<CFSensorPressureSensor *>(_impl.get())->setup(64, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_300:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_400:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(400, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(400, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_500:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(500, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(500, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor());
-      static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, idx);
-      break;
-
-    case PressureSensorType::SensorNone:
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, wire, idx);
       break;
 
     default:
       Log.notice(F("PRES: Unknown pressure sensor id %d" CR),
                  myConfig.getPressureSensorType(idx));
       break;
+  }
+
+  if(!ret) {
+    Log.error(F("PRES: Failed to communicate with sensor id %d" CR), idx);
   }
 }
 
@@ -97,13 +107,10 @@ bool PressureSensor::readSensor() {
   if (_impl) {
     if(_mux) {
       _mux->selectBus(_idx);
-    } else {
-      Log.error(F("PRES: Multiplexer not defined (%d)" CR), _idx);
-    }
+    } 
 
     return _impl->readSensor();
   }
-
 
   Log.error(F("PRES: Sensor not created (%d)" CR), _idx);
   return false;
