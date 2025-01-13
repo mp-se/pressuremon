@@ -30,39 +30,32 @@ SOFTWARE.
 
 enum PressureSensorType {
   SensorNone = 0,
-  // CFSensor
-  SensorCFSensorXGZP6847DGaugeKPa_700 = 200,   // 0 - 700 kPa
-  SensorCFSensorXGZP6847DGaugeKPa_1000 = 201,  // -100 - 1000 kPa
-  // XIDIBEI
-  SensorXidibeiXDB401_KPa_300 = 300,  // 0-0.3 MPa
-  SensorXidibeiXDB401_KPa_400 = 301,  // 0-0.4 MPa
-  SensorXidibeiXDB401_KPa_500 = 302,  // 0-0.5 MPa
-  SensorXidibeiXDB401_KPa_600 = 303,  // 0-0.6 MPa
+  SensorXidibeiXDB401_KPa_300 = 1,  // 0-0.3 MPa
+  SensorXidibeiXDB401_KPa_400 = 2,  // 0-0.4 MPa
+  SensorXidibeiXDB401_KPa_500 = 3,  // 0-0.5 MPa
+  SensorXidibeiXDB401_KPa_600 = 4,  // 0-0.6 MPa
 };
 
 constexpr auto PRESSURE_HPA = "hpa";
 constexpr auto PRESSURE_BAR = "bar";
 constexpr auto PRESSURE_PSI = "psi";
 
-constexpr auto MAX_PRESSURE_DEVICES = 8;
+constexpr auto MAX_SENSOR_DEVICES = 8;
 
 class PressConfig {
  private:
   String _pressureUnit = PRESSURE_PSI;
   char _tempFormat = 'C';
 
-  PressureSensorType _pressureSensor[MAX_PRESSURE_DEVICES] = {
+  PressureSensorType _pressureSensor[MAX_SENSOR_DEVICES] = {
       PressureSensorType::SensorNone, PressureSensorType::SensorNone,
       PressureSensorType::SensorNone, PressureSensorType::SensorNone,
       PressureSensorType::SensorNone, PressureSensorType::SensorNone,
       PressureSensorType::SensorNone, PressureSensorType::SensorNone};
 
-  // Honeywell specific settings
-  float _honeywellZeroCorrection[MAX_PRESSURE_DEVICES] = {0, 0, 0, 0,
-                                                          0, 0, 0, 0};
-
-  // CF Sensor specific settings
-  float _cfZeroCorrection[MAX_PRESSURE_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
+  // XIDIBEI Sensor specific settings
+  float _sensorPressureCorrection[MAX_SENSOR_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
+  float _sensorTemperatureCorrection[MAX_SENSOR_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   bool _saveNeeded = false;
 
@@ -92,17 +85,15 @@ class PressConfig {
     setPressureSensorType((PressureSensorType)s, idx);
   }
 
-  float getHoneywellZeroCorrection(int idx) {
-    return _honeywellZeroCorrection[idx];
-  }
-  void setHoneywellZeroCorrection(float v, int idx) {
-    _honeywellZeroCorrection[idx] = v;
+  float getSensorPressureCorrection(int idx) { return _sensorPressureCorrection[idx]; }
+  void setSensorPressureCorrection(float v, int idx) {
+    _sensorPressureCorrection[idx] = v;
     _saveNeeded = true;
   }
 
-  float getCfZeroCorrection(int idx) { return _cfZeroCorrection[idx]; }
-  void setCfZeroCorrection(float v, int idx) {
-    _cfZeroCorrection[idx] = v;
+  float getSensorTemperatureCorrection(int idx) { return _sensorTemperatureCorrection[idx]; }
+  void setSensorTemperatureCorrection(float v, int idx) {
+    _sensorTemperatureCorrection[idx] = v;
     _saveNeeded = true;
   }
 

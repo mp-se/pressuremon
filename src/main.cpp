@@ -32,7 +32,7 @@ SOFTWARE.
 
 SerialDebug mySerial(115200L);
 PressConfig myConfig;
-PressureSensor myPressureSensor[MAX_PRESSURE_DEVICES];
+PressureSensor myPressureSensor[MAX_SENSOR_DEVICES];
 I2CMux myMux;
 
 void scanI2C(TwoWire *wire) {

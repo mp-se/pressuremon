@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2025 Magnus
+Copyright (c) 2021-2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_PRESSURE_XIDIBEI_HPP_
-#define SRC_PRESSURE_XIDIBEI_HPP_
+/*#ifndef SRC_PRESSURE_HONEYWELL_HPP_
+#define SRC_PRESSURE_HONEYWELL_HPP_
 
-#include <XIDIBEI.hpp>
-#include <memory>
 #include <pressure.hpp>
-class XIDIBEIPressureSensor : public PressureSensorInterface {
- private:
-  std::unique_ptr<XIDIBEI> _xidibeiSensor;
-  uint8_t _idx;
-  float _pressureCorrection = 0, _temperatureCorrection = 0;
-  float _pressure, _temperature;
-  bool _sensorActive = false;
 
- public:
-  XIDIBEIPressureSensor() {}
+#include <HoneywellTruStabilitySPI.h>
 
-  bool setup(float maxPressure, TwoWire *wire, uint8_t idx);
-  bool readSensor();
+// Honewyell pinout (from bottom). Pin 1 is the one with a different shape.
+//
+//  6 5 4
+//  ^ 2 3
+//
+// 1 = GND
+// 2 = VCC
+// 3 = INT
+// 4 = NC
+// 5 = SDA
+// 6 = SCL
+//
+class HonewywellPressureSensor : public PressureSensorInterface {
+  private:
+    std::unique_ptr<TruStabilityPressureSensor>  _honeywellSensor;
+    uint8_t _idx = 0;
+    float _zeroCorrection = 0;
+    bool _sensorActive = false;
 
-  bool isSensorActive() { return _sensorActive; }
-  float getPressurePsi(bool doCorrection = true);
-  float getTemperatureC();
-  void calibrateSensor();
+  public:
+    HonewywellPressureSensor() {}
+
+    void setup(int min, int max, uint8_t idx);
+    void loop();
+
+    bool isSensorActive() { return _sensorActive; }
+    float getPressurePsi(bool doCorrection = true);
+    float getTemperatureC();
+    void calibrateSensor();
 };
 
-#endif  // SRC_PRESSURE_XIDIBEI_HPP_
+#endif  // SRC_PRESSURE_HONEYWELL_HPP_
+*/
 
 // EOF

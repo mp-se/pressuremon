@@ -23,11 +23,8 @@ SOFTWARE.
  */
 #include <config.hpp>
 #include <pressure.hpp>
-#include <pressure_cfsensor.hpp>
 #include <pressure_xidibei.hpp>
 #include <utils.hpp>
-
-// TODO: Only digital or even analoge ? What is the difference i resolution ?
 
 float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
 float convertPsiPressureToHPa(float psi) { return psi * 68.947572932; }
@@ -46,12 +43,6 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire, I2CMux *mux) {
 
   switch (myConfig.getPressureSensorType(idx)) {
     case PressureSensorType::SensorNone:
-      break;
-
-    case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700:
-    case PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_1000:
-      _impl.reset(new CFSensorPressureSensor());
-      ret = static_cast<CFSensorPressureSensor *>(_impl.get())->setup(64, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_KPa_300:
