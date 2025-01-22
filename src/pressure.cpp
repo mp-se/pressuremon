@@ -24,45 +24,61 @@ SOFTWARE.
 #include <config.hpp>
 #include <pressure.hpp>
 #include <pressure_xidibei.hpp>
+#include <pressure_analog.hpp>
 #include <utils.hpp>
 
 float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
 float convertPsiPressureToHPa(float psi) { return psi * 68.947572932; }
 float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
 
-void PressureSensor::setup(uint8_t idx, TwoWire *wire, I2CMux *mux) {
+void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
   Log.verbose(F("PRES: Setting up pressuresensor index %d." CR), idx);
   bool ret = false;
 
   _idx = idx;
-  _mux = mux;
-
-  if(_mux) {
-    _mux->selectBus(_idx);
-  }
 
   switch (myConfig.getPressureSensorType(idx)) {
     case PressureSensorType::SensorNone:
       break;
 
-    case PressureSensorType::SensorXidibeiXDB401_KPa_300:
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_300:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, wire, idx);
       break;
 
-    case PressureSensorType::SensorXidibeiXDB401_KPa_400:
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(400, wire, idx);
       break;
 
-    case PressureSensorType::SensorXidibeiXDB401_KPa_500:
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_500:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(500, wire, idx);
       break;
 
-    case PressureSensorType::SensorXidibeiXDB401_KPa_600:
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_300:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 300, idx, wire, idx); // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 400, idx, wire, idx); // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_500:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 500, idx, wire, idx); // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_600:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 600, idx, wire, idx); // Note! Index also defines the ADC port to use
       break;
 
     default:
@@ -96,10 +112,6 @@ float PressureSensor::getTemperature() {
 
 bool PressureSensor::readSensor() {
   if (_impl) {
-    if(_mux) {
-      _mux->selectBus(_idx);
-    } 
-
     return _impl->readSensor();
   }
 
@@ -119,7 +131,6 @@ float PressureSensor::getTemperatureC() {
 
 void PressureSensor::calibrateSensor() {
   if (_impl) {
-    if(_mux) _mux->selectBus(_idx);
     _impl->calibrateSensor();
   }
 }

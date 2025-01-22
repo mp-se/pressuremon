@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include <config.hpp>
-#include <memory>
 #include <pressure_xidibei.hpp>
 
 bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire, uint8_t idx) {

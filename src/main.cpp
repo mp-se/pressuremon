@@ -25,7 +25,6 @@ SOFTWARE.
 #include <pins_arduino.h>
 
 #include <config.hpp>
-#include <i2c_mux.hpp>
 #include <looptimer.hpp>
 #include <main.hpp>
 #include <pressure.hpp>
@@ -33,7 +32,6 @@ SOFTWARE.
 SerialDebug mySerial(115200L);
 PressConfig myConfig;
 PressureSensor myPressureSensor[MAX_SENSOR_DEVICES];
-I2CMux myMux;
 
 void scanI2C(TwoWire *wire) {
   for (uint8_t i = 1; i < 127; i++) {
@@ -49,64 +47,52 @@ void setup() {
 
   Log.notice(F("Main: Starting up." CR));
 
-  // ------------------------------------------------------------------------------------------------------------------------
-  // Example with multiplexer that allows for up to 8 sensors
-  //
+  int clock = 100000;
 
-  /*
   Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
   Wire.setPins(SDA, SCL);
   Wire.begin();
-  Wire.setClock(400000);
-  Log.notice(F("Main: Scanning I2C bus. Clock=%d, Timeout=%d" CR), Wire.getClock(), Wire.getTimeOut());
+  // Wire.setClock(clock);
 
-  bool b = myMux.begin(&Wire);
+  // Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA, SCL, RX, TX);
+  // Wire1.setPins(RX, TX);
+  // Wire1.begin();
+  // Wire1.setClock(clock);
 
-  for(int i = 0; i < MAX_PRESSURE_DEVICES; i ++) {
-    Log.notice(F("Main: Scanning I2C bus %d." CR), i);
-    myMux.selectBus(i);
-    scanI2C(&Wire);
-  }
+  Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR), Wire.getClock(), Wire.getTimeOut());
+  scanI2C(&Wire);
 
-  myConfig.setPressureSensorType(
-      PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 0);
-  myConfig.setPressureSensorType(
-      PressureSensorType::SensorCFSensorXGZP6847DGaugeKPa_700, 1);
-  myPressureSensor[0].setup(0, &Wire, &myMux);
-  myPressureSensor[1].setup(1, &Wire, &myMux);
-  */
+  // Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR), Wire1.getClock(), Wire1.getTimeOut());
+  // scanI2C(&Wire1);
 
   // ------------------------------------------------------------------------------------------------------------------------
   // Example with two separate Wire bus that allows for two separate sensors
   //
 
-  Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA, RX, TX);
-  Wire.setPins(SDA, SCL);
-  Wire.begin();
-  Wire.setClock(400000);
-
-  Wire1.setPins(RX, TX);
-  Wire1.begin();
-  Wire1.setClock(400000);
-
-  Log.notice(F("Main: Scanning I2C bus. Clock1=%d, Timeout1=%d, Clock2=%d, Timeout2=%d." CR), Wire.getClock(), Wire.getTimeOut(), Wire1.getClock(), Wire1.getTimeOut());
-
-  Log.notice(F("Main: Scanning I2C bus 1." CR));
-  scanI2C(&Wire);
-
-  Log.notice(F("Main: Scanning I2C bus 2." CR));
-  scanI2C(&Wire1);
-
   myConfig.setPressureSensorType(
-      PressureSensorType::SensorXidibeiXDB401_KPa_300, 0);
+      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 0);
   myPressureSensor[0].setup(0, &Wire);
 
   myConfig.setPressureSensorType(
-      PressureSensorType::SensorXidibeiXDB401_KPa_300, 1);
-  myPressureSensor[1].setup(1, &Wire1);
+      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 1);
+  // myPressureSensor[1].setup(1, &Wire1);
 
+  // ------------------------------------------------------------------------------------------------------------------------
+  // Example with ADS1115 and 4 analog channels
+  //
 
- Log.notice(F("Main: Setup completed." CR));
+  /*myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 0);
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 1);
+  */
+
+  // Setup
+
+  myPressureSensor[0].setup(0, &Wire);
+  // myPressureSensor[1].setup(1, &Wire);
+
+  Log.notice(F("Main: Setup completed." CR));
 }
 
 LoopTimer timer(2000);
@@ -115,28 +101,10 @@ void loop() {
   if (timer.hasExipred()) {
     timer.reset();
 
-    // ------------------------------------------------------------------------------------------------------------------------
-    // Example with multiplexer that allows for up to 8 sensors
-    //
-
-    /*
-    for(int i = 0; i < MAX_PRESSURE_DEVICES; i++ ) {
-      if(myConfig.getPressureSensorType(i) != PressureSensorType::SensorNone) {
-        myPressureSensor[i].readSensor();
-        Log.notice(F("Loop: Pressure %d %F psi, Temp %F C." CR), i, myPressureSensor[i].getPressurePsi(), myPressureSensor[i].getTemperatureC());
-      }
-    }
-    */
-
-    // ------------------------------------------------------------------------------------------------------------------------
-    // Example with two separate Wire bus that allows for two separate sensors
-    //
-
     myPressureSensor[0].readSensor();
     Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C." CR), myPressureSensor[0].getPressurePsi(), myPressureSensor[0].getTemperatureC());
-    myPressureSensor[1].readSensor();
-    Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C." CR), myPressureSensor[1].getPressurePsi(), myPressureSensor[1].getTemperatureC());
-
+    // myPressureSensor[1].readSensor();
+    // Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C." CR), myPressureSensor[1].getPressurePsi(), myPressureSensor[1].getTemperatureC());
   }
 }
 

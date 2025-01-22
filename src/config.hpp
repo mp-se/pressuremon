@@ -30,17 +30,23 @@ SOFTWARE.
 
 enum PressureSensorType {
   SensorNone = 0,
-  SensorXidibeiXDB401_KPa_300 = 1,  // 0-0.3 MPa
-  SensorXidibeiXDB401_KPa_400 = 2,  // 0-0.4 MPa
-  SensorXidibeiXDB401_KPa_500 = 3,  // 0-0.5 MPa
-  SensorXidibeiXDB401_KPa_600 = 4,  // 0-0.6 MPa
+  
+  SensorXidibeiXDB401_I2C_KPa_300 = 1,  // 0-0.3 MPa
+  SensorXidibeiXDB401_I2C_KPa_400 = 2,  // 0-0.4 MPa
+  SensorXidibeiXDB401_I2C_KPa_500 = 3,  // 0-0.5 MPa
+  SensorXidibeiXDB401_I2C_KPa_600 = 4,  // 0-0.6 MPa
+
+  SensorXidibeiXDB401_Analog_KPa_300 = 11,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_400 = 12,  // 0-04 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_500 = 13,  // 0-05 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_600 = 14,  // 0-06 MPa, 3.3V, 0.2 -> 2.4V
 };
 
 constexpr auto PRESSURE_HPA = "hpa";
 constexpr auto PRESSURE_BAR = "bar";
 constexpr auto PRESSURE_PSI = "psi";
 
-constexpr auto MAX_SENSOR_DEVICES = 8;
+constexpr auto MAX_SENSOR_DEVICES = 2;
 
 class PressConfig {
  private:
@@ -48,14 +54,11 @@ class PressConfig {
   char _tempFormat = 'C';
 
   PressureSensorType _pressureSensor[MAX_SENSOR_DEVICES] = {
-      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
-      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
-      PressureSensorType::SensorNone, PressureSensorType::SensorNone,
       PressureSensorType::SensorNone, PressureSensorType::SensorNone};
 
   // XIDIBEI Sensor specific settings
-  float _sensorPressureCorrection[MAX_SENSOR_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
-  float _sensorTemperatureCorrection[MAX_SENSOR_DEVICES] = {0, 0, 0, 0, 0, 0, 0, 0};
+  float _sensorPressureCorrection[MAX_SENSOR_DEVICES] = {0, 0};
+  float _sensorTemperatureCorrection[MAX_SENSOR_DEVICES] = {0, 0};
 
   bool _saveNeeded = false;
 

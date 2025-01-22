@@ -25,8 +25,8 @@ SOFTWARE.
 #define SRC_PRESSURE_HPP_
 
 #include <Arduino.h>
+#include <Wire.h>
 
-#include <i2c_mux.hpp>
 #include <log.hpp>
 
 #include <memory>
@@ -46,11 +46,10 @@ class PressureSensorInterface {
 class PressureSensor {
  private:
   std::unique_ptr<PressureSensorInterface> _impl;
-  I2CMux *_mux = nullptr;
   int _idx = 0;
 
  public:
-  void setup(uint8_t idx, TwoWire *wire, I2CMux *mux = nullptr);
+  void setup(uint8_t idx, TwoWire *wire);
 
   bool readSensor();
   bool isSensorActive();

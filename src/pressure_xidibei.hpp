@@ -25,8 +25,10 @@ SOFTWARE.
 #define SRC_PRESSURE_XIDIBEI_HPP_
 
 #include <XIDIBEI.hpp>
-#include <memory>
 #include <pressure.hpp>
+
+#include <memory>
+
 class XIDIBEIPressureSensor : public PressureSensorInterface {
  private:
   std::unique_ptr<XIDIBEI> _xidibeiSensor;

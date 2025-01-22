@@ -21,48 +21,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <i2c_mux.hpp>
-#include <log.hpp>
+#ifndef SRC_PRESSURE_ANALOG_HPP_
+#define SRC_PRESSURE_ANALOG_HPP_
 
-I2CMux::I2CMux(int addr) { _addr = addr; }
+#include<ADS1115_WE.h> 
+#include <pressure.hpp>
 
-bool I2CMux::begin(TwoWire *wire) {
-  int retry = 0;
+#include <memory>
 
-  _wire = wire;
-  _bus = 0;
+constexpr auto ADC_I2C_ADDRESS = 0x48;
 
-  do {
-    if(retry > 3) {
-      Log.warning(F("MUX : Multiplexer NOT found after 3 retries." CR));
-      return false;
-    }
+class AnalogPressureSensor : public PressureSensorInterface {
+ private:
+  static std::unique_ptr<ADS1115_WE> _adcSensor;
+  uint8_t _idx;
+  float _pressureCorrection = 0;
+  float _pressure;
+  float _minV, _maxV, _minKpa, _maxKpa;
+  int _adcChannel;
+  bool _sensorActive = false;
 
-    _wire->beginTransmission(_addr);
-    _wire->write(1 << 0);
-    _found = _wire->endTransmission() == 0;
-    retry++;
-  } while(!_found);
+  void adcSetup();
+  void selectChannel();
 
-  // Log.notice(F("MUX : Multiplexer found." CR));
-  return true;
-}
+ public:
+  AnalogPressureSensor() {}
 
-bool I2CMux::selectBus(int bus) {
-  if (_wire && _found) {
-    // Log.notice(F("MUX : Selecting i2c bus %d." CR), bus);
+  bool setup(float minV, float maxV, float minKpa, float maxKpa, int _adcChannel, TwoWire *wire, uint8_t idx);
+  bool readSensor();
 
-    _bus = bus;
-    _wire->beginTransmission(_addr);
-    _wire->write(1 << _bus);
-    bool b = _wire->endTransmission() == 0;
-    delay(10);
-    return b;
-  } else {
-    // Log.notice(F("MUX : Unable to select bus %d." CR), bus);
-  }
+  bool isSensorActive() { return _sensorActive; }
+  float getPressurePsi(bool doCorrection = true);
+  float getTemperatureC();
+  void calibrateSensor();
+};
 
-  return false;
-}
+#endif  // SRC_PRESSURE_ANALOG_HPP_
 
 // EOF
