@@ -54,42 +54,38 @@ void setup() {
   Wire.begin();
   // Wire.setClock(clock);
 
-  // Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA, SCL, RX, TX);
-  // Wire1.setPins(RX, TX);
-  // Wire1.begin();
-  // Wire1.setClock(clock);
+  // Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA,
+  // SCL, RX, TX); Wire1.setPins(RX, TX); Wire1.begin(); Wire1.setClock(clock);
 
-  Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR), Wire.getClock(), Wire.getTimeOut());
+  Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR),
+             Wire.getClock(), Wire.getTimeOut());
   scanI2C(&Wire);
 
-  // Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR), Wire1.getClock(), Wire1.getTimeOut());
-  // scanI2C(&Wire1);
+  // Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR),
+  // Wire1.getClock(), Wire1.getTimeOut()); scanI2C(&Wire1);
 
   // ------------------------------------------------------------------------------------------------------------------------
   // Example with two separate Wire bus that allows for two separate sensors
   //
 
-  myConfig.setPressureSensorType(
+  /*myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 0);
   myPressureSensor[0].setup(0, &Wire);
 
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 1);
   // myPressureSensor[1].setup(1, &Wire1);
+  */
 
   // ------------------------------------------------------------------------------------------------------------------------
   // Example with ADS1115 and 4 analog channels
   //
 
-  /*myConfig.setPressureSensorType(
+  myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 0);
+  myPressureSensor[0].setup(0, &Wire);
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 1);
-  */
-
-  // Setup
-
-  myPressureSensor[0].setup(0, &Wire);
   // myPressureSensor[1].setup(1, &Wire);
 
   Log.notice(F("Main: Setup completed." CR));
@@ -102,9 +98,15 @@ void loop() {
     timer.reset();
 
     myPressureSensor[0].readSensor();
-    Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C." CR), myPressureSensor[0].getPressurePsi(), myPressureSensor[0].getTemperatureC());
+    Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C, Voltage %F mV." CR),
+               myPressureSensor[0].getPressurePsi(),
+               myPressureSensor[0].getTemperatureC(),
+               myPressureSensor[0].getAnalogVoltage());
     // myPressureSensor[1].readSensor();
-    // Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C." CR), myPressureSensor[1].getPressurePsi(), myPressureSensor[1].getTemperatureC());
+    // Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C, Voltage %F mV." CR),
+    // myPressureSensor[1].getPressurePsi(),
+    // myPressureSensor[1].getTemperatureC(),
+    // myPressureSensor[0].getAnalogVoltage());
   }
 }
 

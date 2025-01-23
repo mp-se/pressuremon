@@ -23,8 +23,8 @@ SOFTWARE.
  */
 #include <config.hpp>
 #include <pressure.hpp>
-#include <pressure_xidibei.hpp>
 #include <pressure_analog.hpp>
+#include <pressure_xidibei.hpp>
 #include <utils.hpp>
 
 float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
@@ -43,42 +43,54 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_300:
       _impl.reset(new XIDIBEIPressureSensor());
-      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, wire, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(300, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400:
       _impl.reset(new XIDIBEIPressureSensor());
-      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(400, wire, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(400, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_500:
       _impl.reset(new XIDIBEIPressureSensor());
-      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(500, wire, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(500, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor());
-      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, wire, idx);
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(600, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_300:
       _impl.reset(new AnalogPressureSensor());
-      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 300, idx, wire, idx); // Note! Index also defines the ADC port to use
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 300, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400:
       _impl.reset(new AnalogPressureSensor());
-      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 400, idx, wire, idx); // Note! Index also defines the ADC port to use
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 400, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_500:
       _impl.reset(new AnalogPressureSensor());
-      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 500, idx, wire, idx); // Note! Index also defines the ADC port to use
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 500, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_600:
       _impl.reset(new AnalogPressureSensor());
-      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 600, idx, wire, idx); // Note! Index also defines the ADC port to use
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 600, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
       break;
 
     default:
@@ -87,7 +99,7 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
       break;
   }
 
-  if(!ret) {
+  if (!ret) {
     Log.error(F("PRES: Failed to communicate with sensor id %d" CR), idx);
   }
 }
@@ -125,8 +137,13 @@ bool PressureSensor::isSensorActive() {
 float PressureSensor::getPressurePsi(bool doCorrection) {
   return _impl == nullptr ? NAN : _impl->getPressurePsi(doCorrection);
 }
+
 float PressureSensor::getTemperatureC() {
   return _impl == 0 ? NAN : _impl->getTemperatureC();
+}
+
+float PressureSensor::getAnalogVoltage() {
+  return _impl == 0 ? NAN : _impl->getAnalogVoltage();
 }
 
 void PressureSensor::calibrateSensor() {

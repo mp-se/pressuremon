@@ -25,9 +25,8 @@ SOFTWARE.
 #define SRC_PRESSURE_XIDIBEI_HPP_
 
 #include <XIDIBEI.hpp>
-#include <pressure.hpp>
-
 #include <memory>
+#include <pressure.hpp>
 
 class XIDIBEIPressureSensor : public PressureSensorInterface {
  private:
@@ -42,11 +41,14 @@ class XIDIBEIPressureSensor : public PressureSensorInterface {
 
   bool setup(float maxPressure, TwoWire *wire, uint8_t idx);
   bool readSensor();
-
   bool isSensorActive() { return _sensorActive; }
+
   float getPressurePsi(bool doCorrection = true);
   float getTemperatureC();
+
   void calibrateSensor();
+
+  float getAnalogVoltage() { return NAN; }
 };
 
 #endif  // SRC_PRESSURE_XIDIBEI_HPP_

@@ -30,7 +30,7 @@ SOFTWARE.
 
 enum PressureSensorType {
   SensorNone = 0,
-  
+
   SensorXidibeiXDB401_I2C_KPa_300 = 1,  // 0-0.3 MPa
   SensorXidibeiXDB401_I2C_KPa_400 = 2,  // 0-0.4 MPa
   SensorXidibeiXDB401_I2C_KPa_500 = 3,  // 0-0.5 MPa
@@ -88,13 +88,17 @@ class PressConfig {
     setPressureSensorType((PressureSensorType)s, idx);
   }
 
-  float getSensorPressureCorrection(int idx) { return _sensorPressureCorrection[idx]; }
+  float getSensorPressureCorrection(int idx) {
+    return _sensorPressureCorrection[idx];
+  }
   void setSensorPressureCorrection(float v, int idx) {
     _sensorPressureCorrection[idx] = v;
     _saveNeeded = true;
   }
 
-  float getSensorTemperatureCorrection(int idx) { return _sensorTemperatureCorrection[idx]; }
+  float getSensorTemperatureCorrection(int idx) {
+    return _sensorTemperatureCorrection[idx];
+  }
   void setSensorTemperatureCorrection(float v, int idx) {
     _sensorTemperatureCorrection[idx] = v;
     _saveNeeded = true;

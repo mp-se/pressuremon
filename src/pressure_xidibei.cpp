@@ -24,16 +24,18 @@ SOFTWARE.
 #include <config.hpp>
 #include <pressure_xidibei.hpp>
 
-bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire, uint8_t idx) {
+bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
+                                  uint8_t idx) {
   _pressureCorrection = myConfig.getSensorPressureCorrection(idx);
   _temperatureCorrection = myConfig.getSensorTemperatureCorrection(idx);
   _idx = idx;
   _xidibeiSensor.reset(new XIDIBEI(maxPressure, wire));
   _sensorActive = _xidibeiSensor->begin();
-  Log.notice(F("PRES: XIDIBEI sensor initialized = %s, max pressure = %F, pressure "
-               "correction = %F, temperature correction = %F (%d)" CR),
-             _sensorActive ? "true" : "false", maxPressure, _pressureCorrection, _temperatureCorrection,
-             _idx);
+  Log.notice(
+      F("PRES: XIDIBEI sensor initialized = %s, max pressure = %F, pressure "
+        "correction = %F, temperature correction = %F (%d)" CR),
+      _sensorActive ? "true" : "false", maxPressure, _pressureCorrection,
+      _temperatureCorrection, _idx);
   return _sensorActive;
 }
 
@@ -55,7 +57,9 @@ void XIDIBEIPressureSensor::calibrateSensor() {
   _pressureCorrection = myConfig.getSensorPressureCorrection(_idx);
 }
 
-float XIDIBEIPressureSensor::getTemperatureC() { return _temperature + _temperatureCorrection; }
+float XIDIBEIPressureSensor::getTemperatureC() {
+  return _temperature + _temperatureCorrection;
+}
 
 float XIDIBEIPressureSensor::getPressurePsi(bool doCorrection) {
   if (doCorrection) return _pressure - _pressureCorrection;

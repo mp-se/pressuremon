@@ -28,7 +28,6 @@ SOFTWARE.
 #include <Wire.h>
 
 #include <log.hpp>
-
 #include <memory>
 
 class PressureSensorInterface {
@@ -38,9 +37,13 @@ class PressureSensorInterface {
   virtual bool readSensor();
 
   virtual bool isSensorActive();
+
   virtual float getPressurePsi(bool doCorrection = true);
   virtual float getTemperatureC();
+
   virtual void calibrateSensor();
+
+  virtual float getAnalogVoltage();
 };
 
 class PressureSensor {
@@ -63,6 +66,8 @@ class PressureSensor {
   float getPressure(
       bool doCorrection = true);  // Returns in chosen device format
   float getTemperature();         // Returns in chosen device format
+
+  float getAnalogVoltage();
 };
 
 float convertPsiPressureToBar(float psi);
