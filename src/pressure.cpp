@@ -41,6 +41,11 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
     case PressureSensorType::SensorNone:
       break;
 
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_200:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(200, wire, idx);
+      break;
+
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_300:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(300, wire, idx);
@@ -59,6 +64,11 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(600, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_200:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 200, idx, wire, idx); // Note! Index also defines the ADC port to use
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_300:
