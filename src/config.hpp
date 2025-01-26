@@ -31,17 +31,27 @@ SOFTWARE.
 enum PressureSensorType {
   SensorNone = 0,
   
-  SensorXidibeiXDB401_I2C_KPa_200 = 1,  // 0-0.2 MPa
-  SensorXidibeiXDB401_I2C_KPa_300 = 2,  // 0-0.3 MPa
-  SensorXidibeiXDB401_I2C_KPa_400 = 3,  // 0-0.4 MPa
-  SensorXidibeiXDB401_I2C_KPa_500 = 4,  // 0-0.5 MPa
-  SensorXidibeiXDB401_I2C_KPa_600 = 5,  // 0-0.6 MPa
+  SensorXidibeiXDB401_I2C_KPa_100 = 1,  // 0-0.1 MPa
+  SensorXidibeiXDB401_I2C_KPa_200 = 2,  // 0-0.2 MPa
+  SensorXidibeiXDB401_I2C_KPa_300 = 3,  // 0-0.3 MPa
+  SensorXidibeiXDB401_I2C_KPa_400 = 4,  // 0-0.4 MPa
+  SensorXidibeiXDB401_I2C_KPa_500 = 5,  // 0-0.5 MPa
+  SensorXidibeiXDB401_I2C_KPa_600 = 6,  // 0-0.6 MPa
+  SensorXidibeiXDB401_I2C_KPa_700 = 7,  // 0-0.7 MPa
+  SensorXidibeiXDB401_I2C_KPa_800 = 8,  // 0-0.8 MPa
+  SensorXidibeiXDB401_I2C_KPa_900 = 9,  // 0-0.9 MPa
+  SensorXidibeiXDB401_I2C_KPa_1000 = 10,  // 0-1 MPa
 
-  SensorXidibeiXDB401_Analog_KPa_200 = 11,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_300 = 12,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_400 = 13,  // 0-04 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_500 = 14,  // 0-05 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_600 = 15,  // 0-06 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_100 = 21,  // 0-01 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_200 = 22,  // 0-02 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_300 = 23,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_400 = 24,  // 0-04 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_500 = 25,  // 0-05 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_600 = 26,  // 0-06 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_700 = 27,  // 0-07 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_800 = 28,  // 0-08 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_900 = 29,  // 0-09 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_1000 = 30,  // 0-1 MPa, 3.3V, 0.2 -> 2.4V
 };
 
 constexpr auto PRESSURE_HPA = "hpa";

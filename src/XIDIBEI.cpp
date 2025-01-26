@@ -24,16 +24,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #include <XIDIBEI.hpp>
+#include <log.hpp>
 
+// Max pressure is in kPA
 XIDIBEI::XIDIBEI(uint16_t maxPressure, TwoWire *wire) {
   _wire = wire;
-  _maxPressure = maxPressure;
+  _maxPressure = maxPressure * 10;
 }
 
 bool XIDIBEI::begin() {
   _wire->begin();
   _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
-  return _wire->endTransmission() ? false : true;
+  uint8_t ret = _wire->endTransmission();
+  Log.notice(F("XIDI: Checking senor at %x returned %d." CR), XIDIBEI_I2C_ADDRESS, ret);
+  return ret != 0 ? false : true;
 }
 
 bool XIDIBEI::readSensor(float &pressure, float &temperature) {
@@ -43,29 +47,55 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
   _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
   _wire->write(0x30);
   _wire->write(0x0A);  // Accuire pressure and temperature data
-  if (_wire->endTransmission() != 0) return false;
+  if (_wire->endTransmission() != 0) {
+    Log.notice(F("XIDI: Failed to start accuire process." CR));
+    return false;
+  }
 
-  // Wait for conversion to be completed
+  // Option 1: Check when conversion is done
+  /*
   uint8_t status;
   uint32_t timeout = millis() + 50;
 
   do {
-    if (millis() > timeout) return false;
+    if (millis() > timeout) { 
+      Log.notice(F("XIDI: Timeout while waiting for accuire to finish." CR));
+      return false; 
+    }
+
     delay(5);
 
     _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
     _wire->write(0x30);
-    if (_wire->endTransmission() != 0) return false;
-    if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 1) != 1) return false;
+
+    if (_wire->endTransmission() != 0) { 
+      Log.notice(F("XIDI: Failed to check status." CR));
+      return false; 
+    }
+
+    if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 1) != 1) { 
+      Log.notice(F("XIDI: Failed to start status read." CR));
+      return false; 
+    }
 
     status = _wire->read();
-  } while (
-      (status & 0x08));  // Bit 3 should be off for conversion to be completed
+  } while ((status & 0x08));  // Bit 3 should be off for conversion to be completed*/
+
+  // Option 2: Wait for conversion to complete, simple approach
+  delay(50);
 
   _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
   _wire->write(0x06);
-  if (_wire->endTransmission() != 0) return false;
-  if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 5) != 5) return false;
+
+  if (_wire->endTransmission() != 0) {
+    Log.notice(F("XIDI: Failed to init data transfer." CR));
+    return false; 
+  }
+
+  if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 5) != 5) { 
+    Log.notice(F("XIDI: Failed to start data read." CR));
+    return false; 
+  }
 
   uint8_t pressureData[3], temperatureData[2];
 
@@ -76,26 +106,33 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
   temperatureData[0] = _wire->read();  // High bits
   temperatureData[1] = _wire->read();  // Low bits
 
-  float rawPressure = static_cast<uint32_t>(pressureData[0]) << 16 |
-                      static_cast<uint32_t>(pressureData[1]) << 8 |
+  uint32_t rawPressure = static_cast<uint32_t>(pressureData[0]) * 65535 +
+                      static_cast<uint32_t>(pressureData[1]) * 256 +
                       static_cast<uint32_t>(pressureData[2]);
-  float rawTemperature = static_cast<uint32_t>(temperatureData[0]) << 8 |
+  uint32_t rawTemperature = static_cast<uint32_t>(temperatureData[0]) *256 +
                          static_cast<uint32_t>(temperatureData[1]);
 
+  Log.notice(F("XIDI: Raw Pressure: %x, Raw Temperature %x." CR),  rawPressure, rawTemperature);
+
   if (rawPressure > 8388608) {  // Value is negative
-    pressure = (rawPressure - 16777216) / 8388608;
+    Log.notice(F("XIDI: Negative pressure." CR));
+    pressure = static_cast<float>(rawPressure - 16777216) / 8388608;
   } else {
-    pressure = rawPressure / 8388608;
+    Log.notice(F("XIDI: Positive pressure." CR));
+    pressure = static_cast<float>(rawPressure) / 8388608;
   }
 
   pressure = pressure * _maxPressure;
 
   if (rawTemperature > 32768) {  // Value is negative
-    temperature = (rawTemperature - 65536) / 256;
+    Log.notice(F("XIDI: Negative temperature." CR));
+    temperature = static_cast<float>(rawTemperature - 65536) / 256;
   } else {
-    temperature = rawTemperature / 256;
+    Log.notice(F("XIDI: Positive temperature." CR));
+    temperature = static_cast<float>(rawTemperature) / 256;
   }
 
+  Log.notice(F("XIDI: Pressure: %F, Temperature %F." CR), pressure, temperature);
   return true;
 }
 

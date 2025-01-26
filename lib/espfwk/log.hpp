@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2025 Magnus
+Copyright (c) 2021-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_XIDIBEI_HPP_
-#define SRC_XIDIBEI_HPP_
+#ifndef SRC_LOG_HPP_
+#define SRC_LOG_HPP_
 
-#include <Arduino.h>
-#include <Wire.h>
+#include <ArduinoLog.hpp>
 
-#include <memory>
-
-constexpr auto XIDIBEI_I2C_ADDRESS = 0x7F;
-
-class XIDIBEI {
- public:
-  // Max pressure (kPA) is the maximum value that the sensor can handle.
-  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
-
-  bool begin();
-  // Pressure is returned in kPA
-  // Temperature is in degrees C
-  bool readSensor(float &pressure, float &temperature);
-
+class SerialDebug {
  private:
-  TwoWire *_wire;
-  uint16_t _maxPressure;
+  uint32_t _serialSpeed;
+ public:
+  explicit SerialDebug(const uint32_t serialSpeed = 115200L, bool autoBegin = true);
+  void begin(Print* p);
+  uint32_t getSerialSpeed() { return _serialSpeed; }
+  static Logging* getLog() { return &Log; }
 };
 
-#endif  // SRC_XIDIBEI_HPP_
+void printTimestamp(Print* _logOutput, int _logLevel);
+void printNewline(Print* _logOutput);
+
+#define EspSerial Serial
+
+#endif  // SRC_LOG_HPP_
+
+// EOF

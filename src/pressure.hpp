@@ -74,6 +74,7 @@ float convertPsiPressureToBar(float psi);
 float convertPsiPressureToHPa(float psi);
 
 float convertPaPressureToPsi(float pa);
+float convertPaPressureToBar(float pa);
 
 #endif  // SRC_PRESSURE_HPP_
 

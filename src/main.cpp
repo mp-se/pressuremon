@@ -29,12 +29,14 @@ SOFTWARE.
 #include <main.hpp>
 #include <pressure.hpp>
 
+#include <XIDIBEI.hpp>
+
 SerialDebug mySerial(115200L);
 PressConfig myConfig;
 PressureSensor myPressureSensor[MAX_SENSOR_DEVICES];
 
 void scanI2C(TwoWire *wire) {
-  for (uint8_t i = 1; i < 127; i++) {
+  for (uint8_t i = 1; i < 128; i++) {
     wire->beginTransmission(i);
     if (wire->endTransmission() == 0) {
       Log.notice(F("Main : Found device at %X." CR), i);
@@ -42,40 +44,69 @@ void scanI2C(TwoWire *wire) {
   }
 }
 
+void doDriverTest(TwoWire *wire) {
+  int maxPressure = 400;
+
+  XIDIBEI sensor(maxPressure, wire);
+
+  Log.notice(F("Test: Init sensor %s, maxPressure %d kPA." CR), sensor.begin() ? "ok" : "error", maxPressure);
+
+  float a, b;
+
+  while(1) {
+    Log.notice(F("Test: Read data %s." CR), sensor.readSensor(a, b) ? "ok" : "error");
+    Log.notice(F("Test: Data %F kPA, %F bar, %F C." CR), a, convertPaPressureToBar(a*1000), b);
+    delay(2000);
+  }
+}
+
+// #define ENABLE_WIRE1 1
+#define ENABLE_DRIVER_TEST 1
+
 void setup() {
   // delay(5000);  // Allow for usbc serial to connect
 
   Log.notice(F("Main: Starting up." CR));
 
-  int clock = 100000;
+  int clock = 400000;
 
   Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
   Wire.setPins(SDA, SCL);
   Wire.begin();
-  // Wire.setClock(clock);
+  Wire.setClock(clock);
 
-  // Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d, SDA2=%d, SCL2=%d ." CR), SDA,
-  // SCL, RX, TX); Wire1.setPins(RX, TX); Wire1.begin(); Wire1.setClock(clock);
+#if defined(ENABLE_DRIVER_TEST)
+  doDriverTest(&Wire);
+#endif
 
-  Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR),
+   Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR),
              Wire.getClock(), Wire.getTimeOut());
-  scanI2C(&Wire);
+   scanI2C(&Wire);
 
-  // Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR),
-  // Wire1.getClock(), Wire1.getTimeOut()); scanI2C(&Wire1);
+#if defined(ENABLE_WIRE1)
+   Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d." CR), RX, TX); 
+   Wire1.setPins(RX, TX); 
+   Wire1.begin(); 
+   Wire1.setClock(clock);
+
+
+  Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR), Wire1.getClock(), Wire1.getTimeOut()); 
+  scanI2C(&Wire1);
+#endif
 
   // ------------------------------------------------------------------------------------------------------------------------
   // Example with two separate Wire bus that allows for two separate sensors
   //
 
-  /*myConfig.setPressureSensorType(
+  myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 0);
   myPressureSensor[0].setup(0, &Wire);
 
+#if defined(ENABLE_WIRE1)
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 1);
-  // myPressureSensor[1].setup(1, &Wire1);
-  */
+  myPressureSensor[1].setup(1, &Wire1);
+#endif
 
   // ------------------------------------------------------------------------------------------------------------------------
   // Example with ADS1115 and 4 analog channels
@@ -84,9 +115,12 @@ void setup() {
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 0);
   myPressureSensor[0].setup(0, &Wire);
+
+#if defined(ENABLE_WIRE1)
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 1);
-  // myPressureSensor[1].setup(1, &Wire);
+  myPressureSensor[1].setup(1, &Wire);
+#endif
 
   Log.notice(F("Main: Setup completed." CR));
 }
@@ -102,11 +136,14 @@ void loop() {
                myPressureSensor[0].getPressurePsi(),
                myPressureSensor[0].getTemperatureC(),
                myPressureSensor[0].getAnalogVoltage());
-    // myPressureSensor[1].readSensor();
-    // Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C, Voltage %F mV." CR),
-    // myPressureSensor[1].getPressurePsi(),
-    // myPressureSensor[1].getTemperatureC(),
-    // myPressureSensor[0].getAnalogVoltage());
+
+#if defined(ENABLE_WIRE1)
+    myPressureSensor[1].readSensor();
+    Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C, Voltage %F mV." CR),
+    myPressureSensor[1].getPressurePsi(),
+    myPressureSensor[1].getTemperatureC(),
+    myPressureSensor[0].getAnalogVoltage());
+#endif
   }
 }
 

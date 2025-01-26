@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2025 Magnus
+Copyright (c) 2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_XIDIBEI_HPP_
-#define SRC_XIDIBEI_HPP_
+#ifndef SRC_LOOPTIMER_HPP_
+#define SRC_LOOPTIMER_HPP_
 
 #include <Arduino.h>
-#include <Wire.h>
 
-#include <memory>
-
-constexpr auto XIDIBEI_I2C_ADDRESS = 0x7F;
-
-class XIDIBEI {
- public:
-  // Max pressure (kPA) is the maximum value that the sensor can handle.
-  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
-
-  bool begin();
-  // Pressure is returned in kPA
-  // Temperature is in degrees C
-  bool readSensor(float &pressure, float &temperature);
-
+class LoopTimer {
  private:
-  TwoWire *_wire;
-  uint16_t _maxPressure;
+  uint64_t _startMillis = 0;
+  uint64_t _interval = 0;
+  uint64_t _loopCounter = 0;
+
+ public:
+  explicit LoopTimer(uint64_t interval) {
+    _interval = interval;
+    reset();
+  }
+
+  bool hasExipred() {
+    if (abs((int32_t)(millis() - _startMillis)) > _interval) {
+      _loopCounter++;
+      return true;
+    }
+    return false;
+  }
+
+  void reset() { _startMillis = millis(); }
+  uint64_t getLoopCounter() { return _loopCounter; }
+  int32_t getTimePassed() { return abs((int32_t)(millis() - _startMillis)); }
 };
 
-#endif  // SRC_XIDIBEI_HPP_
+#endif  // SRC_LOOPTIMER_HPP_
+
+// EOF

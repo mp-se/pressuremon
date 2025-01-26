@@ -25,11 +25,13 @@ SOFTWARE.
 #include <pressure.hpp>
 #include <pressure_analog.hpp>
 #include <pressure_xidibei.hpp>
-#include <utils.hpp>
+// #include <utils.hpp>
 
 float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
 float convertPsiPressureToHPa(float psi) { return psi * 68.947572932; }
+
 float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
+float convertPaPressureToBar(float pa) { return pa / 100000; }
 
 void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
   Log.verbose(F("PRES: Setting up pressuresensor index %d." CR), idx);
@@ -39,6 +41,11 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
 
   switch (myConfig.getPressureSensorType(idx)) {
     case PressureSensorType::SensorNone:
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_100:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())->setup(100, wire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_200:
@@ -68,6 +75,35 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
       _impl.reset(new XIDIBEIPressureSensor());
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
                 ->setup(600, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_700:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(700, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_800:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(800, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_900:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(900, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_1000:
+      _impl.reset(new XIDIBEIPressureSensor());
+      ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
+                ->setup(1000, wire, idx);
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_100:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())->setup(0.2, 2.4, 0, 100, idx, wire, idx); // Note! Index also defines the ADC port to use
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_200:
@@ -100,6 +136,34 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
       _impl.reset(new AnalogPressureSensor());
       ret = static_cast<AnalogPressureSensor *>(_impl.get())
                 ->setup(0.2, 2.4, 0, 600, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_700:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 700, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_800:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 800, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_900:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 900, idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
+      break;
+
+    case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_1000:
+      _impl.reset(new AnalogPressureSensor());
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(0.2, 2.4, 0, 1000, idx, wire,
                         idx);  // Note! Index also defines the ADC port to use
       break;
 
