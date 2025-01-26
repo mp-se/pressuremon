@@ -30,16 +30,18 @@ SOFTWARE.
 
 enum PressureSensorType {
   SensorNone = 0,
+  
+  SensorXidibeiXDB401_I2C_KPa_200 = 1,  // 0-0.2 MPa
+  SensorXidibeiXDB401_I2C_KPa_300 = 2,  // 0-0.3 MPa
+  SensorXidibeiXDB401_I2C_KPa_400 = 3,  // 0-0.4 MPa
+  SensorXidibeiXDB401_I2C_KPa_500 = 4,  // 0-0.5 MPa
+  SensorXidibeiXDB401_I2C_KPa_600 = 5,  // 0-0.6 MPa
 
-  SensorXidibeiXDB401_I2C_KPa_300 = 1,  // 0-0.3 MPa
-  SensorXidibeiXDB401_I2C_KPa_400 = 2,  // 0-0.4 MPa
-  SensorXidibeiXDB401_I2C_KPa_500 = 3,  // 0-0.5 MPa
-  SensorXidibeiXDB401_I2C_KPa_600 = 4,  // 0-0.6 MPa
-
-  SensorXidibeiXDB401_Analog_KPa_300 = 11,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_400 = 12,  // 0-04 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_500 = 13,  // 0-05 MPa, 3.3V, 0.2 -> 2.4V
-  SensorXidibeiXDB401_Analog_KPa_600 = 14,  // 0-06 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_200 = 11,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_300 = 12,  // 0-03 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_400 = 13,  // 0-04 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_500 = 14,  // 0-05 MPa, 3.3V, 0.2 -> 2.4V
+  SensorXidibeiXDB401_Analog_KPa_600 = 15,  // 0-06 MPa, 3.3V, 0.2 -> 2.4V
 };
 
 constexpr auto PRESSURE_HPA = "hpa";
