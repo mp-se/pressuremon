@@ -23,20 +23,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#if defined(PRESSUREMON)
+
 #include <XIDIBEI.hpp>
 #include <log.hpp>
 
 // Max pressure is in kPA
 XIDIBEI::XIDIBEI(uint16_t maxPressure, TwoWire *wire) {
   _wire = wire;
-  _maxPressure = maxPressure * 10;
+  _maxPressure = maxPressure;
 }
 
 bool XIDIBEI::begin() {
   _wire->begin();
   _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
   uint8_t ret = _wire->endTransmission();
-  Log.notice(F("XIDI: Checking senor at %x returned %d." CR), XIDIBEI_I2C_ADDRESS, ret);
+  Log.notice(F("XIDI: Checking senor at %x returned %d." CR),
+             XIDIBEI_I2C_ADDRESS, ret);
   return ret != 0 ? false : true;
 }
 
@@ -58,9 +61,9 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
   uint32_t timeout = millis() + 50;
 
   do {
-    if (millis() > timeout) { 
+    if (millis() > timeout) {
       Log.notice(F("XIDI: Timeout while waiting for accuire to finish." CR));
-      return false; 
+      return false;
     }
 
     delay(5);
@@ -68,18 +71,19 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
     _wire->beginTransmission(XIDIBEI_I2C_ADDRESS);
     _wire->write(0x30);
 
-    if (_wire->endTransmission() != 0) { 
+    if (_wire->endTransmission() != 0) {
       Log.notice(F("XIDI: Failed to check status." CR));
-      return false; 
+      return false;
     }
 
-    if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 1) != 1) { 
+    if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 1) != 1) {
       Log.notice(F("XIDI: Failed to start status read." CR));
-      return false; 
+      return false;
     }
 
     status = _wire->read();
-  } while ((status & 0x08));  // Bit 3 should be off for conversion to be completed*/
+  } while ((status & 0x08));  // Bit 3 should be off for conversion to be
+  completed*/
 
   // Option 2: Wait for conversion to complete, simple approach
   delay(50);
@@ -89,12 +93,12 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
 
   if (_wire->endTransmission() != 0) {
     Log.notice(F("XIDI: Failed to init data transfer." CR));
-    return false; 
+    return false;
   }
 
-  if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 5) != 5) { 
+  if (_wire->requestFrom(XIDIBEI_I2C_ADDRESS, 5) != 5) {
     Log.notice(F("XIDI: Failed to start data read." CR));
-    return false; 
+    return false;
   }
 
   uint8_t pressureData[3], temperatureData[2];
@@ -107,12 +111,13 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
   temperatureData[1] = _wire->read();  // Low bits
 
   uint32_t rawPressure = static_cast<uint32_t>(pressureData[0]) * 65535 +
-                      static_cast<uint32_t>(pressureData[1]) * 256 +
-                      static_cast<uint32_t>(pressureData[2]);
-  uint32_t rawTemperature = static_cast<uint32_t>(temperatureData[0]) *256 +
-                         static_cast<uint32_t>(temperatureData[1]);
+                         static_cast<uint32_t>(pressureData[1]) * 256 +
+                         static_cast<uint32_t>(pressureData[2]);
+  uint32_t rawTemperature = static_cast<uint32_t>(temperatureData[0]) * 256 +
+                            static_cast<uint32_t>(temperatureData[1]);
 
-  Log.notice(F("XIDI: Raw Pressure: %x, Raw Temperature %x." CR),  rawPressure, rawTemperature);
+  Log.notice(F("XIDI: Raw Pressure: %x, Raw Temperature %x." CR), rawPressure,
+             rawTemperature);
 
   if (rawPressure > 8388608) {  // Value is negative
     Log.notice(F("XIDI: Negative pressure." CR));
@@ -132,8 +137,11 @@ bool XIDIBEI::readSensor(float &pressure, float &temperature) {
     temperature = static_cast<float>(rawTemperature) / 256;
   }
 
-  Log.notice(F("XIDI: Pressure: %F, Temperature %F." CR), pressure, temperature);
+  Log.notice(F("XIDI: Pressure: %F, Temperature %F." CR), pressure,
+             temperature);
   return true;
 }
+
+#endif  // PRESSUREMON
 
 // EOF

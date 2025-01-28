@@ -24,6 +24,8 @@ SOFTWARE.
 #ifndef SRC_PRESSURE_ANALOG_HPP_
 #define SRC_PRESSURE_ANALOG_HPP_
 
+#if defined(PRESSUREMON)
+
 #include <ADS1115_WE.h>
 
 #include <memory>
@@ -59,6 +61,8 @@ class AnalogPressureSensor : public PressureSensorInterface {
 
   float getAnalogVoltage() { return _voltage; }
 };
+
+#endif  // PRESSUREMON
 
 #endif  // SRC_PRESSURE_ANALOG_HPP_
 

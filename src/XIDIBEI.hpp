@@ -24,6 +24,8 @@ SOFTWARE.
 #ifndef SRC_XIDIBEI_HPP_
 #define SRC_XIDIBEI_HPP_
 
+#if defined(PRESSUREMON)
+
 #include <Arduino.h>
 #include <Wire.h>
 
@@ -46,4 +48,8 @@ class XIDIBEI {
   uint16_t _maxPressure;
 };
 
+#endif  // PRESSUREMON
+
 #endif  // SRC_XIDIBEI_HPP_
+
+// EOF

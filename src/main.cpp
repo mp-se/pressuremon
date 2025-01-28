@@ -24,6 +24,7 @@ SOFTWARE.
 #include <Wire.h>
 #include <pins_arduino.h>
 
+#include <log.hpp>
 #include <config.hpp>
 #include <looptimer.hpp>
 #include <main.hpp>
@@ -33,7 +34,6 @@ SOFTWARE.
 
 SerialDebug mySerial(115200L);
 PressConfig myConfig;
-PressureSensor myPressureSensor[MAX_SENSOR_DEVICES];
 
 void scanI2C(TwoWire *wire) {
   for (uint8_t i = 1; i < 128; i++) {
@@ -99,7 +99,7 @@ void setup() {
   //
 
   myConfig.setPressureSensorType(
-      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 0);
+      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_4000, 0);
   myPressureSensor[0].setup(0, &Wire);
 
 #if defined(ENABLE_WIRE1)
@@ -131,7 +131,7 @@ void loop() {
   if (timer.hasExipred()) {
     timer.reset();
 
-    myPressureSensor[0].readSensor();
+    myPressureSensor[0].read();
     Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C, Voltage %F mV." CR),
                myPressureSensor[0].getPressurePsi(),
                myPressureSensor[0].getTemperatureC(),
@@ -146,5 +146,13 @@ void loop() {
 #endif
   }
 }
+
+float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
+
+float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
+
+float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
+
+float convertPaPressureToBar(float pa) { return pa / 100000; }
 
 // EOF

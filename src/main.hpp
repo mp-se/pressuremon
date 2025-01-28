@@ -24,4 +24,9 @@ SOFTWARE.
 #ifndef SRC_MAIN_HPP_
 #define SRC_MAIN_HPP_
 
+float convertPsiPressureToBar(float psi);
+float convertPsiPressureToKPa(float psi);
+float convertPaPressureToPsi(float pa);
+float convertPaPressureToBar(float pa);
+
 #endif  // SRC_MAIN_HPP_

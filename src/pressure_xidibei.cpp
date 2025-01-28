@@ -21,13 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#if defined(PRESSUREMON)
+
 #include <config.hpp>
 #include <pressure_xidibei.hpp>
 
 bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
                                   uint8_t idx) {
-  _pressureCorrection = myConfig.getSensorPressureCorrection(idx);
-  _temperatureCorrection = myConfig.getSensorTemperatureCorrection(idx);
+  _pressureCorrection = myConfig.getPressureSensorCorrection(idx);
+  _temperatureCorrection = myConfig.getTemperatureSensorCorrection(idx);
   _idx = idx;
   _xidibeiSensor.reset(new XIDIBEI(maxPressure, wire));
   _sensorActive = _xidibeiSensor->begin();
@@ -52,9 +54,9 @@ void XIDIBEIPressureSensor::calibrateSensor() {
   }
 
   Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / 10, _idx);
-  myConfig.setSensorPressureCorrection(zero / 10, _idx);
+  myConfig.setPressureSensorCorrection(zero / 10, _idx);
   myConfig.saveFile();
-  _pressureCorrection = myConfig.getSensorPressureCorrection(_idx);
+  _pressureCorrection = myConfig.getPressureSensorCorrection(_idx);
 }
 
 float XIDIBEIPressureSensor::getTemperatureC() {
@@ -74,5 +76,7 @@ bool XIDIBEIPressureSensor::readSensor() {
   _pressure = convertPaPressureToPsi(pressure * 1000);
   return b;
 }
+
+#endif  // PRESSUREMON
 
 // EOF

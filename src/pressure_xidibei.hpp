@@ -24,6 +24,8 @@ SOFTWARE.
 #ifndef SRC_PRESSURE_XIDIBEI_HPP_
 #define SRC_PRESSURE_XIDIBEI_HPP_
 
+#if defined(PRESSUREMON)
+
 #include <XIDIBEI.hpp>
 #include <memory>
 #include <pressure.hpp>
@@ -50,6 +52,8 @@ class XIDIBEIPressureSensor : public PressureSensorInterface {
 
   float getAnalogVoltage() { return NAN; }
 };
+
+#endif  // PRESSUREMON
 
 #endif  // SRC_PRESSURE_XIDIBEI_HPP_
 

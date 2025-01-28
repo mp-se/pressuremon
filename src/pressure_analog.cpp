@@ -21,7 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#if defined(PRESSUREMON)
+
 #include <config.hpp>
+#include <memory>
 #include <pressure_analog.hpp>
 
 std::unique_ptr<ADS1115_WE> AnalogPressureSensor::_adcSensor;
@@ -29,7 +32,7 @@ std::unique_ptr<ADS1115_WE> AnalogPressureSensor::_adcSensor;
 bool AnalogPressureSensor::setup(float minV, float maxV, float minKpa,
                                  float maxKpa, int adcChannel, TwoWire *wire,
                                  uint8_t idx) {
-  _pressureCorrection = myConfig.getSensorPressureCorrection(idx);
+  _pressureCorrection = myConfig.getPressureSensorCorrection(idx);
 
   _idx = idx;
   _minV = minV;
@@ -151,9 +154,9 @@ void AnalogPressureSensor::calibrateSensor() {
   }
 
   Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / 10, _idx);
-  myConfig.setSensorPressureCorrection(zero / 10, _idx);
+  myConfig.setPressureSensorCorrection(zero / 10, _idx);
   myConfig.saveFile();
-  _pressureCorrection = myConfig.getSensorPressureCorrection(_idx);
+  _pressureCorrection = myConfig.getPressureSensorCorrection(_idx);
 }
 
 float AnalogPressureSensor::getTemperatureC() { return NAN; }
@@ -178,5 +181,7 @@ bool AnalogPressureSensor::readSensor() {
   _pressure = convertPaPressureToPsi(pressure * 1000);
   return true;
 }
+
+#endif  // PRESSUREMON
 
 // EOF

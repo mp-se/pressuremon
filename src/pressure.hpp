@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2025 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,11 @@ SOFTWARE.
 #ifndef SRC_PRESSURE_HPP_
 #define SRC_PRESSURE_HPP_
 
+#if defined(PRESSUREMON)
+
 #include <Arduino.h>
 #include <Wire.h>
-
+#include <config.hpp>
 #include <log.hpp>
 #include <memory>
 
@@ -54,14 +56,14 @@ class PressureSensor {
  public:
   void setup(uint8_t idx, TwoWire *wire);
 
-  bool readSensor();
-  bool isSensorActive();
+  bool read();
+  bool isActive();
 
   float getPressurePsi(bool doCorrection = true);
   float getTemperatureC();
   float getTemperatureF() { return (getTemperatureC() * 1.8) + 32.0; }
 
-  void calibrateSensor();
+  void calibrate();
 
   float getPressure(
       bool doCorrection = true);  // Returns in chosen device format
@@ -70,11 +72,9 @@ class PressureSensor {
   float getAnalogVoltage();
 };
 
-float convertPsiPressureToBar(float psi);
-float convertPsiPressureToHPa(float psi);
+extern PressureSensor myPressureSensor[MAX_SENSOR_DEVICES];
 
-float convertPaPressureToPsi(float pa);
-float convertPaPressureToBar(float pa);
+#endif  // PRESSUREMON
 
 #endif  // SRC_PRESSURE_HPP_
 
