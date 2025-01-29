@@ -181,6 +181,13 @@ bool AnalogPressureSensor::read() {
   float pressure =
       mapFloat(_voltage, _minV * 1000, _maxV * 1000, _minKpa, _maxKpa);
   _pressure = convertPaPressureToPsi(pressure * 1000);
+
+  if(_pressure < 0 || _pressure > _maxPressure) {
+    Log.warning(F("PRES: Read pressure is invalid and out of range %F (%d)." CR), _pressure, _idx);
+    _pressure = NAN;
+    return false;
+  }
+
   return true;
 }
 

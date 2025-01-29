@@ -32,13 +32,14 @@ bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
                                   uint8_t idx) {
   _pressureCorrection = myConfig.getPressureSensorCorrection(idx);
   _temperatureCorrection = myConfig.getTemperatureSensorCorrection(idx);
+  _maxPressure = maxPressure;
   _idx = idx;
-  _xidibeiSensor.reset(new XIDIBEI(maxPressure, wire));
+  _xidibeiSensor.reset(new XIDIBEI(_maxPressure, wire));
   _sensorActive = _xidibeiSensor->begin();
   Log.notice(
       F("PRES: XIDIBEI sensor initialized = %s, max pressure = %F, pressure "
         "correction = %F, temperature correction = %F (%d)" CR),
-      _sensorActive ? "true" : "false", maxPressure, _pressureCorrection,
+      _sensorActive ? "true" : "false", _maxPressure, _pressureCorrection,
       _temperatureCorrection, _idx);
   return _sensorActive;
 }
@@ -78,6 +79,13 @@ bool XIDIBEIPressureSensor::read() {
   // Returns temperature in C and pressure in kPa
   bool b = _xidibeiSensor->read(_temperature, pressure);
   _pressure = convertPaPressureToPsi(pressure * 1000);
+
+  if(_pressure < 0 || _pressure > _maxPressure) {
+    Log.warning(F("PRES: Read pressure is invalid and out of range %F (%d)." CR), _pressure, _idx);
+    _pressure = NAN;
+    return false;
+  }
+
   return b;
 }
 

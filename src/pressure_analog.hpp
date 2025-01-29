@@ -38,7 +38,7 @@ class AnalogPressureSensor : public PressureSensorInterface {
   static std::unique_ptr<ADS1115_WE> _adcSensor;
   uint8_t _idx;
   float _pressureCorrection = 0;
-  float _pressure, _voltage;
+  float _pressure, _voltage, _maxPressure;
   float _minV, _maxV, _minKpa, _maxKpa;
   int _adcChannel;
   bool _sensorActive = false;

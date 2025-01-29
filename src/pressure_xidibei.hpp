@@ -34,7 +34,7 @@ class XIDIBEIPressureSensor : public PressureSensorInterface {
  private:
   std::unique_ptr<XIDIBEI> _xidibeiSensor;
   uint8_t _idx;
-  float _pressureCorrection = 0, _temperatureCorrection = 0;
+  float _pressureCorrection = 0, _temperatureCorrection = 0, _maxPressure;
   float _pressure, _temperature;
   bool _sensorActive = false;
 

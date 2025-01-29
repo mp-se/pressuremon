@@ -253,7 +253,8 @@ float PressureSensor::getTemperature() {
 }
 
 bool PressureSensor::read() {
-  if (_impl == nullptr) return false;
+  if(_impl == nullptr)
+    return false;
 
   if (isActive()) {
     return _impl->read();
@@ -262,7 +263,6 @@ bool PressureSensor::read() {
   Log.error(F("PRES: Sensor not created (%d)" CR), _idx);
   return false;
 }
-
 bool PressureSensor::isActive() {
   return _impl == nullptr ? false : _impl->isActive();
 }
