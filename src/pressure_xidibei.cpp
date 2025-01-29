@@ -26,6 +26,8 @@ SOFTWARE.
 #include <config.hpp>
 #include <pressure_xidibei.hpp>
 
+constexpr auto XIDIBEI_IIC_CALIBRATION_COUNT = 5;
+
 bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
                                   uint8_t idx) {
   _pressureCorrection = myConfig.getPressureSensorCorrection(idx);
@@ -41,20 +43,22 @@ bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
   return _sensorActive;
 }
 
-void XIDIBEIPressureSensor::calibrateSensor() {
+void XIDIBEIPressureSensor::calibrate() {
   Log.notice(F("PRES: Starting auto calibration (%d)." CR), _idx);
   float zero = 0;
 
-  for (int i = 0; i < 10; i++) {
-    readSensor();
+  for (int i = 0; i < XIDIBEI_IIC_CALIBRATION_COUNT; i++) {
+    read();
     float f = getPressurePsi(false);
     Log.notice(F("PRES: Step %d, Pressure = %F (%d)." CR), i + 1, f, _idx);
     zero += f;
     delay(500);
   }
 
-  Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / 10, _idx);
-  myConfig.setPressureSensorCorrection(zero / 10, _idx);
+  Log.notice(F("PRES: Measured difference %F (%d)." CR),
+             zero / XIDIBEI_IIC_CALIBRATION_COUNT, _idx);
+  myConfig.setPressureSensorCorrection(zero / XIDIBEI_IIC_CALIBRATION_COUNT,
+                                       _idx);
   myConfig.saveFile();
   _pressureCorrection = myConfig.getPressureSensorCorrection(_idx);
 }
@@ -68,11 +72,11 @@ float XIDIBEIPressureSensor::getPressurePsi(bool doCorrection) {
   return _pressure;
 }
 
-bool XIDIBEIPressureSensor::readSensor() {
+bool XIDIBEIPressureSensor::read() {
   float pressure;
 
   // Returns temperature in C and pressure in kPa
-  bool b = _xidibeiSensor->readSensor(_temperature, pressure);
+  bool b = _xidibeiSensor->read(_temperature, pressure);
   _pressure = convertPaPressureToPsi(pressure * 1000);
   return b;
 }

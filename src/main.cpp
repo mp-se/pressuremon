@@ -45,7 +45,7 @@ void scanI2C(TwoWire *wire) {
 }
 
 void doDriverTest(TwoWire *wire) {
-  int maxPressure = 400;
+  int maxPressure = 4000;
 
   XIDIBEI sensor(maxPressure, wire);
 
@@ -54,14 +54,14 @@ void doDriverTest(TwoWire *wire) {
   float a, b;
 
   while(1) {
-    Log.notice(F("Test: Read data %s." CR), sensor.readSensor(a, b) ? "ok" : "error");
+    Log.notice(F("Test: Read data %s." CR), sensor.read(a, b) ? "ok" : "error");
     Log.notice(F("Test: Data %F kPA, %F bar, %F C." CR), a, convertPaPressureToBar(a*1000), b);
     delay(2000);
   }
 }
 
 // #define ENABLE_WIRE1 1
-#define ENABLE_DRIVER_TEST 1
+// #define ENABLE_DRIVER_TEST 1
 
 void setup() {
   // delay(5000);  // Allow for usbc serial to connect
@@ -112,9 +112,9 @@ void setup() {
   // Example with ADS1115 and 4 analog channels
   //
 
-  myConfig.setPressureSensorType(
+  /*myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 0);
-  myPressureSensor[0].setup(0, &Wire);
+  myPressureSensor[0].setup(0, &Wire);*/
 
 #if defined(ENABLE_WIRE1)
   myConfig.setPressureSensorType(

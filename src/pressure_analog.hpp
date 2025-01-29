@@ -51,13 +51,13 @@ class AnalogPressureSensor : public PressureSensorInterface {
 
   bool setup(float minV, float maxV, float minKpa, float maxKpa,
              int _adcChannel, TwoWire *wire, uint8_t idx);
-  bool readSensor();
-  bool isSensorActive() { return _sensorActive; }
+  bool read();
+  bool isActive() { return _sensorActive; }
 
   float getPressurePsi(bool doCorrection = true);
   float getTemperatureC();
 
-  void calibrateSensor();
+  void calibrate();
 
   float getAnalogVoltage() { return _voltage; }
 };

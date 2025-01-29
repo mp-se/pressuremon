@@ -43,7 +43,7 @@ bool XIDIBEI::begin() {
   return ret != 0 ? false : true;
 }
 
-bool XIDIBEI::readSensor(float &pressure, float &temperature) {
+bool XIDIBEI::read(float &pressure, float &temperature) {
   pressure = NAN;
   temperature = NAN;
 
