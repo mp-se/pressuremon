@@ -22,7 +22,7 @@ jobs:
           cp pressuremon-ui/dist/assets/index.js.gz html/app.js.gz
 
           echo "Checkout shared code"
-          git clone https://github.com/mp-se/gravitymon#pressuremon pressuremon 
+          git clone -b pressuremon https://github.com/mp-se/gravitymon pressuremon 
           cp -R pressuremon/src/ ./src/
           cp pressuremon/platformio.ini ./platformio.ini
 
