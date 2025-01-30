@@ -64,7 +64,7 @@ void doDriverTest(TwoWire *wire) {
 // #define ENABLE_DRIVER_TEST 1
 
 void setup() {
-  // delay(5000);  // Allow for usbc serial to connect
+  delay(2000);  // Allow for usbc serial to connect
 
   Log.notice(F("Main: Starting up." CR));
 
@@ -101,6 +101,8 @@ void setup() {
   myConfig.setPressureSensorType(
       PressureSensorType::SensorXidibeiXDB401_I2C_KPa_4000, 0);
   myPressureSensor[0].setup(0, &Wire);
+
+  myPressureSensor[0].calibrate();
 
 #if defined(ENABLE_WIRE1)
   myConfig.setPressureSensorType(
