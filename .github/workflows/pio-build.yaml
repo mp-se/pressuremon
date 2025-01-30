@@ -23,9 +23,9 @@ jobs:
 
           echo "Checkout shared code"
           git clone -b pressuremon https://github.com/mp-se/gravitymon pressuremon 
-          cp -R pressuremon/src/ ./src/
-          cp -R pressuremon/script/ ./script/
-          cp -R pressuremon/boards/ ./boards/
+          cp -R pressuremon/src/ ./
+          cp -R pressuremon/script/ ./
+          cp -R pressuremon/boards/ ./
           cp pressuremon/platformio.ini ./platformio.ini
 
       - name: Setup PlatformIO
