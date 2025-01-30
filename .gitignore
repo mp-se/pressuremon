@@ -5,5 +5,3 @@ cad/*.?#?
 cad/*.zip
 .DS_Store
 src_docs/
-.github/
-bin/

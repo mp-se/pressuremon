@@ -1,0 +1,48 @@
+name: PlatformIO CI
+
+on: 
+  pull_request:
+  push:
+    branches: 
+      - dev
+
+jobs:
+  pio-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Checkout UI
+        run: |
+          echo "Checkout UI"
+          git clone https://github.com/mp-se/pressuremon-ui pressuremon-ui 
+          cp pressuremon-ui/dist/assets/style.css.gz html/app.css.gz
+          cp pressuremon-ui/dist/assets/index.js.gz html/app.js.gz
+
+          echo "Checkout shared code"
+          git clone https://github.com/mp-se/gravitymon#pressuremon pressuremon 
+          cp -R pressuremon/src/ ./src/
+          cp pressuremon/platformio.ini ./platformio.ini
+
+      - name: Setup PlatformIO
+        uses: n-vr/setup-platformio-action@v1.0.1    
+
+      - name: PlatformIO Run
+        uses: karniv00l/platformio-run-action@v1
+        with:
+          environments: "pressure32s3-release"
+          jobs: 6
+          silent: false
+          verbose: true
+          disable-auto-clean: false
+    
+      - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version. https://github.com/marketplace/actions/add-commit
+        with:
+          add: 'bin html'
+          author_name: GitHub Action
+          author_email: mp-se@noreply.github.com
+          default_author: github_actor
+          message: 'GitHub Action Build'
+          pathspec_error_handling: ignore
