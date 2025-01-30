@@ -23,6 +23,7 @@ jobs:
 
           echo "Checkout shared code"
           git clone -b pressuremon https://github.com/mp-se/gravitymon pressuremon 
+          rm ./src/*
           cp -R pressuremon/src/ ./
           cp -R pressuremon/script/ ./
           cp -R pressuremon/boards/ ./
