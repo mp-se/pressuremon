@@ -1,74 +1,22 @@
-# Pressure monitor for Beer fermentation 
 
-Since I have started to ferment my beer under pressure I wanted to be able to measure and collect that data in like i do with gravity/temperature (using iSpindle). So this project was born.
+![download](https://img.shields.io/github/downloads/mp-se/pressuremon/total) 
+![release](https://img.shields.io/github/v/release/mp-se/pressuremon?label=latest%20release)
+![issues](https://img.shields.io/github/issues/mp-se/pressuremon)
+![pr](https://img.shields.io/github/issues-pr/mp-se/pressuremon)
+![dev_build](https://img.shields.io/github/actions/workflow/status/mp-se/pressuremon/pio-build.yaml?branch=dev)
+![doc_build](https://img.shields.io/github/actions/workflow/status/mp-se/pressuremon/doc-build.yaml?branch=master)
 
-```
-CAUTION!!! This project uses 3D printed models and these could break under too high pressure. I take no responsibility for a failed 3D printed part or any injuries that this may cause. Make sure you test the part in a safe way before using it for measuring pressure. 
-```
+# Pressure Monitor for Beer Brewing
 
-I have tested both analog and digital pressure senors and the key is to find a sensor that has a limited measurement range to have the best accuracy. Most of the analog sensors have a to wide measurement range which make them not accurate enough for this. The digital sensors work much better and can be adapted for the range that is of interrest.
+PressureMon is a device for measuring pressure in storage or during fermentation.  
 
-Since we are measuring beer fermentation, a sensor in the range of 0-4 bar (or 0-60 psi) is enough for me, but the honeywell range have sensors that can handle higher pressure. But I'm not so sure how the 3D printed PLA adapter would handle that. We will most likley not end up above 2.5 bar since most fermentation vessels have this as a upper limit. The Honeywell sensors I selected can be obtained in a number of variations so it can be adapted to other pressure ranges with minimal changes to the code.
+It supports ESP32 c3 mini, ESP32 S2 mini, ESP32 S3 mini and iic compatible pressure sensors
 
-The aim is to make this project as small as possible and make it easy to connect it to an gas post on a fermentation vessel with possibility to have a spunding valve to release excess pressure. 
+Installation can be made using https://www.brewflasher.com or the web version at https://web.brewflasher.com
 
-One key aspect is to have a connection that is leak proof. I ended up with creating an adapter that fits to a hose of 9.5mm (or 3/8") with inner diameter if 6.7mm. Adapter is glued to the hose and pressure sensor using epoxy to make a strong bond.
+The documentation can be found here: tbd
 
-## Versions
+If you want to support my work you can do that through these options
 
-* 0.4.0 - alfa1 - Refactoring and base project on my espframework to simplify maintenance. Move to esp32 as base platform, first out is the esp32 d1 mini.
+[<img src="https://gravitymon.com/images/buymecoffee.png" height=40>](https://www.buymeacoffee.com/mpse/) [<img src="https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" height=40>](https://github.com/sponsors/mp-se)
 
-
-## How it works
-
-The device will measure the pressure and temperature (yes the honeywell sensors have a built in temperature sensor) and report these on an attached LED display or to one of the defined endpoints. Dont use display if you want long battery life. 
-
-The following endpoints are currently implemented:
-* Brewfather
-* Any http post endpoint that can interpret a json document.
-
-If the device is used with an battery it will go into sleep mode when the voltage is less than 4.2V and higher than 3V (indication of an attached battery). This is to prolong the lifespan of the device when on battery. If you run the device via a powersupply it will never to into deep sleep.
-
-## 3D Print
-
-In order to attach the pressure sensor to the fermentation vessel I created a 3D printed adapter that fits on a John Guest 3/8" adapter and the pressure sensor.
-
-Use high infill rate and make sure you get good layer adhesion so it can handle 2.5 bar pressure. Make sure you test that it's fits to the JC adapter and there is no leaks before attaching it to the pressure sensor. I used hot glue to attach mine to the sensor but any good adhesive should work. Just make sure the small reference hole on the bottom of the sensor is kept open.
-
-The stl file can be found in the __cad/__ subdirectory.
-
-## Installation
-
-You can use VisualStudio Code + Platform IO to handle the device flashing.
-
-## Setup
-
-The device will act as an WIFI accesspoint if it's not configured (you can also double tap on the reset button to force it into AP mode). The device will flash the power led while in this mode. Search for an AP called __PressureMon__ and use the password = 'password'. The device will have the IP adress 192.168.4.1 as default. 
-
-In the interface you can set some of the parameters for the device but it's also possible to change these via web requests (later on there will be a fancy web interface for this).
-
-Once the device is on the wifi network it will have a running webserver that can show the active configuration and also force the device into configuration model. The name of the device will be __pressuremonXXXXX.local__ (or just use the dynamic IP). Chip ID will be 6 characters and uniqe for that device (eg 7a84DC).
-
-## Pushtarget
-
-Under development
-
-## Materials
-
-In order to build this project you will need the following;
-
-* U1 - Microcontroller ESP8266 (WEMOS D1 Mini)
-* U2 - Honeywell Pressure Sensor, Gage, SPI - ABPDANV060GSA3 
-* U3 - TP4056 LiPRO Charger (For Battery power)
-* B  - LiPro Battery 18650 (For Battery power)
-* S1 - Switch (For Battery power)
-* C1 - 0.1uF
-* C2 - 0.1uF
-* R1 - Resistor 470 (or diode BAT43)
-* R2 - Resistor 3.2k
-* LED- 4 digit LED (Optional, done use if battery powered)
-* Board for mounting components
-
-Feel free to use the code and modify your own build. 
-
-Happy building. /Magnus 
