@@ -10,7 +10,7 @@
 
 PressureMon is a device for measuring pressure in storage or during fermentation.  
 
-It supports ESP32 c3 mini, ESP32 S2 mini, ESP32 S3 mini and iic compatible pressure sensors
+It supports ESP32s2 mini, ESP32s3 mini, ESP32c3 mini, ESP32c3 pico and pico and I2C compatible pressure sensors, currently the brand XIDIBEI is supported which has a good range of encapsulated sensors.
 
 Installation can be made using https://www.brewflasher.com or the web version at https://web.brewflasher.com
 

@@ -38,7 +38,7 @@ jobs:
       - name: PlatformIO Run
         uses: karniv00l/platformio-run-action@v1
         with:
-          environments: "pressure32s3-release,pressure32c3-release,pressure32s2-release,pressure32pro-release,pressure32s3pro-release"
+          environments: "pressure32s3-release,pressure32c3-release,pressure32s2-release"
           jobs: 6
           silent: false
           verbose: true
