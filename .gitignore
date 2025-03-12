@@ -1,7 +1,8 @@
 # Prerequisites
 .pio/*
 .vscode/*
-cad/*.?#?
-cad/*.zip
+*.zip
 .DS_Store
 src_docs/
+fp-*
+_autosave*
