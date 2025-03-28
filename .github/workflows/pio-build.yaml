@@ -21,6 +21,9 @@ jobs:
           git clone https://github.com/mp-se/pressuremon-ui pressuremon-ui 
           cp pressuremon-ui/dist/assets/style.css.gz html/app.css.gz
           cp pressuremon-ui/dist/assets/index.js.gz html/app.js.gz
+          cp pressuremon-ui/pressuremon.html html/index.html
+          cp pressuremon-ui/dist/favicon.ico html/favicon.ico
+          gzip -f html/favicon.ico
 
           echo "Checkout shared code"
           git clone -b pressuremon https://github.com/mp-se/gravitymon pressuremon 
