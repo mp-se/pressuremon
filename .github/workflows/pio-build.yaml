@@ -26,7 +26,7 @@ jobs:
           gzip -f html/favicon.ico
 
           echo "Checkout shared code"
-          git clone -b pressuremon https://github.com/mp-se/gravitymon pressuremon 
+          git clone -b dev https://github.com/mp-se/gravitymon pressuremon 
           rm ./src/*
           rm ./lib/espfwk/*
           cp -R pressuremon/lib/ ./
