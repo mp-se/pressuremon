@@ -3,6 +3,7 @@
 .vscode/*
 *.zip
 .DS_Store
-src_docs/
+src_docs/.env/
+src_docs/_build
 fp-*
 _autosave*
