@@ -1,0 +1,713 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Format Templates" href="format-template.html" /><link rel="prev" title="Software Installation" href="installation.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+        <title>Configuration - PressureMon v0.5.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">PressureMon v0.5.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/pressuremon_logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PressureMon v0.5.0</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="functionality.html">Functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releases.html">Releases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Software Installation</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format-template.html">Format Templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Service Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom.html">Custom boards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Compiling the software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Licence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="q_and_a.html">Q &amp; A</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="configuration">
+<span id="setting-up-device"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h1>
+<p>The device can operate in two modes and must be in <code class="docutils literal notranslate"><span class="pre">configuration</span> <span class="pre">mode</span></code> in order for the web
+server to be active. The device (esp) LED will flash slowly or show blue color when the device
+is in configuration mode. If the LED is constantly or show white color then the device is in
+WIFI setup mode. Some boards have a LED that can change color.</p>
+<p>One of the following conditions will place the device in <code class="docutils literal notranslate"><span class="pre">configuration</span> <span class="pre">mode</span></code>:</p>
+<ul class="simple">
+<li><p>Sleep mode has been disabled in the web interface</p></li>
+<li><p>Charger connected &gt;4.15V (or the value that is configured). This does not work on the Floaty variant due to lack of hardware support.</p></li>
+<li><p>The two designated GPIO pins are connected</p></li>
+</ul>
+<section id="home-page">
+<h2>Home page<a class="headerlink" href="#home-page" title="Permalink to this heading">¶</a></h2>
+<p>URL: (<a class="reference external" href="http://pressmon.local">http://pressmon.local</a>)</p>
+<a class="reference internal image-reference" href="_images/ui-home.png"><img alt="Home page" src="_images/ui-home.png" style="width: 800px;" /></a>
+<p>Configuration is accessed by entering the URL for the device, this will be the mDNS name <em>device.local</em> or the IP address. The following
+chapter assumes the device name is <em>pressmon</em>.</p>
+<p>If the device is not fully configured or there are some hardware issues then these will be visible on the main page. If there are things to
+adress this will be indicated in the meny using a red dot.</p>
+<p>The main page shows the device readings; pressure, temperature and battery charge. If the checkbox is active then the device will
+never go into sleep mode. If this is unchecked the device will change mode as explained before.</p>
+<p>You can also view the average time a pressure measurement takes. Under optimal setting this should be around 1.5 - 2.0 seconds. If this
+is higher than 2 seconds this is most likely connected to slow wifi connection. It will show 0 if data has not been collected yet.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you are connected to the device via a serial console (speed: 115200) you can see the connection sequence and get the Unique
+ID and IP address from there.</p>
+</div>
+</section>
+<section id="device">
+<h2>Device<a class="headerlink" href="#device" title="Permalink to this heading">¶</a></h2>
+<section id="device-settings">
+<h3>Device - Settings<a class="headerlink" href="#device-settings" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-device-settings.png"><img alt="Device Settings" src="_images/ui-device-settings.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>MDNS:</strong></p>
+<p>This is unique name for the device. It will be used in pushing data as well as mDNS name on the network (&lt;name&gt;.local).
+The limitation is 63 chars but using long names might break endpoints that data is sent to if they have other limitations.</p>
+</li>
+<li><p><strong>Temperature format:</strong></p>
+<p>Choose between Celsius and Fahrenheit when displaying temperature.</p>
+</li>
+<li><p><strong>Pressure format:</strong></p>
+<p>Pressure format can be either <cite>PSI</cite>, <cite>Bar</cite> or <cite>kPa</cite>. The device will use PSI Internally and convert to other when displaying or sending data.</p>
+</li>
+<li><p><strong>Dark Mode:</strong></p>
+<p>Switches the UI between light and dark mode. You can also use the toggle on the menubar for that.</p>
+</li>
+<li><p><strong>Factory default</strong></p>
+<p>This function will reset all settings to factory default. Use with caution!</p>
+</li>
+<li><p><strong>Restart</strong></p>
+<p>Restarts the device, similar to pressing the reset button</p>
+</li>
+</ul>
+</section>
+<section id="device-hardware">
+<h3>Device - Hardware<a class="headerlink" href="#device-hardware" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-device-hardware.png"><img alt="Device Hardware" src="_images/ui-device-hardware.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Voltage factor:</strong></p>
+<p>Factor used to calculate the battery voltage. If you get a too low/high voltage you can adjust this value.</p>
+</li>
+<li><p><strong>Config voltage:</strong></p>
+<p>Defines the level of voltage when the device should enter config mode due to charging. This might vary between different battery manufacturers.
+If you don’t what the device to go into configuration mode when charging, set this to 6V. This was added since different batteries have different
+voltages when fully charged.</p>
+</li>
+<li><p><strong>Battery saving:</strong></p>
+<p>If this option is checked the sleep interval will be changed to 1 hour when battery drops below 20%. Default = on.</p>
+</li>
+<li><p><strong>DS18B20 Resolution:</strong></p>
+<p>Define the resolution used on the temp sensor. 9 bits is default and will give an accuracy of 0.5C and and provide longest batterylife. See
+data below from the datasheet.</p>
+<ul class="simple">
+<li><p>9 bits = 0.5°C, up to 93 ms reading</p></li>
+<li><p>10 bits =0.25°C, up to 187 ms reading</p></li>
+<li><p>11 bits = 0.125°C, up to 375 ms reading</p></li>
+<li><p>12 bits = 0.0625°C, up to 850 ms reading</p></li>
+</ul>
+</li>
+<li><p><strong>Temperature sensor adjustment:</strong></p>
+<p>This value will be added to the temperature reading (negative value will reduce temperature reading). This is applied
+when the device starts. So changing this will not take affect until the device is restarted.</p>
+</li>
+<li><p><strong>Pressure Sensor:</strong></p>
+<p>Choose the pressure sensor that will be used</p>
+</li>
+<li><p><strong>Pressure calibration values:</strong></p>
+<p>This can be used to calibrate the pressure sensor so it shows the delta pressure.</p>
+</li>
+</ul>
+</section>
+<section id="device-wifi">
+<h3>Device - WIFI<a class="headerlink" href="#device-wifi" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-device-wifi.png"><img alt="Device WIFI" src="_images/ui-device-wifi.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>SSID #1:</strong></p>
+<p>Select the desired primary SSID to use.</p>
+</li>
+<li><p><strong>Password #1:</strong></p>
+<p>Enter the primary password.</p>
+</li>
+<li><p><strong>SSID #2:</strong></p>
+<p>Select the desired secondary SSID to use (optional).</p>
+</li>
+<li><p><strong>Password #2:</strong></p>
+<p>Enter the secondary password (optional).</p>
+</li>
+<li><p><strong>Portal timeout:</strong></p>
+<p>If the wifi portal is triggered (can be triggered by tapping the reset button 2-3 times within 3 seconds) then this is the amount of time allowed before it exists again.</p>
+</li>
+<li><p><strong>Connect timeout:</strong></p>
+<p>This is the amount of time allowed for a wifi connect.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="push-targets">
+<h2>Push targets<a class="headerlink" href="#push-targets" title="Permalink to this heading">¶</a></h2>
+<section id="push-settings">
+<h3>Push - Settings<a class="headerlink" href="#push-settings" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-settings.png"><img alt="Push Settings" src="_images/ui-push-settings.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Token 1:</strong></p>
+<p>The token is included in the iSpindle JSON format and will be used for both HTTP targets. If you
+need to have 2 different tokens you can customize the data format.</p>
+</li>
+<li><p><strong>Token 2:</strong></p>
+<p>The token is included in the default format for the HTTP GET url but can be used for any of the formats.
+For HTTP GET use can use this for an authorization token with ubidots api.</p>
+</li>
+<li><p><strong>Sleep Interval:</strong></p>
+<p>This defines how long the device should be sleeping between the readings when in <cite>gravity monitoring</cite> mode. You will also see
+the values in minutes/seconds to easier set the interval. 900s is a recommended interval.  The sleep interval can
+be set between 10 - 3600 seconds (60 minutes).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A low value such as 30s will give a lifespan of 1-2 weeks and 300s (5 min) would last for 3+ weeks. This assumes that
+there is good wifi connection that takes less than 1s to reconnect. Poor wifi connection is the main reason for battery drain.
+The device will show the estimated lifespan based on the average connection time, if no data exist it will not be shown.</p>
+</div>
+</li>
+<li><p><strong>WIFI Direct SSID:</strong></p>
+<p>This WIFI SSID will be used during gravity mode to send data to the GravityMon Gateway.</p>
+</li>
+<li><p><strong>WIFI Direct Password:</strong></p>
+<p>This WIFI Password will be used during gravity mode to send data to the GravityMon Gateway.</p>
+</li>
+<li><p><strong>Use WIFI Direct in gravity mode:</strong></p>
+<p>Enabling this feature will disable all other push target settings and data will be sent to the gateway in a pre-defined format (iSpindle format) when in <cite>gravity monitoring</cite> mode.</p>
+</li>
+<li><p><strong>Estimated battery life:</strong></p>
+<p>Based on the hardware and the historical execution time the device will estimate how long it can run on a full battery
+with the current interval.</p>
+</li>
+<li><p><strong>Push timeout:</strong></p>
+<p>How long the device will wait for a connection accept from the remote service.</p>
+</li>
+</ul>
+</section>
+<section id="push-http-post">
+<h3>Push - HTTP Post<a class="headerlink" href="#push-http-post" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-post.png"><img alt="Push using HTTP Post" src="_images/ui-push-post.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>HTTP URL:</strong></p>
+<p>Endpoint to send data via http. You can customize the format below.</p>
+<p>If you add the prefix <cite>https://</cite> then the device will use SSL when sending data.</p>
+</li>
+<li><p><strong>HTTP Headers</strong></p>
+<p>You can define 2 http headers. Enter a value or just select one from the list.</p>
+<p>The input must have the format <strong>‘&lt;header&gt;: &lt;value&gt;’</strong> for it to work. The UI will accept any value so errors
+will not show until the device tries to push data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Auth</span><span class="o">-</span><span class="n">Token</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">api</span><span class="o">-</span><span class="n">token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Mozilla has a good guide on what headers are valid; <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP Headers</a></p>
+</li>
+<li><p><strong>Skip Interval:</strong></p>
+<p>These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data
+to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.</p>
+</li>
+<li><p><strong>Data format:</strong></p>
+<p>Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
+from the list. For more information on this topic, see <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you right click in this field a list of available variables will be shown.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="push-http-get">
+<h3>Push - HTTP Get<a class="headerlink" href="#push-http-get" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-get.png"><img alt="Push using HTTP Get" src="_images/ui-push-get.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>HTTP URL:</strong></p>
+<p>Endpoint to send data via http. You can customize the format below.</p>
+<p>If you add the prefix <cite>https://</cite> then the device will use SSL when sending data.</p>
+</li>
+<li><p><strong>HTTP Headers</strong></p>
+<p>You can define 2 http headers. Enter a value or just select one from the list.</p>
+<p>The input must have the format <strong>‘&lt;header&gt;: &lt;value&gt;’</strong> for it to work. The UI will accept any value so errors
+will not show until the device tries to push data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">application</span><span class="o">/</span><span class="n">json</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Auth</span><span class="o">-</span><span class="n">Token</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">api</span><span class="o">-</span><span class="n">token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Mozilla has a good guide on what headers are valid; <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP Headers</a></p>
+</li>
+<li><p><strong>Skip Interval:</strong></p>
+<p>These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data
+to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.</p>
+</li>
+<li><p><strong>Data format:</strong></p>
+<p>Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
+from the list. For more information on this topic, see <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you right click in this field a list of available variables will be shown.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="push-influxdb-v2">
+<h3>Push - InfluxDB v2<a class="headerlink" href="#push-influxdb-v2" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-influx.png"><img alt="Push using InfluxDB v2" src="_images/ui-push-influx.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Server:</strong></p>
+<p>Endpoint to send data via http to InfluxDB. You can customize the format using <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+<p>SSL is not supported for this target. Raise a issue on github if this is wanted.</p>
+</li>
+<li><p><strong>Organisation:</strong></p>
+<p>Name of organisation in Influx.</p>
+</li>
+<li><p><strong>Bucket:</strong></p>
+<p>Token for bucket. Don’t use the bucket name.</p>
+</li>
+<li><p><strong>Authentication Token:</strong></p>
+<p>Token with write access to bucket.</p>
+</li>
+<li><p><strong>Skip Interval:</strong></p>
+<p>These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data
+to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.</p>
+</li>
+<li><p><strong>Data format:</strong></p>
+<p>Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
+from the list. For more information on this topic, see <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you right click in this field a list of available variables will be shown.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="push-mqtt">
+<h3>Push - MQTT<a class="headerlink" href="#push-mqtt" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-mqtt.png"><img alt="Push using MQTT" src="_images/ui-push-mqtt.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Server:</strong></p>
+<p>IP or name of server to send data to. You can customize the format using <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+</li>
+<li><p><strong>Port:</strong></p>
+<p>Which port should be used for communication, default is 1883 (standard port). For SSL use 8883 (any port over 8000 is treated as SSL).</p>
+</li>
+<li><p><strong>User name:</strong></p>
+<p>Username or blank if anonymous is accepted</p>
+</li>
+<li><p><strong>Password:</strong></p>
+<p>Password or blank if anonymous is accepted</p>
+</li>
+<li><p><strong>Skip Interval:</strong></p>
+<p>These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data
+to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.</p>
+</li>
+<li><p><strong>Data format:</strong></p>
+<p>Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
+from the list. For more information on this topic, see <a class="reference internal" href="format-template.html#format-template"><span class="std std-ref">Format Templates</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you right click in this field a list of available variables will be shown.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="push-bluetooth">
+<h3>Push - Bluetooth<a class="headerlink" href="#push-bluetooth" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-push-ble.png"><img alt="Push using Bluetooth" src="_images/ui-push-ble.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Bluetooth data format: (Only boards with BLE support)</strong></p>
+<p>Choose the bluetooth transmission to use.</p>
+<ul class="simple">
+<li><p><strong>PM iBeacon</strong>: Higher accuracy. Data: Pressure, Temperature, ID</p></li>
+<li><p><strong>PM EDDYSTONE</strong>: Beacon format that requires active scanning by the client. Data: Pressure, ID, Temperature</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="other">
+<h2>Other<a class="headerlink" href="#other" title="Permalink to this heading">¶</a></h2>
+<section id="other-serial">
+<h3>Other - Serial<a class="headerlink" href="#other-serial" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-serial.png"><img alt="Serial console" src="_images/ui-other-serial.png" style="width: 800px;" /></a>
+<p>Connects to the device and shows the serial output, useful for debugging.</p>
+</section>
+<section id="other-backup">
+<h3>Other - Backup<a class="headerlink" href="#other-backup" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-backup.png"><img alt="Backup &amp; Restore" src="_images/ui-other-backup.png" style="width: 800px;" /></a>
+<p>Here you can download a file with all of the device settings and also restore data if needed. Each file is unique for a device which is determined by the field “id”.
+Modifying this field will allow you to create a template that can be used on any device. This field is stored in more than one place of the file and all needs to be
+changed for this to work.</p>
+<p>When downloading a backup the file will be named <strong>gravitymon&lt;deviceid&gt;.txt</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The gravity formula will be recreated if calibration points are available on the device, so the formula might be different than what is in the file.</p>
+</div>
+</section>
+<section id="other-firmware">
+<h3>Other - Firmware<a class="headerlink" href="#other-firmware" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-firmware.png"><img alt="Firmware update" src="_images/ui-other-firmware.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Upload Firmware</strong></p>
+<p>This option gives you the possibility to install an new version of the firmware (or any firmware that uses the standard flash layout).</p>
+</li>
+</ul>
+</section>
+<section id="other-support">
+<h3>Other - Support<a class="headerlink" href="#other-support" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-logs.png"><img alt="Support" src="_images/ui-other-logs.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>View device logs</strong></p>
+<p>Shows the log entires stored on the device, can also be used to delete the current logs.</p>
+</li>
+</ul>
+</section>
+<section id="other-tools">
+<h3>Other - Tools<a class="headerlink" href="#other-tools" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-tools.png"><img alt="Tools" src="_images/ui-other-tools.png" style="width: 800px;" /></a>
+<ul>
+<li><p><strong>Calculate voltage factor</strong></p>
+<p>Can be used to calculate a new voltage factor based on measured voltage and current readings.</p>
+</li>
+<li><p><strong>List files</strong></p>
+<p>Shows the files on the device and allows a user to show the contents of those files.</p>
+</li>
+</ul>
+</section>
+<section id="other-about">
+<h3>Other - About<a class="headerlink" href="#other-about" title="Permalink to this heading">¶</a></h3>
+<a class="reference internal image-reference" href="_images/ui-other-about.png"><img alt="About" src="_images/ui-other-about.png" style="width: 800px;" /></a>
+<p>Shows information about the software</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="format-template.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Format Templates</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="installation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Software Installation</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2025, Magnus Persson
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#home-page">Home page</a></li>
+<li><a class="reference internal" href="#device">Device</a><ul>
+<li><a class="reference internal" href="#device-settings">Device - Settings</a></li>
+<li><a class="reference internal" href="#device-hardware">Device - Hardware</a></li>
+<li><a class="reference internal" href="#device-wifi">Device - WIFI</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#push-targets">Push targets</a><ul>
+<li><a class="reference internal" href="#push-settings">Push - Settings</a></li>
+<li><a class="reference internal" href="#push-http-post">Push - HTTP Post</a></li>
+<li><a class="reference internal" href="#push-http-get">Push - HTTP Get</a></li>
+<li><a class="reference internal" href="#push-influxdb-v2">Push - InfluxDB v2</a></li>
+<li><a class="reference internal" href="#push-mqtt">Push - MQTT</a></li>
+<li><a class="reference internal" href="#push-bluetooth">Push - Bluetooth</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other">Other</a><ul>
+<li><a class="reference internal" href="#other-serial">Other - Serial</a></li>
+<li><a class="reference internal" href="#other-backup">Other - Backup</a></li>
+<li><a class="reference internal" href="#other-firmware">Other - Firmware</a></li>
+<li><a class="reference internal" href="#other-support">Other - Support</a></li>
+<li><a class="reference internal" href="#other-tools">Other - Tools</a></li>
+<li><a class="reference internal" href="#other-about">Other - About</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=3fadbb4a"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>
