@@ -29,6 +29,7 @@ SOFTWARE.
 #include <looptimer.hpp>
 #include <main.hpp>
 #include <pressure.hpp>
+#include <helper.hpp>
 
 #include <XIDIBEI.hpp>
 

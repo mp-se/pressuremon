@@ -24,6 +24,7 @@ SOFTWARE.
 #if defined(PRESSUREMON)
 
 #include <config.hpp>
+#include <helper.hpp>
 #include <memory>
 #include <pressure_analog.hpp>
 
@@ -155,8 +156,10 @@ void AnalogPressureSensor::calibrate() {
     delay(500);
   }
 
-  Log.notice(F("PRES: Measured difference %F (%d)." CR), zero / XIDIBEI_ANALOG_CALIBRATION_COUNT, _idx);
-  myConfig.setPressureSensorCorrection(-(zero / XIDIBEI_ANALOG_CALIBRATION_COUNT), _idx);
+  Log.notice(F("PRES: Measured difference %F (%d)." CR),
+             zero / XIDIBEI_ANALOG_CALIBRATION_COUNT, _idx);
+  myConfig.setPressureSensorCorrection(
+      -(zero / XIDIBEI_ANALOG_CALIBRATION_COUNT), _idx);
   myConfig.saveFile();
   _pressureCorrection = myConfig.getPressureSensorCorrection(_idx);
 }
@@ -182,9 +185,11 @@ bool AnalogPressureSensor::read(bool validate) {
       mapFloat(_voltage, _minV * 1000, _maxV * 1000, _minKpa, _maxKpa);
   _pressure = convertPaPressureToPsi(pressure * 1000);
 
-  if(validate) {
-    if(_pressure > _maxPressure) {
-      Log.warning(F("PRES: Read pressure is invalid and out of range %F (%d)." CR), _pressure, _idx);
+  if (validate) {
+    if (_pressure > _maxPressure) {
+      Log.warning(
+          F("PRES: Read pressure is invalid and out of range %F (%d)." CR),
+          _pressure, _idx);
       _pressure = NAN;
       return false;
     }
