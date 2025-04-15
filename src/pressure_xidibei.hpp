@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2025 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,40 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_PRESSURE_XIDIBEI_HPP_
+#define SRC_PRESSURE_XIDIBEI_HPP_
 
-#include <helper.hpp>
+#if defined(PRESSUREMON)
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+#include <XIDIBEI.hpp>
+#include <memory>
+#include <pressure.hpp>
+
+class XIDIBEIPressureSensor : public PressureSensorInterface {
+ private:
+  std::unique_ptr<XIDIBEI> _xidibeiSensor;
+  uint8_t _idx;
+  float _pressureCorrection = 0, _temperatureCorrection = 0, _maxPressure;
+  float _pressure, _temperature;
+  bool _sensorActive = false;
+
+ public:
+  XIDIBEIPressureSensor() {}
+
+  bool setup(float maxPressure, TwoWire *wire, uint8_t idx);
+  bool read(bool validate = true);
+  bool isActive() { return _sensorActive; }
+
+  float getPressurePsi(bool doCorrection = true);
+  float getTemperatureC();
+
+  void calibrate();
+
+  float getAnalogVoltage() { return NAN; }
+};
+
+#endif  // PRESSUREMON
+
+#endif  // SRC_PRESSURE_XIDIBEI_HPP_
 
 // EOF

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2025 Magnus
+Copyright (c) 2021-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_LOG_HPP_
+#define SRC_LOG_HPP_
 
-#include <helper.hpp>
+#include <ArduinoLog.hpp>
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+class SerialDebug {
+ private:
+  uint32_t _serialSpeed;
+ public:
+  explicit SerialDebug(const uint32_t serialSpeed = 115200L, bool autoBegin = true);
+  void begin(Print* p);
+  uint32_t getSerialSpeed() { return _serialSpeed; }
+  static Logging* getLog() { return &Log; }
+};
+
+void printTimestamp(Print* _logOutput, int _logLevel);
+void printNewline(Print* _logOutput);
+
+#define EspSerial Serial
+
+#endif  // SRC_LOG_HPP_
 
 // EOF

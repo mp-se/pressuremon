@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021-2025 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_XIDIBEI_HPP_
+#define SRC_XIDIBEI_HPP_
 
-#include <helper.hpp>
+#if defined(PRESSUREMON)
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+#include <Arduino.h>
+#include <Wire.h>
+
+#include <memory>
+
+constexpr auto XIDIBEI_I2C_ADDRESS = 0x7F;
+
+class XIDIBEI {
+ public:
+  // Max pressure (kPA) is the maximum value that the sensor can handle.
+  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
+
+  bool begin();
+  // Pressure is returned in kPA
+  // Temperature is in degrees C
+  bool read(float &pressure, float &temperature);
+
+ private:
+  TwoWire *_wire;
+  uint16_t _maxPressure;
+};
+
+#endif  // PRESSUREMON
+
+#endif  // SRC_XIDIBEI_HPP_
 
 // EOF

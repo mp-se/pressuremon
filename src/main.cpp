@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Magnus
+Copyright (c) 2022-2024 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,142 +21,133 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include "helper.h"
-#include "config.h"
-#include "numled.h"
-#include "wifi.h"
-#include "pushtarget.h"
-#include "pressuresensor.h"
+#include <Wire.h>
+#include <pins_arduino.h>
 
-// Settings for double reset
-#define ESP8266_DRD_USE_RTC true
-#define DOUBLERESETDETECTOR_DEBUG true
-#include <ESP_DoubleResetDetector.h>
+#include <log.hpp>
+#include <config.hpp>
+#include <looptimer.hpp>
+#include <main.hpp>
+#include <pressure.hpp>
+#include <helper.hpp>
 
-// Define constats for this program
-const int interval = 5000;                  // ms, time to wait between changes to output
-unsigned long lastMillis = 0;
-unsigned long startMillis;
-bool sleepModeActive = false;
-DoubleResetDetector* myDRD;
+#include <XIDIBEI.hpp>
 
-//
-// Check if we should be in sleep mode
-//
-void checkSleepMode( float psi, float volt ) {
-#if defined( SKIP_SLEEPMODE )
-  sleepModeActive = false;
-  //Log.verbose(F("MAIN: Skipping sleep mode (SKIP_SLEEPMODE is defined)." CR) );
-  return;
-#endif
+SerialDebug mySerial(115200L);
+PressConfig myConfig;
 
-  // If there is pressure on the sensor and the power is less than 4.5V (Assume on battery) we will go into deep sleep mode
-  sleepModeActive = ( abs(psi) > 0.5 ) && ( volt < 4.5 ) ? true : false; 
-#if LOG_LEVEL==6
-  Log.verbose(F("MAIN: Deep sleep mode %s (psi=%F, volt=%F)." CR), sleepModeActive ? "true":"false", psi, volt );
-#endif
+void scanI2C(TwoWire *wire) {
+  for (uint8_t i = 1; i < 128; i++) {
+    wire->beginTransmission(i);
+    if (wire->endTransmission() == 0) {
+      Log.notice(F("Main : Found device at %X." CR), i);
+    }
+  }
 }
 
-//
-// Main setup 
-//
+void doDriverTest(TwoWire *wire) {
+  int maxPressure = 4000;
+
+  XIDIBEI sensor(maxPressure, wire);
+
+  Log.notice(F("Test: Init sensor %s, maxPressure %d kPA." CR), sensor.begin() ? "ok" : "error", maxPressure);
+
+  float a, b;
+
+  while(1) {
+    Log.notice(F("Test: Read data %s." CR), sensor.read(a, b) ? "ok" : "error");
+    Log.notice(F("Test: Data %F kPA, %F bar, %F C." CR), a, convertPaPressureToBar(a*1000), b);
+    delay(2000);
+  }
+}
+
+// #define ENABLE_WIRE1 1
+// #define ENABLE_DRIVER_TEST 1
+
 void setup() {
-  // Record the starting time
-  startMillis = millis();
+  delay(2000);  // Allow for usbc serial to connect
 
-  // Initialize pin outputs
-  Log.notice(F("Main: Started setup for %s." CR), String( ESP.getChipId(), HEX).c_str() );
-  printBuildOptions();
-  powerLedOn();
-  myDRD = new DoubleResetDetector(2, 0); // Timeout, Address
-#if defined( ACTIVATE_WIFI )
-  bool dt = myDRD->detectDoubleReset();  
-#endif
-  myNumLED.setup();
+  Log.notice(F("Main: Starting up." CR));
 
-  Log.notice(F("Main: Loading configuration." CR));
-  myConfig.checkFileSystem();
-  myConfig.loadFile();
+  int clock = 400000;
 
-  // Setup watchdog
-  ESP.wdtDisable();
-  ESP.wdtEnable( interval*2 );
+  Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), SDA, SCL);
+  Wire.setPins(SDA, SCL);
+  Wire.begin();
+  Wire.setClock(clock);
 
-#if defined( ACTIVATE_WIFI )
-  if( dt ) 
-    Log.notice(F("Main: Detected doubletap on reset." CR));
-
-  myNumLED.printConn();
-  myWifi.connect( dt );
-  
-  if( myWifi.isConnected() )
-    Log.notice(F("Main: Connected to wifi ip=%s." CR), myWifi.getIPAddress().c_str() );
+#if defined(ENABLE_DRIVER_TEST)
+  doDriverTest(&Wire);
 #endif
 
-  // Activate the pressure sensor and check the value
-  myPressureSensor.setup();
-  myPressureSensor.loop();  
-  myBatteryVoltage.read();
-  checkSleepMode( myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
+   Log.notice(F("Main: Scanning Wire. Clock=%d, Timeout=%d." CR),
+             Wire.getClock(), Wire.getTimeOut());
+   scanI2C(&Wire);
 
-#if defined( ACTIVATE_WIFI ) && defined( ACTIVATE_OTA ) 
-  if( !sleepModeActive && myWifi.isConnected() && myWifi.checkFirmwareVersion() ) {
-    delay(500);
-    myNumLED.printUpd();
-    myWifi.updateFirmware();
-  }
+#if defined(ENABLE_WIRE1)
+   Log.notice(F("Main: OneWire SDA1=%d, SCL1=%d." CR), RX, TX); 
+   Wire1.setPins(RX, TX); 
+   Wire1.begin(); 
+   Wire1.setClock(clock);
+
+
+  Log.notice(F("Main: Scanning Wire1. Clock=%d, Timeout=%d." CR), Wire1.getClock(), Wire1.getTimeOut()); 
+  scanI2C(&Wire1);
 #endif
 
-  powerLedOff();
+  // ------------------------------------------------------------------------------------------------------------------------
+  // Example with two separate Wire bus that allows for two separate sensors
+  //
+
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_4000, 0);
+  myPressureSensor[0].setup(0, &Wire);
+
+  myPressureSensor[0].calibrate();
+
+#if defined(ENABLE_WIRE1)
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400, 1);
+  myPressureSensor[1].setup(1, &Wire1);
+#endif
+
+  // ------------------------------------------------------------------------------------------------------------------------
+  // Example with ADS1115 and 4 analog channels
+  //
+
+  /*myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 0);
+  myPressureSensor[0].setup(0, &Wire);*/
+
+#if defined(ENABLE_WIRE1)
+  myConfig.setPressureSensorType(
+      PressureSensorType::SensorXidibeiXDB401_Analog_KPa_400, 1);
+  myPressureSensor[1].setup(1, &Wire);
+#endif
+
+  Log.notice(F("Main: Setup completed." CR));
 }
 
-//
-// Main loop
-//
+LoopTimer timer(2000);
+
 void loop() {
-  myDRD->loop();
+  if (timer.hasExipred()) {
+    timer.reset();
 
-  if( sleepModeActive || (millis() - lastMillis) > interval ) {
-    float psi  = myPressureSensor.getPressurePsi();
-    float temp = myPressureSensor.getTemperatureC();
+    myPressureSensor[0].read();
+    Log.notice(F("Loop: Pressure 0 %F psi, Temp %F C, Voltage %F mV." CR),
+               myPressureSensor[0].getPressurePsi(),
+               myPressureSensor[0].getTemperatureC(),
+               myPressureSensor[0].getAnalogVoltage());
 
-    if( myConfig.isTempF() ) {
-#if LOG_LEVEL==6
-      Log.verbose(F("MAIN: Using Farenheigt for temperature." CR) );
+#if defined(ENABLE_WIRE1)
+    myPressureSensor[1].readSensor();
+    Log.notice(F("Loop: Pressure 1 %F psi, Temp %F C, Voltage %F mV." CR),
+    myPressureSensor[1].getPressurePsi(),
+    myPressureSensor[1].getTemperatureC(),
+    myPressureSensor[0].getAnalogVoltage());
 #endif
-      temp = myPressureSensor.convertTemperature2F( temp );
-    }
-
-#if LOG_LEVEL==6
-    Log.verbose(F("MAIN: Pressure = %F psi, Temperature = %F %s." CR), psi, temp, myConfig.getTempFormat() );
-#endif
-
-    if( myPressureSensor.isSensorActive() )
-      myNumLED.printNum( psi );
-    else
-      myNumLED.printDash(4);
-
-#if defined( ACTIVATE_PUSH )
-    myPushTarget.send( psi, temp, sleepModeActive );    // Force the transmission if we are going to sleep
-#endif
-
-    if( sleepModeActive ) {
-      unsigned long runTime = millis() - startMillis;
-
-      // Enter sleep mode...
-      Log.notice(F("MAIN: Entering deep sleep, run time %l s." CR), runTime/1000 );
-      delay(500);
-      deepSleep( myConfig.getPushIntervalAsInt() ); 
-    }
-
-    // Do these checks if we are running in normal mode (not sleep mode)
-    checkSleepMode( psi, myBatteryVoltage.getVoltage() );
-    myPressureSensor.loop();
-    myBatteryVoltage.read();
-    lastMillis = millis();
   }
-
-  myWifi.loop();
 }
 
 // EOF

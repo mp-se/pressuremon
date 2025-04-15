@@ -21,12 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_HELPER_HPP_
+#define SRC_HELPER_HPP_
 
-#include <helper.hpp>
+float convertPsiPressureToBar(float psi);
+float convertPsiPressureToKPa(float psi);
+float convertPaPressureToPsi(float pa);
+float convertPaPressureToBar(float pa);
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+#endif  // SRC_HELPER_HPP_
 
 // EOF
