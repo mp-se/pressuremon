@@ -259,14 +259,17 @@
 <ul class="simple">
 <li><p>A microcontroller ESP32c3 ESP32c3 pico.</p></li>
 <li><p>A digital pressure sensor from the brand XIDIBEI (see aliexpress.com), select one that matches the range you want to measure.</p></li>
-<li><p>2.2k resistors for the I2C, SDA and SCL lines pullup</p></li>
-<li><p>PCB for mounting the components (TODO: add link to pcbway)</p></li>
+<li><p>PCB for mounting the components</p></li>
+<li><p>Lithium battery compatible with the ESP32c3 pico (check the battery matches the connector, +/- pins)</p></li>
+<li><p>DS18B20 temperature sensor (Needed for temperature data since the internal sensor is not accurate enough)</p></li>
+<li><p>3.3k resistors for the temperature sensor data pullup</p></li>
+<li><p>Small switch for turning the device off</p></li>
 </ul>
-<p>Optional:
-* A analog pressure sensor from the brand XIDIBEI (see aliexpress.com) and an external ADC ADS1115
-* Lithium battery compatible with the ESP32c3 pico (check the battery matches the connector, +/- pins)
-* DS18B20 temperature sensor (Needed for temperature data since the internal sensor is not accurate enough)
-* 3.3k resistors for the temperature sensor data pullup</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is no need for pullups on the I2C bus since the XIDIBEI sensors already have internal pullups. These are added so that we can
+support other sensors in the future.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>ESP32c3 mini, ESP32s2 mini or ESP32s3 mini will also work but will require additional hardware such as LiPo
@@ -285,7 +288,28 @@ builds since I dont have access to these boards for testing.</p>
 </section>
 <section id="building-a-device">
 <h3>Building a device<a class="headerlink" href="#building-a-device" title="Permalink to this heading">¶</a></h3>
-<p>Work in progress</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The images shown here for the v1.2 prototype pcb and does not include the switch. This is added to the next revision
+and I will update the images once these are manufactured.</p>
+</div>
+<p>First I would recommend to flash the esp board to make sure that that will work properly before mounting the
+rest of the components. To flash the pci you first need to place it in flash mode which is done by pressing
+the button marked 9 and then pushing the reset button and finally release the 9 button.</p>
+<p>Once flashing has been done then do another reset so the esp will start up. You can then configure the wifi
+and connect the battery to see that you get a valid reading.</p>
+<a class="reference internal image-reference" href="_images/hw_pico.jpeg"><img alt="Schema ESP32c3 pico" src="_images/hw_pico.jpeg" style="width: 700px;" /></a>
+<p>Next step is to put some solder on the jumper pads marked LED and VBAT on the back of the board. This will
+enable the battery sensor and LED. Without the VBAT jumper soldered there is no way to measure battery level.</p>
+<a class="reference internal image-reference" href="_images/hw_build.jpeg"><img alt="Schema ESP32c3 pico" src="_images/hw_build.jpeg" style="width: 700px;" /></a>
+<p>Next step is to solder the other components on the board like the temperature sensor, temp sensor pullup resistor,
+pressure sensor and switch. I would also recommend to add some pins for the force config so that the device can be
+forced into configuration mode if needed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you use the pins for SENSOR 1 since the software does not yet support the second sensor.</p>
+</div>
+<p>Now you can mount the esp to the pcb and the build is done.</p>
 </section>
 </section>
 </section>
