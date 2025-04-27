@@ -7,3 +7,4 @@ src_docs/.env/
 src_docs/_build
 fp-*
 _autosave*
+*.bak

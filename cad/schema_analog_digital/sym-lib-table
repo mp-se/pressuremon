@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "esp32c3-pico")(type "KiCad")(uri "${KIPRJMOD}/esp32c3-pico.kicad_sym")(options "")(descr ""))
+  (lib (name "ads1115")(type "KiCad")(uri "${KIPRJMOD}/ads1115.kicad_sym")(options "")(descr ""))
+)
