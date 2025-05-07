@@ -14,7 +14,11 @@ It supports ESP32s2 mini, ESP32s3 mini, ESP32c3 mini, ESP32c3 pico and pico and 
 
 Installation can be made using https://www.brewflasher.com or the web version at https://web.brewflasher.com
 
-The documentation can be found here: tbd
+The documentation can be found [here](https://mp-se.github.io/pressuremon/)
+
+PCB design is located [here](https://github.com/mp-se/pcb-designs/) 
+
+Source code is located in the Gravitymon project [here](https://github.com/mp-se/gravitymon)
 
 If you want to support my work you can do that through these options
 
