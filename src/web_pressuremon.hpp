@@ -21,12 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_WEB_PRESSUREMON_HPP_
+#define SRC_WEB_PRESSUREMON_HPP_
 
-#include <helper.hpp>
+#if defined(PRESSUREMON) 
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+#include <web_brewing.hpp>
+#include <config_pressuremon.hpp>
+#include <battery.hpp>
+#include <pushtarget.hpp>
+#include <templating.hpp>
+
+class PressuremonWebServer : public BrewingWebServer {
+ private:
+  PressuremonConfig* _pressConfig = nullptr;
+
+  void doTaskSensorCalibration();
+  void doTaskPushTestSetup(TemplatingEngine &engine, BrewingPush &push);
+  void doTaskHardwareScanning(JsonObject &obj);
+
+  void doWebStatus(JsonObject &obj);
+  void doWebConfigWrite();
+  void doWebCalibrateStatus(JsonObject &obj);
+
+ public:
+  explicit PressuremonWebServer(PressuremonConfig* pressConfig) : BrewingWebServer(pressConfig), _pressConfig(pressConfig) {}
+};
+
+// Global instance created
+extern PressuremonWebServer myWebServer;
+
+#endif  // PRESSUREMON 
+
+#endif  // SRC_WEB_PRESSUREMON_HPP_
 
 // EOF
