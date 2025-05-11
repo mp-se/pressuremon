@@ -24,17 +24,17 @@ SOFTWARE.
 #ifndef SRC_WEB_PRESSUREMON_HPP_
 #define SRC_WEB_PRESSUREMON_HPP_
 
-#if defined(PRESSUREMON) 
+#if defined(PRESSUREMON)
 
-#include <web_brewing.hpp>
-#include <config_pressuremon.hpp>
 #include <battery.hpp>
+#include <config_pressuremon.hpp>
 #include <pushtarget.hpp>
 #include <templating.hpp>
+#include <web_brewing.hpp>
 
 class PressuremonWebServer : public BrewingWebServer {
  private:
-  PressuremonConfig* _pressConfig = nullptr;
+  PressuremonConfig *_pressConfig = nullptr;
 
   void doTaskSensorCalibration();
   void doTaskPushTestSetup(TemplatingEngine &engine, BrewingPush &push);
@@ -45,13 +45,14 @@ class PressuremonWebServer : public BrewingWebServer {
   void doWebCalibrateStatus(JsonObject &obj);
 
  public:
-  explicit PressuremonWebServer(PressuremonConfig* pressConfig) : BrewingWebServer(pressConfig), _pressConfig(pressConfig) {}
+  explicit PressuremonWebServer(PressuremonConfig *pressConfig)
+      : BrewingWebServer(pressConfig), _pressConfig(pressConfig) {}
 };
 
 // Global instance created
 extern PressuremonWebServer myWebServer;
 
-#endif  // PRESSUREMON 
+#endif  // PRESSUREMON
 
 #endif  // SRC_WEB_PRESSUREMON_HPP_
 

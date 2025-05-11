@@ -79,7 +79,7 @@ class PressureConfigInterface {
   virtual float getPressureSensorCorrection(int idx) const = 0;
   virtual void setPressureSensorCorrection(float v, int idx) = 0;
 
-  virtual float getTemperatureSensorCorrection(int idx) const = 0; 
+  virtual float getTemperatureSensorCorrection(int idx) const = 0;
 
   virtual bool saveFile() = 0;
 

@@ -27,6 +27,7 @@ SOFTWARE.
 #include <helper.hpp>
 #include <main.hpp>
 #include <pressure.hpp>
+#include <push_pressuremon.hpp>
 #include <pushtarget.hpp>
 
 #if defined(ESP8266)

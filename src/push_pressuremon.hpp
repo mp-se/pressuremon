@@ -26,12 +26,13 @@ SOFTWARE.
 
 #if defined(PRESSUREMON)
 
-#include <templating.hpp>
 #include <config_pressuremon.hpp>
+#include <templating.hpp>
 
-void setupTemplateEnginePressure(PressuremonConfig *config, TemplatingEngine& engine, float pressurePsi,
-    float pressurePsi1, float tempC, float runTime,
-    float voltage);
+void setupTemplateEnginePressure(PressuremonConfig* config,
+                                 TemplatingEngine& engine, float pressurePsi,
+                                 float pressurePsi1, float tempC, float runTime,
+                                 float voltage);
 
 #endif  // PRESSUREMON
 
