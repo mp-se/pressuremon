@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2024 Magnus
+Copyright (c) 2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_LOOPTIMER_HPP_
-#define SRC_LOOPTIMER_HPP_
+#include <AUnit.h>
 
-#include <Arduino.h>
+#include <pressure.hpp>
+#include <config_pressuremon.hpp>
+#include <Wire.h>
 
-class LoopTimer {
- private:
-  uint64_t _startMillis = 0;
-  uint64_t _interval = 0;
-  uint64_t _loopCounter = 0;
+extern PressuremonConfig myConfig;
+extern PressureSensor myPressureSensor;
 
- public:
-  explicit LoopTimer(uint64_t interval) {
-    _interval = interval;
-    reset();
-  }
+test(pressure_connectSensor) {
+  myConfig.setPressureSensorType(SensorXidibeiXDB401_I2C_KPa_200, 0);
+  Wire.begin(PIN_SDA, PIN_SCL);
 
-  bool hasExipred() {
-    if (abs((int32_t)(millis() - _startMillis)) > _interval) {
-      _loopCounter++;
-      return true;
-    }
-    return false;
-  }
-
-  void reset() { _startMillis = millis(); }
-  uint64_t getLoopCounter() { return _loopCounter; }
-  int32_t getTimePassed() { return abs((int32_t)(millis() - _startMillis)); }
-};
-
-#endif  // SRC_LOOPTIMER_HPP_
+  myPressureSensor.setup(0, &Wire);
+  assertEqual(myPressureSensor.isActive(), true);
+  assertEqual(myPressureSensor.read(), true);
+}
 
 // EOF

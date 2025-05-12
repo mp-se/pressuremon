@@ -21,12 +21,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#ifndef SRC_PUSH_PRESSUREMON_HPP_
+#define SRC_PUSH_PRESSUREMON_HPP_
 
-#include <helper.hpp>
+#if defined(PRESSUREMON)
 
-float convertPsiPressureToBar(float psi) { return psi * 0.0689475729; }
-float convertPsiPressureToKPa(float psi) { return psi * 68.947572932 * 1000; }
-float convertPaPressureToPsi(float pa) { return pa * 0.000145038; }
-float convertPaPressureToBar(float pa) { return pa / 100000; }
+#include <config_pressuremon.hpp>
+#include <templating.hpp>
 
-// EOF
+void setupTemplateEnginePressure(PressuremonConfig* config,
+                                 TemplatingEngine& engine, float pressurePsi,
+                                 float pressurePsi1, float tempC, float runTime,
+                                 float voltage);
+
+#endif  // PRESSUREMON
+
+#endif  // SRC_PUSH_PRESSUREMON_HPP_
