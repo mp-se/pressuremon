@@ -251,7 +251,7 @@ float PressureSensor::getTemperature() {
 }
 
 bool PressureSensor::read() {
-  if (_impl == nullptr) return false;
+  if (_impl.get() == nullptr) return false;
 
   if (isActive()) {
     return _impl->read();
@@ -261,19 +261,19 @@ bool PressureSensor::read() {
   return false;
 }
 bool PressureSensor::isActive() {
-  return _impl == nullptr ? false : _impl->isActive();
+  return _impl.get() == nullptr ? false : _impl->isActive();
 }
 
 float PressureSensor::getPressurePsi(bool doCorrection) {
-  return _impl == nullptr ? NAN : _impl->getPressurePsi(doCorrection);
+  return _impl.get() == nullptr ? NAN : _impl->getPressurePsi(doCorrection);
 }
 
 float PressureSensor::getTemperatureC() {
-  return _impl == 0 ? NAN : _impl->getTemperatureC();
+  return _impl.get() == nullptr ? NAN : _impl->getTemperatureC();
 }
 
 float PressureSensor::getAnalogVoltage() {
-  return _impl == 0 ? NAN : _impl->getAnalogVoltage();
+  return _impl.get() == nullptr ? NAN : _impl->getAnalogVoltage();
 }
 
 void PressureSensor::calibrate() {
