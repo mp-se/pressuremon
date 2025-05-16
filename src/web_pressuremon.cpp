@@ -41,7 +41,7 @@ constexpr auto PARAM_SELF_TEMP_CONNECTED = "temp_connected";
 constexpr auto PARAM_ONEWIRE = "onewire";
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
-  if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
+  if (myPressureSensor.isActive() /*|| myPressureSensor1.isActive()*/) {
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
   } else {

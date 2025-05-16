@@ -134,7 +134,7 @@ class PressureSensor {
 };
 
 extern PressureSensor myPressureSensor;
-extern PressureSensor myPressureSensor1;
+// extern PressureSensor myPressureSensor1;
 
 #endif  // PRESSUREMON
 
