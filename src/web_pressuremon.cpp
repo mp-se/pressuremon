@@ -39,9 +39,10 @@ constexpr auto PARAM_SELF_SENSOR_CONNECTED = "sensor_connected";
 constexpr auto PARAM_SELF_SENSOR_CONFIGURED = "sensor_configured";
 constexpr auto PARAM_SELF_TEMP_CONNECTED = "temp_connected";
 constexpr auto PARAM_ONEWIRE = "onewire";
+constexpr auto PARAM_FORCE_CONFIG = "force_config";
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
-  if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
+  if (myPressureSensor.isActive() /*|| myPressureSensor1.isActive()*/) {
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
   } else {
@@ -222,6 +223,10 @@ void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
   //     j++;
   //   }
   // }
+
+#if defined(PIN_CFG1) && defined(PIN_CFG2)
+  obj[PARAM_FORCE_CONFIG] = checkPinConnected(PIN_CFG1, PIN_CFG2);
+#endif
 
   JsonArray onew = obj[PARAM_ONEWIRE].to<JsonArray>();
 

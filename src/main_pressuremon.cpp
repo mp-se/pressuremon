@@ -76,8 +76,8 @@ SerialWebSocket mySerialWebSocket;
 BleSender myBleSender;
 #endif
 PressureSensor myPressureSensor(&myConfig);
-PressureSensor myPressureSensor1(&myConfig);
-TempSensor myTempSensor(&myConfig, nullptr);
+// PressureSensor myPressureSensor1(&myConfig);
+TempSensor myTempSensor(&myConfig);
 
 // Define constats for this program
 LoopTimer timerLoop(1000);
@@ -93,7 +93,7 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  delay(3000);  // Wait for power to stabilize
+  // delay(3000);  // Wait for power to stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
@@ -105,10 +105,12 @@ void setup() {
   Log.notice(F("Main: Using serial pins as output." CR));
 #else
   // Serial pints used to force config mode
-  sleepModeAlwaysSkip = checkPinConnected();
+  #if defined(PIN_CFG1) && defined(PIN_CFG2)
+  sleepModeAlwaysSkip = checkPinConnected(PIN_CFG1, PIN_CFG2);
   if (sleepModeAlwaysSkip) {
     Log.notice(F("Main: Forcing config mode since TX/RX are connected." CR));
   }
+  #endif
 #endif
 
   // Main startup
@@ -172,8 +174,8 @@ void setup() {
       myPressureSensor.setup(0, &Wire);
       // myPressureSensor[1].setup(1, &Wire1);
       PERF_END("main-sensor-read");
-
-      if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+          
+      if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
         Log.error(F("Main: No sensors are active, stopping." CR));
       }
 
@@ -198,12 +200,12 @@ void setup() {
         }
         PERF_END("main-wifi-connect");
       }
-
-      PERF_BEGIN("main-temp-setup");
-      myTempSensor.setup(PIN_DS);
-      PERF_END("main-temp-setup");
       break;
   }
+
+  PERF_BEGIN("main-temp-setup");
+  myTempSensor.setup(PIN_DS);
+  PERF_END("main-temp-setup");
 
   // Do this setup for configuration mode
   switch (runMode) {
@@ -254,14 +256,13 @@ bool loopReadPressure() {
 
   myPressureSensor.read();
   // myPressureSensor1.read();
-  myTempSensor.readSensor(false);
+  myTempSensor.readSensor();
 
   // float pressure, pressure1, temp, temp1;
-  float pressurePsi, pressurePsi1, tempC;
+  float pressurePsi = NAN, pressurePsi1 = NAN, tempC;
 
   pressurePsi = myPressureSensor.getPressurePsi();
   // pressurePsi1 = myPressureSensor1.getPressurePsi();
-  pressurePsi1 = NAN;
 
   tempC = myTempSensor.getTempC();
   // temp = myPressureSensor[0].getTemperatureC();
@@ -439,7 +440,7 @@ void checkSleepModePressure(float volt) {
     Log.notice(F("MAIN: Sleep mode disabled from web interface." CR));
 #endif
     runMode = RunMode::configurationMode;
-  } else if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+  } else if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
     Log.notice(F("MAIN: No sensors active, will go into config mode." CR));
     runMode = RunMode::configurationMode;
   } else if (volt > myConfig.getVoltageConfig() || volt < 2.0) {
