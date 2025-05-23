@@ -105,10 +105,12 @@ void setup() {
   Log.notice(F("Main: Using serial pins as output." CR));
 #else
   // Serial pints used to force config mode
-  sleepModeAlwaysSkip = checkPinConnected();
+  #if defined(PIN_CFG1) && defined(PIN_CFG2)
+  sleepModeAlwaysSkip = checkPinConnected(PIN_CFG1, PIN_CFG2);
   if (sleepModeAlwaysSkip) {
     Log.notice(F("Main: Forcing config mode since TX/RX are connected." CR));
   }
+  #endif
 #endif
 
   // Main startup

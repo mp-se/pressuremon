@@ -38,6 +38,8 @@ SOFTWARE.
 #define PIN_VOLT 2
 #define PIN_DS 10
 #define PIN_PWR 11
+#define PIN_CFG1 TX
+#define PIN_CFG2 RX
 
 #elif defined(LOLIN_S2_MINI)
 // Hardware config for ESP32-s2-mini, pressuremon hardware
@@ -49,6 +51,8 @@ SOFTWARE.
 #define PIN_VOLT 3
 #define PIN_DS 12
 #define PIN_PWR 11
+#define PIN_CFG1 TX
+#define PIN_CFG2 RX
 
 #elif defined(LOLIN_C3_MINI)
 // Hardware config for ESP32-c3-mini, pressuremon hardware
