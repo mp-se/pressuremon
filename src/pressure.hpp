@@ -134,7 +134,9 @@ class PressureSensor {
 };
 
 extern PressureSensor myPressureSensor;
-// extern PressureSensor myPressureSensor1;
+#if defined(ENABLE_SECOND_SENSOR)
+extern PressureSensor myPressureSensor1;
+#endif
 
 #endif  // PRESSUREMON
 

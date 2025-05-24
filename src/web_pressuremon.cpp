@@ -40,9 +40,14 @@ constexpr auto PARAM_SELF_SENSOR_CONFIGURED = "sensor_configured";
 constexpr auto PARAM_SELF_TEMP_CONNECTED = "temp_connected";
 constexpr auto PARAM_ONEWIRE = "onewire";
 constexpr auto PARAM_FORCE_CONFIG = "force_config";
+constexpr auto PARAM_MAX_SENSORS = "max_sensors";
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
-  if (myPressureSensor.isActive() /*|| myPressureSensor1.isActive()*/) {
+#if defined(ENABLE_SECOND_SENSOR)
+  if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
+#else
+  if (myPressureSensor.isActive()) {
+#endif 
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
   } else {
@@ -56,7 +61,9 @@ void PressuremonWebServer::doWebConfigWrite() {
       F("WEB : Configuring pressure sensors after configuration update" CR));
 
   myPressureSensor.setup(0, &Wire);
-  // myPressureSensor1.setup(1, &Wire1);
+#if defined(ENABLE_SECOND_SENSOR)
+  myPressureSensor1.setup(1, &Wire1);
+#endif
 }
 
 void PressuremonWebServer::doWebStatus(JsonObject &obj) {
@@ -69,17 +76,21 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
           ? true
           : false;
 
+#if defined(ENABLE_SECOND_SENSOR)
+  obj[PARAM_MAX_SENSORS] = 2;
+#else
+  obj[PARAM_MAX_SENSORS] = 1;
+#endif
+
   // float pressure, pressure1, temp, temp1;
   float pressure, pressure1, temp;
 
   pressure = myPressureSensor.getPressurePsi();
-  // pressure1 = myPressureSensor1.getPressurePsi();
-  pressure1 = NAN;
+#if defined(ENABLE_SECOND_SENSOR)
+  pressure1 = myPressureSensor1.getPressurePsi();
+#endif
 
   temp = myTempSensor.getTempC();
-  // temp = myPressureSensor.getTemperatureC();
-  // temp1 = myPressureSensor1.getTemperatureC();
-  // temp1 = NAN;
 
   if (!isnan(pressure)) {
     if (myConfig.isPressureBar()) {
@@ -91,6 +102,7 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
     obj[PARAM_PRESSURE] = serialized(String(pressure, DECIMALS_PRESSURE));
   }
 
+#if defined(ENABLE_SECOND_SENSOR)
   if (!isnan(pressure1)) {
     if (myConfig.isPressureBar()) {
       pressure = convertPsiPressureToBar(pressure1);
@@ -100,6 +112,7 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
 
     obj[PARAM_PRESSURE1] = serialized(String(pressure1, DECIMALS_PRESSURE));
   }
+#endif
 
   // if (!isnan(temp)) {
   if (myConfig.isTempUnitF()) {
@@ -128,12 +141,14 @@ void PressuremonWebServer::doTaskSensorCalibration() {
         F("WEB : First sensor not connnected, skipping calibration" CR));
   }
 
-  // if (myPressureSensor1.isActive()) {
-  //   myPressureSensor1.calibrate();
-  // } else {
-  //   Log.warning(
-  //       F("WEB : Second sensor not connnected, skipping calibration" CR));
-  // }
+#if defined(ENABLE_SECOND_SENSOR)
+  if (myPressureSensor1.isActive()) {
+    myPressureSensor1.calibrate();
+  } else {
+    Log.warning(
+        F("WEB : Second sensor not connnected, skipping calibration" CR));
+  }
+#endif
 }
 
 void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
@@ -142,7 +157,9 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   float pressure, pressure1, temp;
 
   pressure = myPressureSensor.getPressurePsi();
-  // pressure1 = myPressureSensor1.getPressurePsi();
+#if defined(ENABLE_SECOND_SENSOR)
+  pressure1 = myPressureSensor1.getPressurePsi();
+#endif
   pressure1 = NAN;
 
   temp = myTempSensor.getTempC();

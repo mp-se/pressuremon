@@ -76,7 +76,9 @@ SerialWebSocket mySerialWebSocket;
 BleSender myBleSender;
 #endif
 PressureSensor myPressureSensor(&myConfig);
-// PressureSensor myPressureSensor1(&myConfig);
+#if defined(ENABLE_SECOND_SENSOR)
+PressureSensor myPressureSensor1(&myConfig);
+#endif
 TempSensor myTempSensor(&myConfig);
 
 // Define constats for this program
@@ -175,7 +177,11 @@ void setup() {
       // myPressureSensor[1].setup(1, &Wire1);
       PERF_END("main-sensor-read");
           
-      if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
+#if defined(ENABLE_SECOND_SENSOR)
+    if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+#else
+    if (!myPressureSensor.isActive()) {
+#endif
         Log.error(F("Main: No sensors are active, stopping." CR));
       }
 
@@ -255,19 +261,19 @@ bool loopReadPressure() {
   //
 
   myPressureSensor.read();
-  // myPressureSensor1.read();
+#if defined(ENABLE_SECOND_SENSOR)
+  myPressureSensor1.read();
+#endif
   myTempSensor.readSensor();
 
-  // float pressure, pressure1, temp, temp1;
   float pressurePsi = NAN, pressurePsi1 = NAN, tempC;
 
   pressurePsi = myPressureSensor.getPressurePsi();
-  // pressurePsi1 = myPressureSensor1.getPressurePsi();
+#if defined(ENABLE_SECOND_SENSOR)
+  pressurePsi1 = myPressureSensor1.getPressurePsi();
+#endif
 
   tempC = myTempSensor.getTempC();
-  // temp = myPressureSensor[0].getTemperatureC();
-  // temp1 = myPressureSensor[1].getTemperatureC();
-  // temp1 = NAN;
 
 #if LOG_LEVEL == 6
   Log.verbose(F("Main: Sensor values pressure=%F PSI, "
@@ -440,7 +446,11 @@ void checkSleepModePressure(float volt) {
     Log.notice(F("MAIN: Sleep mode disabled from web interface." CR));
 #endif
     runMode = RunMode::configurationMode;
-  } else if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
+#if defined(ENABLE_SECOND_SENSOR)
+} else if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+#else
+  } else if (!myPressureSensor.isActive()) {
+#endif
     Log.notice(F("MAIN: No sensors active, will go into config mode." CR));
     runMode = RunMode::configurationMode;
   } else if (volt > myConfig.getVoltageConfig() || volt < 2.0) {
