@@ -47,7 +47,7 @@ void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
   if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
 #else
   if (myPressureSensor.isActive()) {
-#endif 
+#endif
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
   } else {

@@ -44,6 +44,7 @@ SOFTWARE.
 // Pressuremon specific
 #include <ble_pressuremon.hpp>
 #include <config_pressuremon.hpp>
+#include <display.hpp>
 #include <pressure.hpp>
 #include <push_pressuremon.hpp>
 #include <tempsensor.hpp>
@@ -80,6 +81,7 @@ PressureSensor myPressureSensor(&myConfig);
 PressureSensor myPressureSensor1(&myConfig);
 #endif
 TempSensor myTempSensor(&myConfig);
+Display myDisplay;
 
 // Define constats for this program
 LoopTimer timerLoop(1000);
@@ -95,7 +97,7 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  // delay(3000);  // Wait for power to stabilize
+  delay(3000);  // Wait for power to stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
@@ -106,13 +108,13 @@ void setup() {
   mySerial.setup(115200L, TX, RX);
   Log.notice(F("Main: Using serial pins as output." CR));
 #else
-  // Serial pints used to force config mode
-  #if defined(PIN_CFG1) && defined(PIN_CFG2)
+// Serial pints used to force config mode
+#if defined(PIN_CFG1) && defined(PIN_CFG2)
   sleepModeAlwaysSkip = checkPinConnected(PIN_CFG1, PIN_CFG2);
   if (sleepModeAlwaysSkip) {
     Log.notice(F("Main: Forcing config mode since TX/RX are connected." CR));
   }
-  #endif
+#endif
 #endif
 
   // Main startup
@@ -174,13 +176,15 @@ void setup() {
       Log.notice(F("Main: Setting up pressure sensors." CR));
       PERF_BEGIN("main-sensor-read");
       myPressureSensor.setup(0, &Wire);
-      // myPressureSensor[1].setup(1, &Wire1);
-      PERF_END("main-sensor-read");
-          
 #if defined(ENABLE_SECOND_SENSOR)
-    if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+      myPressureSensor1.setup(1, &Wire1);
+#endif
+      PERF_END("main-sensor-read");
+
+#if defined(ENABLE_SECOND_SENSOR)
+      if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
 #else
-    if (!myPressureSensor.isActive()) {
+      if (!myPressureSensor.isActive()) {
 #endif
         Log.error(F("Main: No sensors are active, stopping." CR));
       }
@@ -216,7 +220,13 @@ void setup() {
   // Do this setup for configuration mode
   switch (runMode) {
     case RunMode::configurationMode:
-      if (myWifi.isConnected()) {
+
+    Log.notice(F("Main: Initialize display." CR));
+    myDisplay.setup();
+    myDisplay.setFont(FontSize::FONT_16);
+    myDisplay.show();
+
+    if (myWifi.isConnected()) {
         Log.notice(F("Main: Activating web server." CR));
         // We cant use LED on ESP32C3 since that pin is connected to GYRO
         ledOn(LedColor::BLUE);  // Blue or slow flashing to indicate config mode
@@ -394,6 +404,8 @@ void goToSleep(int sleepInterval) {
   deepSleep(sleepInterval);
 }
 
+LoopTimer myDisplayUpdateTimer(3000);  // Update display 3 seconds
+
 void loop() {
   switch (runMode) {
     case RunMode::wifiSetupMode:
@@ -402,6 +414,30 @@ void loop() {
       myWifi.loop();
       loopPressureOnInterval();
       delay(1);
+
+      if(myDisplayUpdateTimer.hasExpired()) {
+        myDisplayUpdateTimer.reset();
+        myDisplay.clear();
+       
+        char buf[30];
+        
+        snprintf(buf,sizeof(buf), "%s", myConfig.getMDNS());
+        myDisplay.printLineCentered(0, buf);
+
+        snprintf(buf,sizeof(buf), "%.2f %s", myPressureSensor.getPressure(), myConfig.getPressureUnit());
+        myDisplay.printLineCentered(1, buf);
+
+#if defined(ENABLE_SECOND_SENSOR)
+        snprintf(buf,sizeof(buf), "%.2f %s", myPressureSensor1.getPressure(), myConfig.getPressureUnit());
+        myDisplay.printLineCentered(2, buf);
+#endif
+
+        float temp = myTempSensor.getTempC();
+        snprintf(buf,sizeof(buf), "%.1f %c", myConfig.isTempFormatC() ? temp : convertCtoF(temp), myConfig.getTempUnit());
+        myDisplay.printLineCentered(3, buf);
+
+        myDisplay.show();
+      }
       break;
 
     case RunMode::measurementMode:
@@ -447,7 +483,7 @@ void checkSleepModePressure(float volt) {
 #endif
     runMode = RunMode::configurationMode;
 #if defined(ENABLE_SECOND_SENSOR)
-} else if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+  } else if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
 #else
   } else if (!myPressureSensor.isActive()) {
 #endif
