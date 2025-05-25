@@ -36,8 +36,17 @@ bool Display::isInitialized() {
 }
 
 void Display::setup() {
-  if(_display)
+  if(_display) {
     delete _display;
+    _display = nullptr;
+  }
+
+  Wire.beginTransmission(DISPLAY_ADRESS);
+  int err = Wire.endTransmission();
+  if (err) {
+    Log.warning(F("DISP: No display found on I2C bus." CR));
+    return;
+  }
 
   _display = new SH1106Wire(DISPLAY_ADRESS);
   _fontSize = FontSize::FONT_10;

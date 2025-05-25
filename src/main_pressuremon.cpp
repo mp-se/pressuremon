@@ -433,7 +433,7 @@ void loop() {
 #endif
 
         float temp = myTempSensor.getTempC();
-        snprintf(buf,sizeof(buf), "%.1f %c", myConfig.isTempFormatC() ? temp : convertCtoF(temp), myConfig.getTempUnit());
+        snprintf(buf,sizeof(buf), "%.1f°%c", myConfig.isTempFormatC() ? temp : convertCtoF(temp), myConfig.getTempUnit());
         myDisplay.printLineCentered(3, buf);
 
         myDisplay.show();
