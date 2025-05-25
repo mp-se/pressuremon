@@ -3,6 +3,18 @@
 Releases 
 ########
 
+v0.6.0
+======
+
+New features
+++++++++++++
+* Added support for 0.96" OLED display connected to I2C bus #1
+* Enabled support for second pressure sensor on I2C bus #2
+
+Bugs fixed
+++++++++++
+* Fixed conversion to kPa on device.
+
 v0.5.0
 ======
 
