@@ -60,8 +60,8 @@ constexpr auto CONFIG_CUSTOM1_MIN_PRESSURE = "custom1_min_pressure";
 constexpr auto CONFIG_CUSTOM1_MAX_PRESSURE = "custom1_max_pressure";
 
 struct AnalogCustomSensor {
-  float minPressure;  // PSI
-  float maxPressure;  // PSI
+  float minPressure;  // kPa
+  float maxPressure;  // kPa
   float minVoltage;
   float maxVoltage;
 };
@@ -136,17 +136,17 @@ class PressuremonConfig : public BrewingConfig, public PressureConfigInterface {
     _analogCustomSensor[idx].maxVoltage = v;
     _saveNeeded = true;
   }
-  float getCustomAnalogMinPsi(int idx) const {
+  float getCustomAnalogMinKpa(int idx) const {
     return _analogCustomSensor[idx].minPressure;
   }
-  void setCustomAnalogMinPsi(float p, int idx) {
+  void setCustomAnalogMinKpa(float p, int idx) {
     _analogCustomSensor[idx].minPressure = p;
     _saveNeeded = true;
   }
-  float getCustomAnalogMaxPsi(int idx) const {
+  float getCustomAnalogMaxKpa(int idx) const {
     return _analogCustomSensor[idx].maxPressure;
   }
-  void setCustomAnalogMaxPsi(float p, int idx) {
+  void setCustomAnalogMaxKpa(float p, int idx) {
     _analogCustomSensor[idx].maxPressure = p;
     _saveNeeded = true;
   }

@@ -89,8 +89,8 @@ class PressureConfigInterface {
 
   virtual float getCustomAnalogMinV(int idx) const = 0;
   virtual float getCustomAnalogMaxV(int idx) const = 0;
-  virtual float getCustomAnalogMinPsi(int idx) const = 0;
-  virtual float getCustomAnalogMaxPsi(int idx) const = 0;
+  virtual float getCustomAnalogMinKpa(int idx) const = 0;
+  virtual float getCustomAnalogMaxKpa(int idx) const = 0;
 };
 
 class PressureSensorInterface {

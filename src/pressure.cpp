@@ -227,11 +227,8 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
       ret = static_cast<AnalogPressureSensor *>(_impl.get())
                 ->setup(_pressureConfig->getCustomAnalogMinV(idx),
                         _pressureConfig->getCustomAnalogMaxV(idx),
-                        convertPsiPressureToKPa(
-                            _pressureConfig->getCustomAnalogMinPsi(idx)),
-                        convertPsiPressureToKPa(
-                            _pressureConfig->getCustomAnalogMaxPsi(idx)),
-                        idx, wire,
+                        _pressureConfig->getCustomAnalogMinKpa(idx),
+                        _pressureConfig->getCustomAnalogMaxKpa(idx), idx, wire,
                         idx);  // Note! Index also defines the ADC port to use
       break;
 

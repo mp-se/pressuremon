@@ -53,18 +53,18 @@ void PressuremonConfig::createJson(JsonObject& doc) const {
   doc[CONFIG_CUSTOM_MAX_VOLTAGE] =
       serialized(String(getCustomAnalogMaxV(0), 3));
   doc[CONFIG_CUSTOM_MIN_PRESSURE] =
-      serialized(String(getCustomAnalogMinPsi(0), DECIMALS_PRESSURE));
+      serialized(String(getCustomAnalogMinKpa(0), DECIMALS_PRESSURE));
   doc[CONFIG_CUSTOM_MAX_PRESSURE] =
-      serialized(String(getCustomAnalogMaxPsi(0), DECIMALS_PRESSURE));
+      serialized(String(getCustomAnalogMaxKpa(0), DECIMALS_PRESSURE));
 
   doc[CONFIG_CUSTOM1_MIN_VOLTAGE] =
       serialized(String(getCustomAnalogMinV(1), 3));
   doc[CONFIG_CUSTOM1_MAX_VOLTAGE] =
       serialized(String(getCustomAnalogMaxV(1), 3));
   doc[CONFIG_CUSTOM1_MIN_PRESSURE] =
-      serialized(String(getCustomAnalogMinPsi(1), DECIMALS_PRESSURE));
+      serialized(String(getCustomAnalogMinKpa(1), DECIMALS_PRESSURE));
   doc[CONFIG_CUSTOM1_MAX_PRESSURE] =
-      serialized(String(getCustomAnalogMaxPsi(1), DECIMALS_PRESSURE));
+      serialized(String(getCustomAnalogMaxKpa(1), DECIMALS_PRESSURE));
 }
 
 void PressuremonConfig::parseJson(JsonObject& doc) {
@@ -95,18 +95,18 @@ void PressuremonConfig::parseJson(JsonObject& doc) {
   if (!doc[CONFIG_CUSTOM_MAX_VOLTAGE].isNull())
     setCustomAnalogMaxV(doc[CONFIG_CUSTOM_MAX_VOLTAGE].as<float>(), 0);
   if (!doc[CONFIG_CUSTOM_MIN_PRESSURE].isNull())
-    setCustomAnalogMinPsi(doc[CONFIG_CUSTOM_MIN_PRESSURE].as<float>(), 0);
+    setCustomAnalogMinKpa(doc[CONFIG_CUSTOM_MIN_PRESSURE].as<float>(), 0);
   if (!doc[CONFIG_CUSTOM_MAX_PRESSURE].isNull())
-    setCustomAnalogMaxPsi(doc[CONFIG_CUSTOM_MAX_PRESSURE].as<float>(), 0);
+    setCustomAnalogMaxKpa(doc[CONFIG_CUSTOM_MAX_PRESSURE].as<float>(), 0);
 
   if (!doc[CONFIG_CUSTOM1_MIN_VOLTAGE].isNull())
     setCustomAnalogMinV(doc[CONFIG_CUSTOM1_MIN_VOLTAGE].as<float>(), 1);
   if (!doc[CONFIG_CUSTOM1_MAX_VOLTAGE].isNull())
     setCustomAnalogMaxV(doc[CONFIG_CUSTOM1_MAX_VOLTAGE].as<float>(), 1);
   if (!doc[CONFIG_CUSTOM1_MIN_PRESSURE].isNull())
-    setCustomAnalogMinPsi(doc[CONFIG_CUSTOM1_MIN_PRESSURE].as<float>(), 1);
+    setCustomAnalogMinKpa(doc[CONFIG_CUSTOM1_MIN_PRESSURE].as<float>(), 1);
   if (!doc[CONFIG_CUSTOM1_MAX_PRESSURE].isNull())
-    setCustomAnalogMaxPsi(doc[CONFIG_CUSTOM1_MAX_PRESSURE].as<float>(), 1);
+    setCustomAnalogMaxKpa(doc[CONFIG_CUSTOM1_MAX_PRESSURE].as<float>(), 1);
 }
 
 #endif  // PRESSUREMON
