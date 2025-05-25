@@ -44,6 +44,7 @@ SOFTWARE.
 // Pressuremon specific
 #include <ble_pressuremon.hpp>
 #include <config_pressuremon.hpp>
+#include <cstdio>
 #include <display.hpp>
 #include <pressure.hpp>
 #include <push_pressuremon.hpp>
@@ -221,12 +222,12 @@ void setup() {
   switch (runMode) {
     case RunMode::configurationMode:
 
-    Log.notice(F("Main: Initialize display." CR));
-    myDisplay.setup();
-    myDisplay.setFont(FontSize::FONT_16);
-    myDisplay.show();
+      Log.notice(F("Main: Initialize display." CR));
+      myDisplay.setup();
+      myDisplay.setFont(FontSize::FONT_16);
+      myDisplay.show();
 
-    if (myWifi.isConnected()) {
+      if (myWifi.isConnected()) {
         Log.notice(F("Main: Activating web server." CR));
         // We cant use LED on ESP32C3 since that pin is connected to GYRO
         ledOn(LedColor::BLUE);  // Blue or slow flashing to indicate config mode
@@ -415,19 +416,20 @@ void loop() {
       loopPressureOnInterval();
       delay(1);
 
-      if(myDisplayUpdateTimer.hasExpired()) {
+      if (myDisplayUpdateTimer.hasExpired()) {
         myDisplayUpdateTimer.reset();
         myDisplay.clear();
-       
+
         char buf[30];
-        
-        snprintf(buf,sizeof(buf), "%s", myConfig.getMDNS());
+
+        snprintf(buf, sizeof(buf), "%s", myConfig.getMDNS());
         myDisplay.printLineCentered(0, buf);
 
         float pressure = myPressureSensor.getPressure();
 
-        if(!isnan(pressure)) {
-          snprintf(buf,sizeof(buf), "%.2f %s", pressure, myConfig.getPressureUnit());
+        if (!isnan(pressure)) {
+          snprintf(buf, sizeof(buf), "%.2f %s", pressure,
+                   myConfig.getPressureUnit());
           myDisplay.printLineCentered(1, buf);
         } else {
           myDisplay.printLineCentered(1, "-");
@@ -436,8 +438,9 @@ void loop() {
 #if defined(ENABLE_SECOND_SENSOR)
         float pressure1 = myPressureSensor1.getPressure();
 
-        if(!isnan(pressure1)) {
-          snprintf(buf,sizeof(buf), "%.2f %s", pressure1, myConfig.getPressureUnit());  
+        if (!isnan(pressure1)) {
+          snprintf(buf, sizeof(buf), "%.2f %s", pressure1,
+                   myConfig.getPressureUnit());
           myDisplay.printLineCentered(2, buf);
         } else {
           myDisplay.printLineCentered(2, "-");
@@ -445,8 +448,14 @@ void loop() {
 #endif
 
         float temp = myTempSensor.getTempC();
-        snprintf(buf,sizeof(buf), "%.1f°%c", myConfig.isTempFormatC() ? temp : convertCtoF(temp), myConfig.getTempUnit());
-        myDisplay.printLineCentered(3, buf);
+        if (temp < -270) {
+          snprintf(buf, sizeof(buf), "%.1f°%c",
+                   myConfig.isTempFormatC() ? temp : convertCtoF(temp),
+                   myConfig.getTempUnit());
+          myDisplay.printLineCentered(3, buf);
+        } else {
+          myDisplay.printLineCentered(2, "-");
+        }
 
         myDisplay.show();
       }

@@ -49,6 +49,23 @@ constexpr auto CONFIG_PRESSURE1_ADJUSTMENT = "pressure1_adjustment";
 
 constexpr auto CONFIG_PRESSURE_UNIT = "pressure_unit";
 
+constexpr auto CONFIG_CUSTOM_MIN_VOLTAGE = "custom_min_voltage";
+constexpr auto CONFIG_CUSTOM_MAX_VOLTAGE = "custom_max_voltage";
+constexpr auto CONFIG_CUSTOM_MIN_PRESSURE = "custom_min_pressure";
+constexpr auto CONFIG_CUSTOM_MAX_PRESSURE = "custom_max_pressure";
+
+constexpr auto CONFIG_CUSTOM1_MIN_VOLTAGE = "custom1_min_voltage";
+constexpr auto CONFIG_CUSTOM1_MAX_VOLTAGE = "custom1_max_voltage";
+constexpr auto CONFIG_CUSTOM1_MIN_PRESSURE = "custom1_min_pressure";
+constexpr auto CONFIG_CUSTOM1_MAX_PRESSURE = "custom1_max_pressure";
+
+struct AnalogCustomSensor {
+  float minPressure;  // PSI
+  float maxPressure;  // PSI
+  float minVoltage;
+  float maxVoltage;
+};
+
 class PressuremonConfig : public BrewingConfig, public PressureConfigInterface {
  private:
   PressuremonBleFormat _pressuremonBleFormat =
@@ -57,6 +74,8 @@ class PressuremonConfig : public BrewingConfig, public PressureConfigInterface {
       PressureSensorType::SensorNone, PressureSensorType::SensorNone};
 
   float _pressureSensorCorrection[MAX_SENSOR_DEVICES] = {0, 0};
+  AnalogCustomSensor _analogCustomSensor[MAX_SENSOR_DEVICES] = {{0, 0, 0, 0},
+                                                                {0, 0, 0, 0}};
 
   bool _batterySaving = true;
 
@@ -100,6 +119,35 @@ class PressuremonConfig : public BrewingConfig, public PressureConfigInterface {
   }
   void setPressureSensorCorrection(float v, int idx) {
     _pressureSensorCorrection[idx] = v;
+    _saveNeeded = true;
+  }
+
+  float getCustomAnalogMinV(int idx) const {
+    return _analogCustomSensor[idx].minVoltage;
+  }
+  void setCustomAnalogMinV(float v, int idx) {
+    _analogCustomSensor[idx].minVoltage = v;
+    _saveNeeded = true;
+  }
+  float getCustomAnalogMaxV(int idx) const {
+    return _analogCustomSensor[idx].maxVoltage;
+  }
+  void setCustomAnalogMaxV(float v, int idx) {
+    _analogCustomSensor[idx].maxVoltage = v;
+    _saveNeeded = true;
+  }
+  float getCustomAnalogMinPsi(int idx) const {
+    return _analogCustomSensor[idx].minPressure;
+  }
+  void setCustomAnalogMinPsi(float p, int idx) {
+    _analogCustomSensor[idx].minPressure = p;
+    _saveNeeded = true;
+  }
+  float getCustomAnalogMaxPsi(int idx) const {
+    return _analogCustomSensor[idx].maxPressure;
+  }
+  void setCustomAnalogMaxPsi(float p, int idx) {
+    _analogCustomSensor[idx].maxPressure = p;
     _saveNeeded = true;
   }
 

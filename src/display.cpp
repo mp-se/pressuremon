@@ -21,9 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <display.hpp>
 #include <SH1106Wire.h>
 #include <Wire.h>
+
+#include <display.hpp>
 #include <log.hpp>
 
 Display::Display() {}
@@ -36,7 +37,7 @@ bool Display::isInitialized() {
 }
 
 void Display::setup() {
-  if(_display) {
+  if (_display) {
     delete _display;
     _display = nullptr;
   }
@@ -53,12 +54,12 @@ void Display::setup() {
   _width = 127;
   _height = 63;
 
-  if(_display == nullptr) {
+  if (_display == nullptr) {
     Log.error(F("DISP: Failed to create display driver." CR));
     return;
   }
 
-  if(!_display->init()) {
+  if (!_display->init()) {
     Log.error(F("DISP: Failed to initialize display driver." CR));
     return;
   }

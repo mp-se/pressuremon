@@ -27,6 +27,7 @@ SOFTWARE.
 #include <helper.hpp>
 #include <main.hpp>
 #include <pressure.hpp>
+#include <pressure_analog.hpp>
 #include <push_pressuremon.hpp>
 #include <tempsensor.hpp>
 #include <web_pressuremon.hpp>
@@ -41,6 +42,7 @@ constexpr auto PARAM_SELF_TEMP_CONNECTED = "temp_connected";
 constexpr auto PARAM_ONEWIRE = "onewire";
 constexpr auto PARAM_FORCE_CONFIG = "force_config";
 constexpr auto PARAM_MAX_SENSORS = "max_sensors";
+constexpr auto PARAM_ADC_FOUND = "adc_found";
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
 #if defined(ENABLE_SECOND_SENSOR)
@@ -75,6 +77,10 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
               _pressConfig->hasTargetInfluxDb2()
           ? true
           : false;
+
+  Wire.beginTransmission(ADC_I2C_ADDRESS);
+  bool adcFound = Wire.endTransmission() == 0;
+  obj[PARAM_ADC_FOUND] = adcFound;
 
 #if defined(ENABLE_SECOND_SENSOR)
   obj[PARAM_MAX_SENSORS] = 2;

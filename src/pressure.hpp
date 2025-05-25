@@ -64,6 +64,8 @@ enum PressureSensorType {
   SensorXidibeiXDB401_Analog_KPa_3000 = 112,  // 0-3 MPa
   SensorXidibeiXDB401_Analog_KPa_3500 = 113,  // 0-3.5 MPa
   SensorXidibeiXDB401_Analog_KPa_4000 = 114,  // 0-4 MPa
+
+  SensorCustom_Analog = 1000,  // Custom values
 };
 
 // Inteface towards config class for pressure sensor related settings
@@ -84,6 +86,11 @@ class PressureConfigInterface {
   virtual bool saveFile() = 0;
 
   virtual PressureSensorType getPressureSensorType(int idx) const = 0;
+
+  virtual float getCustomAnalogMinV(int idx) const = 0;
+  virtual float getCustomAnalogMaxV(int idx) const = 0;
+  virtual float getCustomAnalogMinPsi(int idx) const = 0;
+  virtual float getCustomAnalogMaxPsi(int idx) const = 0;
 };
 
 class PressureSensorInterface {

@@ -221,6 +221,20 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
                 ->setup(0.2, 2.4, 0, 4000, idx, wire,
                         idx);  // Note! Index also defines the ADC port to use
       break;
+
+    case PressureSensorType::SensorCustom_Analog:
+      _impl.reset(new AnalogPressureSensor(_pressureConfig));
+      ret = static_cast<AnalogPressureSensor *>(_impl.get())
+                ->setup(_pressureConfig->getCustomAnalogMinV(idx),
+                        _pressureConfig->getCustomAnalogMaxV(idx),
+                        convertPsiPressureToKPa(
+                            _pressureConfig->getCustomAnalogMinPsi(idx)),
+                        convertPsiPressureToKPa(
+                            _pressureConfig->getCustomAnalogMaxPsi(idx)),
+                        idx, wire,
+                        idx);  // Note! Index also defines the ADC port to use
+      break;
+
     default:
       Log.notice(F("PRES: Unknown pressure sensor id %d" CR),
                  _pressureConfig->getPressureSensorType(idx));
