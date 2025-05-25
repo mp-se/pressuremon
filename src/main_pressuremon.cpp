@@ -424,12 +424,24 @@ void loop() {
         snprintf(buf,sizeof(buf), "%s", myConfig.getMDNS());
         myDisplay.printLineCentered(0, buf);
 
-        snprintf(buf,sizeof(buf), "%.2f %s", myPressureSensor.getPressure(), myConfig.getPressureUnit());
-        myDisplay.printLineCentered(1, buf);
+        float pressure = myPressureSensor.getPressure();
+
+        if(!isnan(pressure)) {
+          snprintf(buf,sizeof(buf), "%.2f %s", pressure, myConfig.getPressureUnit());
+          myDisplay.printLineCentered(1, buf);
+        } else {
+          myDisplay.printLineCentered(1, "-");
+        }
 
 #if defined(ENABLE_SECOND_SENSOR)
-        snprintf(buf,sizeof(buf), "%.2f %s", myPressureSensor1.getPressure(), myConfig.getPressureUnit());
-        myDisplay.printLineCentered(2, buf);
+        float pressure1 = myPressureSensor1.getPressure();
+
+        if(!isnan(pressure1)) {
+          snprintf(buf,sizeof(buf), "%.2f %s", pressure1, myConfig.getPressureUnit());  
+          myDisplay.printLineCentered(2, buf);
+        } else {
+          myDisplay.printLineCentered(2, "-");
+        }
 #endif
 
         float temp = myTempSensor.getTempC();
