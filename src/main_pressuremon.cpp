@@ -97,7 +97,7 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  delay(3000);  // Wait for power to stabilize
+  // delay(3000);  // Wait for power to stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
