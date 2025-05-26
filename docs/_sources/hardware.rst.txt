@@ -5,7 +5,7 @@ Hardware
 
 To build the hardware for this project you will need the following. 
 
-* A microcontroller ESP32c3 ESP32c3 pico. 
+* A microcontroller ESP32c3 pico. 
 * A digital pressure sensor from the brand XIDIBEI (see aliexpress.com), select one that matches the range you want to measure.
 * PCB for mounting the components
 * Lithium battery compatible with the ESP32c3 pico (check the battery matches the connector, +/- pins)
