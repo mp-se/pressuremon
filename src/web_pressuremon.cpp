@@ -228,24 +228,24 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   push.clearTemplate();
 }
 
-// constexpr auto PARAM_I2C_1 = "i2c_1";
+constexpr auto PARAM_I2C_1 = "i2c_1";
 
 void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
-  // JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
+  JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
-  // for (int i = 1, j = 0; i < 128; i++) {
-  //   // The i2c_scanner uses the return value of
-  //   // the Write.endTransmisstion to see if
-  //   // a device did acknowledge to the address.
-  //   Wire1.beginTransmission(i);
-  //   int err = Wire1.endTransmission();
+  for (int i = 1, j = 0; i < 128; i++) {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire1.beginTransmission(i);
+    int err = Wire1.endTransmission();
 
-  //   if (err == 0) {
-  //     Log.notice(F("WEB : Found device at 0x%02X." CR), i);
-  //     i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
-  //     j++;
-  //   }
-  // }
+    if (err == 0) {
+      Log.notice(F("WEB : Found device at 0x%02X." CR), i);
+      i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
+      j++;
+    }
+  }
 
 #if defined(PIN_CFG1) && defined(PIN_CFG2)
   obj[PARAM_FORCE_CONFIG] = checkPinConnected(PIN_CFG1, PIN_CFG2);
