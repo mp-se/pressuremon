@@ -6,6 +6,17 @@ Functionality
 The main features
 -----------------
 
+* **Supports multiple I2C based pressure sensors from the vendor XIDIBEI**
+
+  XIDIBEI is a vendor that have several I2C based pressure sensors that are very accurate and have a wide range of connectors. Devices 
+  are stainless steel and food safe.
+
+* **Support custom Analog devices using external ADS1115 ADC**
+
+  Analog sensors are supported when using an external ADS1115 ADC chip. This is connected to the first I2C bus. You need to configure the 
+  following values; Minimum Voltage, Maximum Voltage, Minimum Pressure, Maximum Pressure. The device will then calculate the pressure 
+  based on the voltage reading.
+
 * **Operates in two modes measurement or configuration mode**
 
   In ``measurement mode`` it behaves wakes up and perform the measurements and sends the data to the defined services. This will only work when the device
@@ -46,6 +57,12 @@ The main features
   Bluetooth is an option for those boards that have that feature.
 
   - Pressmon iBeacon. Data: Pressure,Temp,Battery,ChipID.
+
+* **External 0.96" OLED display**
+
+  When in configuration mode the device will also check for an external display and show devicename, pressure and 
+  temperature. This is great if you are running the device on power and want to see the current pressure. This display 
+  should be connected to the first I2C bus which is the same pins as the first sensor or the I2C connector on the esp32c3 pico.  
 
 * **WIFI Direct to GravityMon Gateway (Work in progress)**
 
