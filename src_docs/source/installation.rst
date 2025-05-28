@@ -7,7 +7,7 @@ Webflasher
 ==========
 
 The preferred option for flashing PressureMon is using my WebFlasher from gravitymon.com, its a tools that support all my brewing related firmwares. This works 
-on both Windows and Mac. The flasher is available here `WebFlasher <https://gravitymon.com/flasher/install.html>`_. After flashing is complete you can also 
+on both Windows and Mac. The flasher is available here `WebFlasher <https://gravitymon.com/flasher/index.html>`_. After flashing is complete you can also 
 set the WiFi ssid and password through the tool which is easier than connecting to the access point.
 
 Binaries
