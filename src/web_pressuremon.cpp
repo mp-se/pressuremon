@@ -159,7 +159,6 @@ void PressuremonWebServer::doTaskSensorCalibration() {
 
 void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
                                                BrewingPush &push) {
-  // float pressure, pressure1, temp, temp1;
   float pressure, pressure1, temp;
 
   pressure = myPressureSensor.getPressurePsi();
@@ -231,6 +230,7 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
 constexpr auto PARAM_I2C_1 = "i2c_1";
 
 void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
+#if defined(ENABLE_SECOND_SENSOR)
   JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
   for (int i = 1, j = 0; i < 128; i++) {
@@ -241,11 +241,12 @@ void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
     int err = Wire1.endTransmission();
 
     if (err == 0) {
-      Log.notice(F("WEB : Found device at 0x%02X." CR), i);
+      Log.notice(F("WEB : Found device at 0x%x." CR), i);
       i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
       j++;
     }
   }
+#endif
 
 #if defined(PIN_CFG1) && defined(PIN_CFG2)
   obj[PARAM_FORCE_CONFIG] = checkPinConnected(PIN_CFG1, PIN_CFG2);

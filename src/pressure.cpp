@@ -124,6 +124,7 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
                 ->setup(4000, wire, idx);
       break;
 
+      /*
     case PressureSensorType::SensorXidibeiXDB401_Analog_KPa_200:
       _impl.reset(new AnalogPressureSensor(_pressureConfig));
       ret = static_cast<AnalogPressureSensor *>(_impl.get())
@@ -220,7 +221,7 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
       ret = static_cast<AnalogPressureSensor *>(_impl.get())
                 ->setup(0.2, 2.4, 0, 4000, idx, wire,
                         idx);  // Note! Index also defines the ADC port to use
-      break;
+      break;*/
 
     case PressureSensorType::SensorCustom_Analog:
       _impl.reset(new AnalogPressureSensor(_pressureConfig));

@@ -98,7 +98,7 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  // delay(3000);  // Wait for power to stabilize
+  // delay(3000);  // TODO: Remove for when not developing, Wait for power to stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
@@ -139,14 +139,32 @@ void setup() {
   int clock = 400000;
 
   Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), PIN_SDA, PIN_SCL);
-  Wire.setPins(PIN_SDA, PIN_SCL);
-  Wire.begin();
-  Wire.setClock(clock);
+  Wire.begin(PIN_SDA, PIN_SCL, clock);
 
-  // Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
-  // Wire1.setPins(PIN_SDA1, PIN_SCL1);
-  // Wire1.begin();
-  // Wire1.setClock(clock);
+  // I2C scanner code for testing what is connected
+  // for (int i = 1; i < 128; i++) {
+  //   Wire.beginTransmission(i);
+  //   int err = Wire.endTransmission();
+
+  //   if (err == 0) {
+  //     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+  //   }
+  // }
+
+#if defined(ENABLE_SECOND_SENSOR)
+  Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
+  Wire1.begin(PIN_SDA1, PIN_SCL1, clock);
+
+  // I2C scanner code for testing what is connected
+  // for (int i = 1; i < 128; i++) {
+  //   Wire1.beginTransmission(i);
+  //   int err = Wire1.endTransmission();
+
+  //   if (err == 0) {
+  //     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+  //   }
+  // }
+#endif
 
   // No stored config, move to portal
   if (!myWifi.hasConfig()) {
