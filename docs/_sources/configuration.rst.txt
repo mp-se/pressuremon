@@ -114,11 +114,6 @@ Device - Hardware
   This value will be added to the temperature reading (negative value will reduce temperature reading). This is applied
   when the device starts. So changing this will not take affect until the device is restarted.
 
-* **Battery type:**
-
-  Choose the type of battery beeing used, LiPo or LithiumIon (18650). These are both supported by the charging module but have 
-  different characteristics when calculating remaning voltage. 
-
 * **Pressure Sensor:**
 
   Choose the pressure sensor that will be used 
@@ -127,21 +122,6 @@ Device - Hardware
 
   This can be used to calibrate the pressure sensor so it shows the delta pressure.
 
-* **Analog sensor MinV:** 
-
-  When using a custom analog sensor enter the voltage that corresponds to the min pressure in kPa.
-
-* **Analog sensor MaxV:** 
-
-  When using a custom analog sensor enter the voltage that corresponds to the max pressure in kPa.
-
-* **Analog sensor Min Pressure (kPA):** 
-
-  When using a custom analog sensor enter the min pressure in kPa.
-
-* **Analog sensor Max Pressure (kPA):** 
-
-  When using a custom analog sensor enter the max pressure in kPa.
 
 Device - WIFI
 +++++++++++++

@@ -3,21 +3,37 @@
 Software Installation 
 ---------------------
 
-Webflasher
-==========
+Checklist for configuring the device
+====================================
 
-The preferred option for flashing PressureMon is using my WebFlasher from gravitymon.com, its a tools that support all my brewing related firmwares. This works 
-on both Windows and Mac. The flasher is available here `WebFlasher <https://gravitymon.com/flasher/install.html>`_. After flashing is complete you can also 
-set the WiFi ssid and password through the tool which is easier than connecting to the access point.
+Install the firmware using one of the following options:
+
+- Brewflasher via USB serial
+- Brewflasher WEB via USB serial
+
+Brewflasher
+===========
+
+The preferred option for flashing PressureMon is using BrewFlasher, its a tools that support many brewing related firmwares for ESP32. This works 
+on both Windows and Mac. You can download the latest version from here: `Brewflasher <https://www.brewflasher.com/>`_ there is also a web based version 
+available here `Brewflasher WEB <https://web.brewflasher.com/>`_.
+
+In order to flash an C3 board you will need Brewflasher 1.5 or newer. 
+
+.. note::
+  The S2 and C3 chips might need to be put in flash mode before flashing can be done. Hold the button on the opposite side from the RST button,
+  press the RST button and release it before the first button you pressed. This should force the chip into download mode. If you connect a serial 
+  terminal it should say "waiting for download".
+
 
 Binaries
 ********
 
-In the /bin directory you will find 3 different firmware builds;
+In the /bin directory you will find 4 different firmware builds;
 
 * **firmware32c3.bin**
 
-  This is the release build for an ESP32c3-mini or ESP32c3-pico. When flashing an ESP32 you also need the *partition32c3.bin* file that outlines the flash memory structure. Due to 
+  This is the release build for an ESP32c3-mini variant v2.1 or newer. When flashing an ESP32 you also need the *partition32c3.bin* file that outlines the flash memory structure. Due to 
   the size of the firmware we are using a custom partition setup. 
 
 * **firmware32s2.bin**
