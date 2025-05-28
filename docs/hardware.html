@@ -275,6 +275,8 @@ support other sensors in the future.</p>
 <p>ESP32c3 mini, ESP32s2 mini or ESP32s3 mini will also work but will require additional hardware such as LiPo
 charger and voltage divider for measuring battery. (The s2 does not support bluetooth). If you want to use
 any of these boards the pinout is the same.</p>
+<p>Another limitation is that the ESP32c3 and ESP32s2 only have one I2C hardware controller so currently only one
+sensor is supported on those boards. ESP32s3 is the only board that can support two sensors at the same time.</p>
 </div>
 <section id="custom-boards">
 <h2>Custom boards<a class="headerlink" href="#custom-boards" title="Permalink to this heading">¶</a></h2>

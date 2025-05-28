@@ -25,6 +25,9 @@ To build the hardware for this project you will need the following.
   charger and voltage divider for measuring battery. (The s2 does not support bluetooth). If you want to use 
   any of these boards the pinout is the same.
 
+  Another limitation is that the ESP32c3 and ESP32s2 only have one I2C hardware controller so currently only one 
+  sensor is supported on those boards. ESP32s3 is the only board that can support two sensors at the same time.
+
 
 Custom boards
 =============

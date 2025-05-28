@@ -6,6 +6,11 @@ Releases
 v0.6.0
 ======
 
+Known limitation:
+* On the ESP32c3 and ESP32s2 the software only supports one I2C bus and one sensor since those boards 
+only have one I2C bus. I need to do some refactoring to add support for multiple senors.
+
+
 New features
 ++++++++++++
 * Added support for 0.96" OLED display connected to first I2C bus or connector on ESP32C3-PICO.
