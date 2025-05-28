@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Configuration" href="configuration.html" /><link rel="prev" title="Getting started" href="intro.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
-        <title>Software Installation - PressureMon v0.5.0</title>
+        <title>Software Installation - PressureMon v0.6.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">PressureMon v0.5.0</div></a>
+      <a href="index.html"><div class="brand">PressureMon v0.6.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -194,7 +194,7 @@
     <img class="sidebar-logo" src="_static/pressuremon_logo.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">PressureMon v0.5.0</span>
+  <span class="sidebar-brand-text">PressureMon v0.6.0</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -255,32 +255,17 @@
         <article role="main" id="furo-main-content">
           <section id="software-installation">
 <span id="installation"></span><h1>Software Installation<a class="headerlink" href="#software-installation" title="Permalink to this heading">¶</a></h1>
-<section id="checklist-for-configuring-the-device">
-<h2>Checklist for configuring the device<a class="headerlink" href="#checklist-for-configuring-the-device" title="Permalink to this heading">¶</a></h2>
-<p>Install the firmware using one of the following options:</p>
-<ul class="simple">
-<li><p>Brewflasher via USB serial</p></li>
-<li><p>Brewflasher WEB via USB serial</p></li>
-</ul>
-</section>
-<section id="brewflasher">
-<h2>Brewflasher<a class="headerlink" href="#brewflasher" title="Permalink to this heading">¶</a></h2>
-<p>The preferred option for flashing PressureMon is using BrewFlasher, its a tools that support many brewing related firmwares for ESP32. This works
-on both Windows and Mac. You can download the latest version from here: <a class="reference external" href="https://www.brewflasher.com/">Brewflasher</a> there is also a web based version
-available here <a class="reference external" href="https://web.brewflasher.com/">Brewflasher WEB</a>.</p>
-<p>In order to flash an C3 board you will need Brewflasher 1.5 or newer.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The S2 and C3 chips might need to be put in flash mode before flashing can be done. Hold the button on the opposite side from the RST button,
-press the RST button and release it before the first button you pressed. This should force the chip into download mode. If you connect a serial
-terminal it should say “waiting for download”.</p>
-</div>
+<section id="webflasher">
+<h2>Webflasher<a class="headerlink" href="#webflasher" title="Permalink to this heading">¶</a></h2>
+<p>The preferred option for flashing PressureMon is using my WebFlasher from gravitymon.com, its a tools that support all my brewing related firmwares. This works
+on both Windows and Mac. The flasher is available here <a class="reference external" href="https://gravitymon.com/flasher/index.html">WebFlasher</a>. After flashing is complete you can also
+set the WiFi ssid and password through the tool which is easier than connecting to the access point.</p>
 <section id="binaries">
 <h3>Binaries<a class="headerlink" href="#binaries" title="Permalink to this heading">¶</a></h3>
-<p>In the /bin directory you will find 4 different firmware builds;</p>
+<p>In the /bin directory you will find 3 different firmware builds;</p>
 <ul>
 <li><p><strong>firmware32c3.bin</strong></p>
-<p>This is the release build for an ESP32c3-mini variant v2.1 or newer. When flashing an ESP32 you also need the <em>partition32c3.bin</em> file that outlines the flash memory structure. Due to
+<p>This is the release build for an ESP32c3-mini or ESP32c3-pico. When flashing an ESP32 you also need the <em>partition32c3.bin</em> file that outlines the flash memory structure. Due to
 the size of the firmware we are using a custom partition setup.</p>
 </li>
 <li><p><strong>firmware32s2.bin</strong></p>
@@ -399,8 +384,7 @@ with finding the network name you can try the following:</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Software Installation</a><ul>
-<li><a class="reference internal" href="#checklist-for-configuring-the-device">Checklist for configuring the device</a></li>
-<li><a class="reference internal" href="#brewflasher">Brewflasher</a><ul>
+<li><a class="reference internal" href="#webflasher">Webflasher</a><ul>
 <li><a class="reference internal" href="#binaries">Binaries</a></li>
 </ul>
 </li>
@@ -423,7 +407,7 @@ with finding the network name you can try the following:</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=3fadbb4a"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=add265a1"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
