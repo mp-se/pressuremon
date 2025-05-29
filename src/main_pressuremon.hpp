@@ -46,8 +46,8 @@ SOFTWARE.
 // ------------------------------------------------------
 #define PIN_SDA 33
 #define PIN_SCL 35
-// #define PIN_SDA1 6 // The s2 only has one hardware i2c controller
-// #define PIN_SCL1 4 // The s2 only has one hardware i2c controller
+#define PIN_SDA1 6
+#define PIN_SCL1 4
 #define PIN_VOLT 3
 #define PIN_DS 12
 #define PIN_PWR 11
@@ -59,8 +59,8 @@ SOFTWARE.
 // ------------------------------------------------------------
 #define PIN_SDA 8
 #define PIN_SCL 10
-// #define PIN_SDA1 1 // The c3 only has one hardware i2c controller
-// #define PIN_SCL1 2 // The c3 only has one hardware i2c controller
+#define PIN_SDA1 1
+#define PIN_SCL1 2
 #define PIN_VOLT 3
 #define PIN_DS 5
 #define PIN_PWR 4

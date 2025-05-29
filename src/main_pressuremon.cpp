@@ -83,6 +83,11 @@ PressureSensor myPressureSensor1(&myConfig);
 #endif
 TempSensor myTempSensor(&myConfig);
 Display myDisplay;
+#if defined(USE_SOFTWIRE)
+SoftWire Wire2(PIN_SDA1, PIN_SCL1);
+char swTxBuffer[16];
+char swRxBuffer[16];
+#endif
 
 // Define constats for this program
 LoopTimer timerLoop(1000);
@@ -98,7 +103,8 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  // delay(3000);  // TODO: Remove for when not developing, Wait for power to stabilize
+  // delay(3000);  // TODO: Remove for when not developing, Wait for power to
+                // stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
@@ -152,19 +158,38 @@ void setup() {
   // }
 
 #if defined(ENABLE_SECOND_SENSOR)
-  Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
-  Wire1.begin(PIN_SDA1, PIN_SCL1, clock);
+#if defined(USE_SOFTWIRE)
+  Log.notice(F("Main: SoftWire SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
+  Wire2.setTxBuffer(swTxBuffer, sizeof(swTxBuffer));
+  Wire2.setRxBuffer(swRxBuffer, sizeof(swRxBuffer));
+  Wire2.setDelay_us(5);
+  Wire2.setTimeout(1000);
+  Wire2.begin();
 
   // I2C scanner code for testing what is connected
   // for (int i = 1; i < 128; i++) {
-  //   Wire1.beginTransmission(i);
-  //   int err = Wire1.endTransmission();
+  //   Wire2.beginTransmission(i);
+  //   int err = Wire2.endTransmission();
 
   //   if (err == 0) {
   //     Log.notice(F("WEB : Found device at 0x%x." CR), i);
   //   }
   // }
-#endif
+#else
+  Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
+  Wire1.begin(PIN_SDA1, PIN_SCL1, clock);
+
+// I2C scanner code for testing what is connected
+// for (int i = 1; i < 128; i++) {
+//   Wire1.beginTransmission(i);
+//   int err = Wire1.endTransmission();
+
+//   if (err == 0) {
+//     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+//   }
+// }
+#endif  // USE_SOFTWIRE
+#endif  // ENABLE_SECOND_SENSOR
 
   // No stored config, move to portal
   if (!myWifi.hasConfig()) {
@@ -196,7 +221,11 @@ void setup() {
       PERF_BEGIN("main-sensor-read");
       myPressureSensor.setup(0, &Wire);
 #if defined(ENABLE_SECOND_SENSOR)
+#if defined(USE_SOFTWIRE)
+      myPressureSensor1.setup(1, nullptr, &Wire2);
+#else
       myPressureSensor1.setup(1, &Wire1);
+#endif  // USE_SOFTWIRE
 #endif
       PERF_END("main-sensor-read");
 

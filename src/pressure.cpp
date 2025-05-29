@@ -29,7 +29,7 @@ SOFTWARE.
 #include <pressure_analog.hpp>
 #include <pressure_xidibei.hpp>
 
-void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
+void PressureSensor::setup(uint8_t idx, TwoWire *wire, SoftWire *softWire) {
   Log.notice(F("PRES: Setting up pressuresensor index %d." CR), idx);
   bool ret = false;
 
@@ -43,85 +43,85 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire) {
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_200:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(200, wire, idx);
+                ->setup(200, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_400:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(400, wire, idx);
+                ->setup(400, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_500:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(500, wire, idx);
+                ->setup(500, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_600:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(600, wire, idx);
+                ->setup(600, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_800:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(800, wire, idx);
+                ->setup(800, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_1000:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(1000, wire, idx);
+                ->setup(1000, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_1200:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(1200, wire, idx);
+                ->setup(1200, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_1500:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(1500, wire, idx);
+                ->setup(1500, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_1600:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(1600, wire, idx);
+                ->setup(1600, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_2000:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(2000, wire, idx);
+                ->setup(2000, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_2500:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(2500, wire, idx);
+                ->setup(2500, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_3000:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(3000, wire, idx);
+                ->setup(3000, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_3500:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(3500, wire, idx);
+                ->setup(3500, wire, softWire, idx);
       break;
 
     case PressureSensorType::SensorXidibeiXDB401_I2C_KPa_4000:
       _impl.reset(new XIDIBEIPressureSensor(_pressureConfig));
       ret = static_cast<XIDIBEIPressureSensor *>(_impl.get())
-                ->setup(4000, wire, idx);
+                ->setup(4000, wire, softWire, idx);
       break;
 
       /*

@@ -27,6 +27,7 @@ SOFTWARE.
 #if defined(PRESSUREMON)
 
 #include <Arduino.h>
+#include <SoftWire.h>
 #include <Wire.h>
 
 #include <log.hpp>
@@ -50,6 +51,7 @@ enum PressureSensorType {
   SensorXidibeiXDB401_I2C_KPa_3500 = 13,  // 0-3.5 MPa
   SensorXidibeiXDB401_I2C_KPa_4000 = 14,  // 0-4 MPa
 
+  /*
   SensorXidibeiXDB401_Analog_KPa_200 = 101,   // 0-0.2 MPa
   SensorXidibeiXDB401_Analog_KPa_400 = 102,   // 0-0.4 MPa
   SensorXidibeiXDB401_Analog_KPa_500 = 103,   // 0-0.5 MPa
@@ -64,6 +66,7 @@ enum PressureSensorType {
   SensorXidibeiXDB401_Analog_KPa_3000 = 112,  // 0-3 MPa
   SensorXidibeiXDB401_Analog_KPa_3500 = 113,  // 0-3.5 MPa
   SensorXidibeiXDB401_Analog_KPa_4000 = 114,  // 0-4 MPa
+  */
 
   SensorCustom_Analog = 1000,  // Custom values
 };
@@ -122,7 +125,7 @@ class PressureSensor {
     _pressureConfig = pressureConfig;
   }
 
-  void setup(uint8_t idx, TwoWire* wire);
+  void setup(uint8_t idx, TwoWire* wire, SoftWire* softWire = nullptr);
 
   bool read();
   bool isActive();

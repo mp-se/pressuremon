@@ -44,6 +44,8 @@ constexpr auto PARAM_FORCE_CONFIG = "force_config";
 constexpr auto PARAM_MAX_SENSORS = "max_sensors";
 constexpr auto PARAM_ADC_FOUND = "adc_found";
 
+extern SoftWire Wire2;
+
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
 #if defined(ENABLE_SECOND_SENSOR)
   if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
@@ -64,7 +66,11 @@ void PressuremonWebServer::doWebConfigWrite() {
 
   myPressureSensor.setup(0, &Wire);
 #if defined(ENABLE_SECOND_SENSOR)
+#if defined(USE_SOFTWIRE)
+  myPressureSensor1.setup(1, nullptr, &Wire2);
+#else
   myPressureSensor1.setup(1, &Wire1);
+#endif  // USE_SOFTWIRE
 #endif
 }
 
@@ -234,17 +240,30 @@ void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
   JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
   for (int i = 1, j = 0; i < 128; i++) {
-    // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
-    // a device did acknowledge to the address.
+// The i2c_scanner uses the return value of
+// the Write.endTransmisstion to see if
+// a device did acknowledge to the address.
+#if defined(USE_SOFTWIRE)
+    Wire2.beginTransmission(i);
+    int err = Wire2.endTransmission();
+
+    if (err == 0) {
+      Log.notice(F("WEB : Found device at 0x%x." CR), i);
+      i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
+      i2c1[j][PARAM_BUS] = "SoftWire";
+      j++;
+    }
+#else
     Wire1.beginTransmission(i);
     int err = Wire1.endTransmission();
 
     if (err == 0) {
       Log.notice(F("WEB : Found device at 0x%x." CR), i);
       i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
+      i2c1[j][PARAM_BUS] = "Wire1";
       j++;
     }
+#endif  // USE_SOFTWIRE
   }
 #endif
 

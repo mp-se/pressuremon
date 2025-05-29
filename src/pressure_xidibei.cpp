@@ -29,12 +29,12 @@ SOFTWARE.
 constexpr auto XIDIBEI_IIC_CALIBRATION_COUNT = 5;
 
 bool XIDIBEIPressureSensor::setup(float maxPressure, TwoWire *wire,
-                                  uint8_t idx) {
+                                  SoftWire *softWire, uint8_t idx) {
   _pressureCorrection = _pressureConfig->getPressureSensorCorrection(idx);
   _temperatureCorrection = _pressureConfig->getTemperatureSensorCorrection(idx);
   _maxPressure = maxPressure;
   _idx = idx;
-  _xidibeiSensor.reset(new XIDIBEI(_maxPressure, wire));
+  _xidibeiSensor.reset(new XIDIBEI(_maxPressure, wire, softWire));
   _sensorActive = _xidibeiSensor->begin();
   Log.notice(
       F("PRES: XIDIBEI sensor initialized = %s, max pressure = %F, pressure "

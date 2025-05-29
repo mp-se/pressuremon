@@ -27,6 +27,7 @@ SOFTWARE.
 #if defined(PRESSUREMON)
 
 #include <Arduino.h>
+#include <SoftWire.h>
 #include <Wire.h>
 
 #include <memory>
@@ -36,7 +37,8 @@ constexpr auto XIDIBEI_I2C_ADDRESS = 0x7F;
 class XIDIBEI {
  public:
   // Max pressure (kPA) is the maximum value that the sensor can handle.
-  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire);
+  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire,
+                   SoftWire *softWire = nullptr);
 
   bool begin();
   // Pressure is returned in kPA
@@ -45,6 +47,7 @@ class XIDIBEI {
 
  private:
   TwoWire *_wire;
+  SoftWire *_softWire;
   uint16_t _maxPressure;
 };
 
