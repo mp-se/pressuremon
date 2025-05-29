@@ -11,7 +11,7 @@ To build the hardware for this project you will need the following.
 * Lithium battery compatible with the ESP32c3 pico (check the battery matches the connector, +/- pins)
 * DS18B20 temperature sensor (Needed for temperature data since the internal sensor is not accurate enough)
 * 3.3k resistors for the temperature sensor data pullup
-* Small switch for turning the device off
+* 2 x Small switches for turning the device off and forcing configuration mode
 
 .. note:: 
 
@@ -25,8 +25,8 @@ To build the hardware for this project you will need the following.
   charger and voltage divider for measuring battery. (The s2 does not support bluetooth). If you want to use 
   any of these boards the pinout is the same.
 
-  Another limitation is that the ESP32c3 and ESP32s2 only have one I2C hardware controller so currently only one 
-  sensor is supported on those boards. ESP32s3 is the only board that can support two sensors at the same time.
+  Some boards only have one I2C hardware controller (ESP32s2 and ESP32c3) so here the second sensor uses a software
+  based driver which is slightly slower.
 
 
 Custom boards
