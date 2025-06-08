@@ -7,7 +7,7 @@ Welcome to PressureMon
 ######################
 
 .. note::
-  This documentation reflects **v0.6.0**. Last updated 2025-51-28
+  This documentation reflects **v0.6.0 - development**. Last updated 2025-06-08
 
 
 What is PressureMon?
@@ -19,16 +19,10 @@ digital or analog pressure sensor to measure the pressure.
 
 The analog sensor version require a separate ADC chip to have the needed accuracy. This option is still work in progress.
 
-The codebase for this project is shared with my project GravityMon so the code is stored in the same repository. 70% of the 
-codebase is the same so it makes sense from a maintenance perspective.
-
-The github repository can be found here; `PressureMon on Github <https://github.com/mp-se/pressuremon>`_, where the documentation 
-and builds are stored. The sensor specific code is also stored here for easier testing and development. 
+The github repository can be found here; `PressureMon on Github <https://github.com/mp-se/pressuremon>`_,  
 
 User Interface is stored in this repositiory; `PressureMon-UI on Github <https://github.com/mp-se/pressuremon-ui>`_, where the documentation 
 and builds are stored. The sensor specific code is also stored here for easier testing and development. 
-
-The github repository for the source code is; `GravityMon on Github <https://github.com/mp-se/gravitymon>`_
 
 .. note::  
   I don't take responsibility for any errors or issues caused by the software or hardware. 
