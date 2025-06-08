@@ -126,7 +126,6 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
   }
 #endif
 
-  // if (!isnan(temp)) {
   if (myConfig.isTempUnitF()) {
     temp = convertCtoF(temp);
   }
@@ -236,6 +235,7 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
 constexpr auto PARAM_I2C_1 = "i2c_1";
 
 void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
+
 #if defined(ENABLE_SECOND_SENSOR)
   JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
@@ -246,6 +246,10 @@ void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
 #if defined(USE_SOFTWIRE)
     Wire2.beginTransmission(i);
     int err = Wire2.endTransmission();
+
+    // Softwire will return true if nothing is connected, so if we get a hit on
+    // adress one we assume that there is nothing connected
+    if (err == 0 && i == 1) break;
 
     if (err == 0) {
       Log.notice(F("WEB : Found device at 0x%x." CR), i);

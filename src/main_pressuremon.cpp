@@ -104,7 +104,7 @@ void setup() {
   delay(5);
 
   // delay(3000);  // TODO: Remove for when not developing, Wait for power to
-                // stabilize
+  // stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
