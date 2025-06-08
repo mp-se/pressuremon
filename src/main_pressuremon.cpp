@@ -495,13 +495,13 @@ void loop() {
 #endif
 
         float temp = myTempSensor.getTempC();
-        if (temp < -270) {
+        if (temp > -270) {
           snprintf(buf, sizeof(buf), "%.1f°%c",
                    myConfig.isTempFormatC() ? temp : convertCtoF(temp),
                    myConfig.getTempUnit());
           myDisplay.printLineCentered(3, buf);
         } else {
-          myDisplay.printLineCentered(2, "-");
+          myDisplay.printLineCentered(3, "-");
         }
 
         myDisplay.show();
