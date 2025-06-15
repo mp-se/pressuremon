@@ -276,7 +276,6 @@ void setup() {
 
       if (myWifi.isConnected()) {
         Log.notice(F("Main: Activating web server." CR));
-        // We cant use LED on ESP32C3 since that pin is connected to GYRO
         ledOn(LedColor::BLUE);  // Blue or slow flashing to indicate config mode
         PERF_BEGIN("main-wifi-ota");
         if (myOta.checkFirmwareVersion()) myOta.updateFirmware();
