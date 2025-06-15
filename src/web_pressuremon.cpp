@@ -169,8 +169,9 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   pressure = myPressureSensor.getPressurePsi();
 #if defined(ENABLE_SECOND_SENSOR)
   pressure1 = myPressureSensor1.getPressurePsi();
-#endif
+#else
   pressure1 = NAN;
+#endif
 
   temp = myTempSensor.getTempC();
 
@@ -180,51 +181,35 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   Log.notice(F("WEB : Running scheduled push test for %s" CR),
              _pushTestTarget.c_str());
 
-  if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST) &&
+  if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST_PRESSURE) &&
       myConfig.hasTargetHttpPost()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP1);
     String doc = engine.create(tpl.c_str());
-
-    if (myConfig.isHttpPostSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpPost(doc);
+    push.sendHttpPost(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST2) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST2_PRESSURE) &&
              myConfig.hasTargetHttpPost2()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP2);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpPost2SSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpPost2(doc);
+    push.sendHttpPost2(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_GET) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_GET_PRESSURE) &&
              myConfig.hasTargetHttpGet()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP3);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpGetSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpGet(doc);
+    push.sendHttpGet(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_INFLUXDB) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_INFLUXDB_PRESSURE) &&
              myConfig.hasTargetInfluxDb2()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_INFLUX);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpInfluxDb2SSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendInfluxDb2(doc);
+    push.sendInfluxDb2(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_MQTT) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_MQTT_PRESSURE) &&
              myConfig.hasTargetMqtt()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_MQTT);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isMqttSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendMqtt(doc);
+    push.sendMqtt(doc);
     _pushTestEnabled = true;
   }
 

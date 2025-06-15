@@ -129,8 +129,6 @@ void setup() {
   printBuildOptions();
   detectChipRevision();
 
-  ledOn(LedColor::GREEN);
-
   PERF_BEGIN("main-config-load");
   myConfig.checkFileSystem();
   myWifi.init();
@@ -290,12 +288,9 @@ void setup() {
         ledOn(LedColor::RED);  // Red or fast flashing to indicate connection
                                // error
       }
-
-      // interval = 1000;  // Change interval from 200ms to 1s
       break;
 
     default:
-      // We cant use LED on ESP32C3 since that pin is connected to GYRO
       ledOn(LedColor::GREEN);  // Green or fast flashing to indicate measurement
                                // mode
       break;
