@@ -54,9 +54,9 @@ SOFTWARE.
 #define PIN_CFG1 TX
 #define PIN_CFG2 RX
 
-#elif defined(LOLIN_C3_MINI)
-// Hardware config for ESP32-c3-mini, pressuremon hardware
-// ------------------------------------------------------
+#elif defined(LOLIN_C3_PICO)
+// Hardware config for ESP32-c3-pico, pressuremon hardware
+// ------------------------------------------------------------
 #define PIN_SDA 8
 #define PIN_SCL 10
 #define PIN_SDA1 1

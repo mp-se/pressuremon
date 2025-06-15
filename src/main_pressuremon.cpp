@@ -44,6 +44,8 @@ SOFTWARE.
 // Pressuremon specific
 #include <ble_pressuremon.hpp>
 #include <config_pressuremon.hpp>
+#include <cstdio>
+#include <display.hpp>
 #include <pressure.hpp>
 #include <push_pressuremon.hpp>
 #include <tempsensor.hpp>
@@ -76,8 +78,16 @@ SerialWebSocket mySerialWebSocket;
 BleSender myBleSender;
 #endif
 PressureSensor myPressureSensor(&myConfig);
-// PressureSensor myPressureSensor1(&myConfig);
+#if defined(ENABLE_SECOND_SENSOR)
+PressureSensor myPressureSensor1(&myConfig);
+#endif
 TempSensor myTempSensor(&myConfig);
+Display myDisplay;
+#if defined(USE_SOFTWIRE)
+SoftWire Wire2(PIN_SDA1, PIN_SCL1);
+char swTxBuffer[16];
+char swRxBuffer[16];
+#endif
 
 // Define constats for this program
 LoopTimer timerLoop(1000);
@@ -93,7 +103,8 @@ void setup() {
   pinMode(PIN_PWR, OUTPUT);
   delay(5);
 
-  // delay(3000);  // Wait for power to stabilize
+  // delay(3000);  // TODO: Remove for when not developing, Wait for power to
+  // stabilize
 
   PERF_BEGIN("run-time");
   PERF_BEGIN("main-setup");
@@ -104,21 +115,19 @@ void setup() {
   mySerial.setup(115200L, TX, RX);
   Log.notice(F("Main: Using serial pins as output." CR));
 #else
-  // Serial pints used to force config mode
-  #if defined(PIN_CFG1) && defined(PIN_CFG2)
+// Serial pints used to force config mode
+#if defined(PIN_CFG1) && defined(PIN_CFG2)
   sleepModeAlwaysSkip = checkPinConnected(PIN_CFG1, PIN_CFG2);
   if (sleepModeAlwaysSkip) {
     Log.notice(F("Main: Forcing config mode since TX/RX are connected." CR));
   }
-  #endif
+#endif
 #endif
 
   // Main startup
   Log.notice(F("Main: Started setup for %s." CR), myConfig.getID());
   printBuildOptions();
   detectChipRevision();
-
-  ledOn(LedColor::GREEN);
 
   PERF_BEGIN("main-config-load");
   myConfig.checkFileSystem();
@@ -134,14 +143,51 @@ void setup() {
   int clock = 400000;
 
   Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), PIN_SDA, PIN_SCL);
-  Wire.setPins(PIN_SDA, PIN_SCL);
-  Wire.begin();
-  Wire.setClock(clock);
+  Wire.begin(PIN_SDA, PIN_SCL, clock);
 
-  // Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
-  // Wire1.setPins(PIN_SDA1, PIN_SCL1);
-  // Wire1.begin();
-  // Wire1.setClock(clock);
+  // I2C scanner code for testing what is connected
+  // for (int i = 1; i < 128; i++) {
+  //   Wire.beginTransmission(i);
+  //   int err = Wire.endTransmission();
+
+  //   if (err == 0) {
+  //     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+  //   }
+  // }
+
+#if defined(ENABLE_SECOND_SENSOR)
+#if defined(USE_SOFTWIRE)
+  Log.notice(F("Main: SoftWire SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
+  Wire2.setTxBuffer(swTxBuffer, sizeof(swTxBuffer));
+  Wire2.setRxBuffer(swRxBuffer, sizeof(swRxBuffer));
+  Wire2.setDelay_us(5);
+  Wire2.setTimeout(1000);
+  Wire2.begin();
+
+  // I2C scanner code for testing what is connected
+  // for (int i = 1; i < 128; i++) {
+  //   Wire2.beginTransmission(i);
+  //   int err = Wire2.endTransmission();
+
+  //   if (err == 0) {
+  //     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+  //   }
+  // }
+#else
+  Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
+  Wire1.begin(PIN_SDA1, PIN_SCL1, clock);
+
+// I2C scanner code for testing what is connected
+// for (int i = 1; i < 128; i++) {
+//   Wire1.beginTransmission(i);
+//   int err = Wire1.endTransmission();
+
+//   if (err == 0) {
+//     Log.notice(F("WEB : Found device at 0x%x." CR), i);
+//   }
+// }
+#endif  // USE_SOFTWIRE
+#endif  // ENABLE_SECOND_SENSOR
 
   // No stored config, move to portal
   if (!myWifi.hasConfig()) {
@@ -172,10 +218,20 @@ void setup() {
       Log.notice(F("Main: Setting up pressure sensors." CR));
       PERF_BEGIN("main-sensor-read");
       myPressureSensor.setup(0, &Wire);
-      // myPressureSensor[1].setup(1, &Wire1);
+#if defined(ENABLE_SECOND_SENSOR)
+#if defined(USE_SOFTWIRE)
+      myPressureSensor1.setup(1, nullptr, &Wire2);
+#else
+      myPressureSensor1.setup(1, &Wire1);
+#endif  // USE_SOFTWIRE
+#endif
       PERF_END("main-sensor-read");
-          
-      if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
+
+#if defined(ENABLE_SECOND_SENSOR)
+      if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+#else
+      if (!myPressureSensor.isActive()) {
+#endif
         Log.error(F("Main: No sensors are active, stopping." CR));
       }
 
@@ -210,9 +266,14 @@ void setup() {
   // Do this setup for configuration mode
   switch (runMode) {
     case RunMode::configurationMode:
+
+      Log.notice(F("Main: Initialize display." CR));
+      myDisplay.setup();
+      myDisplay.setFont(FontSize::FONT_16);
+      myDisplay.show();
+
       if (myWifi.isConnected()) {
         Log.notice(F("Main: Activating web server." CR));
-        // We cant use LED on ESP32C3 since that pin is connected to GYRO
         ledOn(LedColor::BLUE);  // Blue or slow flashing to indicate config mode
         PERF_BEGIN("main-wifi-ota");
         if (myOta.checkFirmwareVersion()) myOta.updateFirmware();
@@ -227,12 +288,9 @@ void setup() {
         ledOn(LedColor::RED);  // Red or fast flashing to indicate connection
                                // error
       }
-
-      // interval = 1000;  // Change interval from 200ms to 1s
       break;
 
     default:
-      // We cant use LED on ESP32C3 since that pin is connected to GYRO
       ledOn(LedColor::GREEN);  // Green or fast flashing to indicate measurement
                                // mode
       break;
@@ -255,19 +313,19 @@ bool loopReadPressure() {
   //
 
   myPressureSensor.read();
-  // myPressureSensor1.read();
+#if defined(ENABLE_SECOND_SENSOR)
+  myPressureSensor1.read();
+#endif
   myTempSensor.readSensor();
 
-  // float pressure, pressure1, temp, temp1;
   float pressurePsi = NAN, pressurePsi1 = NAN, tempC;
 
   pressurePsi = myPressureSensor.getPressurePsi();
-  // pressurePsi1 = myPressureSensor1.getPressurePsi();
+#if defined(ENABLE_SECOND_SENSOR)
+  pressurePsi1 = myPressureSensor1.getPressurePsi();
+#endif
 
   tempC = myTempSensor.getTempC();
-  // temp = myPressureSensor[0].getTemperatureC();
-  // temp1 = myPressureSensor[1].getTemperatureC();
-  // temp1 = NAN;
 
 #if LOG_LEVEL == 6
   Log.verbose(F("Main: Sensor values pressure=%F PSI, "
@@ -388,6 +446,8 @@ void goToSleep(int sleepInterval) {
   deepSleep(sleepInterval);
 }
 
+LoopTimer myDisplayUpdateTimer(3000);  // Update display 3 seconds
+
 void loop() {
   switch (runMode) {
     case RunMode::wifiSetupMode:
@@ -396,6 +456,50 @@ void loop() {
       myWifi.loop();
       loopPressureOnInterval();
       delay(1);
+
+      if (myDisplayUpdateTimer.hasExpired()) {
+        myDisplayUpdateTimer.reset();
+        myDisplay.clear();
+
+        char buf[30];
+
+        snprintf(buf, sizeof(buf), "%s", myConfig.getMDNS());
+        myDisplay.printLineCentered(0, buf);
+
+        float pressure = myPressureSensor.getPressure();
+
+        if (!isnan(pressure)) {
+          snprintf(buf, sizeof(buf), "%.2f %s", pressure,
+                   myConfig.getPressureUnit());
+          myDisplay.printLineCentered(1, buf);
+        } else {
+          myDisplay.printLineCentered(1, "-");
+        }
+
+#if defined(ENABLE_SECOND_SENSOR)
+        float pressure1 = myPressureSensor1.getPressure();
+
+        if (!isnan(pressure1)) {
+          snprintf(buf, sizeof(buf), "%.2f %s", pressure1,
+                   myConfig.getPressureUnit());
+          myDisplay.printLineCentered(2, buf);
+        } else {
+          myDisplay.printLineCentered(2, "-");
+        }
+#endif
+
+        float temp = myTempSensor.getTempC();
+        if (temp > -270) {
+          snprintf(buf, sizeof(buf), "%.1f°%c",
+                   myConfig.isTempFormatC() ? temp : convertCtoF(temp),
+                   myConfig.getTempUnit());
+          myDisplay.printLineCentered(3, buf);
+        } else {
+          myDisplay.printLineCentered(3, "-");
+        }
+
+        myDisplay.show();
+      }
       break;
 
     case RunMode::measurementMode:
@@ -440,7 +544,11 @@ void checkSleepModePressure(float volt) {
     Log.notice(F("MAIN: Sleep mode disabled from web interface." CR));
 #endif
     runMode = RunMode::configurationMode;
-  } else if (!myPressureSensor.isActive() /*&& !myPressureSensor1.isActive()*/) {
+#if defined(ENABLE_SECOND_SENSOR)
+  } else if (!myPressureSensor.isActive() && !myPressureSensor1.isActive()) {
+#else
+  } else if (!myPressureSensor.isActive()) {
+#endif
     Log.notice(F("MAIN: No sensors active, will go into config mode." CR));
     runMode = RunMode::configurationMode;
   } else if (volt > myConfig.getVoltageConfig() || volt < 2.0) {

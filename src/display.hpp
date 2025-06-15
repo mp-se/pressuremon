@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2025 Magnus
+Copyright (c) 2021-2025 Magnus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,38 +21,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#ifndef SRC_XIDIBEI_HPP_
-#define SRC_XIDIBEI_HPP_
-
-#if defined(PRESSUREMON)
+#ifndef SRC_DISPLAY_HPP_
+#define SRC_DISPLAY_HPP_
 
 #include <Arduino.h>
-#include <SoftWire.h>
-#include <Wire.h>
 
-#include <memory>
+class SH1106Wire;
 
-constexpr auto XIDIBEI_I2C_ADDRESS = 0x7F;
-
-class XIDIBEI {
- public:
-  // Max pressure (kPA) is the maximum value that the sensor can handle.
-  explicit XIDIBEI(uint16_t maxPressure, TwoWire *wire = &Wire,
-                   SoftWire *softWire = nullptr);
-
-  bool begin();
-  // Pressure is returned in kPA
-  // Temperature is in degrees C
-  bool read(float &pressure, float &temperature);
-
- private:
-  TwoWire *_wire;
-  SoftWire *_softWire;
-  uint16_t _maxPressure;
+enum FontSize {  // Font options
+  FONT_1 = 1,    // Support LCD
+  FONT_10 = 10,  // Support OLED 6 lines
+  FONT_16 = 16,  // Support OLED 5 lines
+  FONT_24 = 24   // Support OLED 3 lines
 };
 
-#endif  // PRESSUREMON
+class Display {
+ private:
+  SH1106Wire* _display = nullptr;
+  FontSize _fontSize = FontSize::FONT_10;
+  int _width = 0;
+  int _height = 0;
 
-#endif  // SRC_XIDIBEI_HPP_
+ public:
+  Display();
+  void setup();
+  void clear();
+  void show();
+
+  bool isInitialized();
+
+  void setFont(FontSize fs);
+  int getFontHeight() { return _fontSize; }
+  int getTextWidth(const String& text);
+
+  int getDisplayWidth() { return _width; }
+  int getDisplayHeight() { return _height; }
+
+  void printPosition(int x, int y, const String& text);
+  void printLine(int l, const String& text);
+  void printLineCentered(int l, const String& text);
+};
+
+extern Display myDisplay;
+
+#endif  // SRC_DISPLAY_HPP_
 
 // EOF

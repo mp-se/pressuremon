@@ -66,7 +66,8 @@ void setupTemplateEnginePressure(PressuremonConfig* config,
   engine.setVal(TPL_BATTERY, voltage, DECIMALS_BATTERY);
   engine.setVal(TPL_SLEEP_INTERVAL, config->getSleepInterval());
 
-  engine.setVal(TPL_BATTERY_PERCENT, getBatteryPercentage(voltage, config->getBatteryType()), 1);
+  engine.setVal(TPL_BATTERY_PERCENT,
+                getBatteryPercentage(voltage, config->getBatteryType()), 1);
 
   // Performance metrics
   engine.setVal(TPL_RUN_TIME, runTime, DECIMALS_RUNTIME);

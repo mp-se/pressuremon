@@ -5,13 +5,13 @@ Hardware
 
 To build the hardware for this project you will need the following. 
 
-* A microcontroller ESP32c3 ESP32c3 pico. 
+* A microcontroller ESP32c3 pico. 
 * A digital pressure sensor from the brand XIDIBEI (see aliexpress.com), select one that matches the range you want to measure.
 * PCB for mounting the components
 * Lithium battery compatible with the ESP32c3 pico (check the battery matches the connector, +/- pins)
 * DS18B20 temperature sensor (Needed for temperature data since the internal sensor is not accurate enough)
 * 3.3k resistors for the temperature sensor data pullup
-* Small switch for turning the device off
+* 2 x Small switches for turning the device off and forcing configuration mode
 
 .. note:: 
 
@@ -24,6 +24,9 @@ To build the hardware for this project you will need the following.
   ESP32c3 mini, ESP32s2 mini or ESP32s3 mini will also work but will require additional hardware such as LiPo 
   charger and voltage divider for measuring battery. (The s2 does not support bluetooth). If you want to use 
   any of these boards the pinout is the same.
+
+  Some boards only have one I2C hardware controller (ESP32s2 and ESP32c3) so here the second sensor uses a software
+  based driver which is slightly slower.
 
 
 Custom boards

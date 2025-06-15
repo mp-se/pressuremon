@@ -42,7 +42,7 @@ class XIDIBEIPressureSensor : public PressureSensorInterface {
   explicit XIDIBEIPressureSensor(PressureConfigInterface* pressureConfig)
       : PressureSensorInterface(pressureConfig) {}
 
-  bool setup(float maxPressure, TwoWire* wire, uint8_t idx);
+  bool setup(float maxPressure, TwoWire* wire, SoftWire* softWire, uint8_t idx);
   bool read(bool validate = true);
   bool isActive() { return _sensorActive; }
 

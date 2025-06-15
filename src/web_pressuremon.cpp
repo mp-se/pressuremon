@@ -27,6 +27,7 @@ SOFTWARE.
 #include <helper.hpp>
 #include <main.hpp>
 #include <pressure.hpp>
+#include <pressure_analog.hpp>
 #include <push_pressuremon.hpp>
 #include <tempsensor.hpp>
 #include <web_pressuremon.hpp>
@@ -40,9 +41,17 @@ constexpr auto PARAM_SELF_SENSOR_CONFIGURED = "sensor_configured";
 constexpr auto PARAM_SELF_TEMP_CONNECTED = "temp_connected";
 constexpr auto PARAM_ONEWIRE = "onewire";
 constexpr auto PARAM_FORCE_CONFIG = "force_config";
+constexpr auto PARAM_MAX_SENSORS = "max_sensors";
+constexpr auto PARAM_ADC_FOUND = "adc_found";
+
+extern SoftWire Wire2;
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
-  if (myPressureSensor.isActive() /*|| myPressureSensor1.isActive()*/) {
+#if defined(ENABLE_SECOND_SENSOR)
+  if (myPressureSensor.isActive() || myPressureSensor1.isActive()) {
+#else
+  if (myPressureSensor.isActive()) {
+#endif
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
   } else {
@@ -56,7 +65,13 @@ void PressuremonWebServer::doWebConfigWrite() {
       F("WEB : Configuring pressure sensors after configuration update" CR));
 
   myPressureSensor.setup(0, &Wire);
-  // myPressureSensor1.setup(1, &Wire1);
+#if defined(ENABLE_SECOND_SENSOR)
+#if defined(USE_SOFTWIRE)
+  myPressureSensor1.setup(1, nullptr, &Wire2);
+#else
+  myPressureSensor1.setup(1, &Wire1);
+#endif  // USE_SOFTWIRE
+#endif
 }
 
 void PressuremonWebServer::doWebStatus(JsonObject &obj) {
@@ -69,17 +84,25 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
           ? true
           : false;
 
+  Wire.beginTransmission(ADC_I2C_ADDRESS);
+  bool adcFound = Wire.endTransmission() == 0;
+  obj[PARAM_ADC_FOUND] = adcFound;
+
+#if defined(ENABLE_SECOND_SENSOR)
+  obj[PARAM_MAX_SENSORS] = 2;
+#else
+  obj[PARAM_MAX_SENSORS] = 1;
+#endif
+
   // float pressure, pressure1, temp, temp1;
   float pressure, pressure1, temp;
 
   pressure = myPressureSensor.getPressurePsi();
-  // pressure1 = myPressureSensor1.getPressurePsi();
-  pressure1 = NAN;
+#if defined(ENABLE_SECOND_SENSOR)
+  pressure1 = myPressureSensor1.getPressurePsi();
+#endif
 
   temp = myTempSensor.getTempC();
-  // temp = myPressureSensor.getTemperatureC();
-  // temp1 = myPressureSensor1.getTemperatureC();
-  // temp1 = NAN;
 
   if (!isnan(pressure)) {
     if (myConfig.isPressureBar()) {
@@ -91,6 +114,7 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
     obj[PARAM_PRESSURE] = serialized(String(pressure, DECIMALS_PRESSURE));
   }
 
+#if defined(ENABLE_SECOND_SENSOR)
   if (!isnan(pressure1)) {
     if (myConfig.isPressureBar()) {
       pressure = convertPsiPressureToBar(pressure1);
@@ -100,8 +124,8 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
 
     obj[PARAM_PRESSURE1] = serialized(String(pressure1, DECIMALS_PRESSURE));
   }
+#endif
 
-  // if (!isnan(temp)) {
   if (myConfig.isTempUnitF()) {
     temp = convertCtoF(temp);
   }
@@ -128,22 +152,26 @@ void PressuremonWebServer::doTaskSensorCalibration() {
         F("WEB : First sensor not connnected, skipping calibration" CR));
   }
 
-  // if (myPressureSensor1.isActive()) {
-  //   myPressureSensor1.calibrate();
-  // } else {
-  //   Log.warning(
-  //       F("WEB : Second sensor not connnected, skipping calibration" CR));
-  // }
+#if defined(ENABLE_SECOND_SENSOR)
+  if (myPressureSensor1.isActive()) {
+    myPressureSensor1.calibrate();
+  } else {
+    Log.warning(
+        F("WEB : Second sensor not connnected, skipping calibration" CR));
+  }
+#endif
 }
 
 void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
                                                BrewingPush &push) {
-  // float pressure, pressure1, temp, temp1;
   float pressure, pressure1, temp;
 
   pressure = myPressureSensor.getPressurePsi();
-  // pressure1 = myPressureSensor1.getPressurePsi();
+#if defined(ENABLE_SECOND_SENSOR)
+  pressure1 = myPressureSensor1.getPressurePsi();
+#else
   pressure1 = NAN;
+#endif
 
   temp = myTempSensor.getTempC();
 
@@ -153,51 +181,35 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   Log.notice(F("WEB : Running scheduled push test for %s" CR),
              _pushTestTarget.c_str());
 
-  if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST) &&
+  if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST_PRESSURE) &&
       myConfig.hasTargetHttpPost()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP1);
     String doc = engine.create(tpl.c_str());
-
-    if (myConfig.isHttpPostSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpPost(doc);
+    push.sendHttpPost(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST2) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_POST2_PRESSURE) &&
              myConfig.hasTargetHttpPost2()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP2);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpPost2SSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpPost2(doc);
+    push.sendHttpPost2(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_GET) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_GET_PRESSURE) &&
              myConfig.hasTargetHttpGet()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_HTTP3);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpGetSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendHttpGet(doc);
+    push.sendHttpGet(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_INFLUXDB) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_INFLUXDB_PRESSURE) &&
              myConfig.hasTargetInfluxDb2()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_INFLUX);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isHttpInfluxDb2SSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendInfluxDb2(doc);
+    push.sendInfluxDb2(doc);
     _pushTestEnabled = true;
-  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_MQTT) &&
+  } else if (!_pushTestTarget.compareTo(PARAM_FORMAT_MQTT_PRESSURE) &&
              myConfig.hasTargetMqtt()) {
     String tpl = push.getTemplate(BrewingPush::PRESSURE_TEMPLATE_MQTT);
     String doc = engine.create(tpl.c_str());
-    if (myConfig.isMqttSSL() && myConfig.isSkipSslOnTest())
-      Log.notice(F("PUSH: SSL enabled, skip run when not in gravity mode." CR));
-    else
-      push.sendMqtt(doc);
+    push.sendMqtt(doc);
     _pushTestEnabled = true;
   }
 
@@ -205,24 +217,44 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
   push.clearTemplate();
 }
 
-// constexpr auto PARAM_I2C_1 = "i2c_1";
+constexpr auto PARAM_I2C_1 = "i2c_1";
 
 void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
-  // JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
-  // for (int i = 1, j = 0; i < 128; i++) {
-  //   // The i2c_scanner uses the return value of
-  //   // the Write.endTransmisstion to see if
-  //   // a device did acknowledge to the address.
-  //   Wire1.beginTransmission(i);
-  //   int err = Wire1.endTransmission();
+#if defined(ENABLE_SECOND_SENSOR)
+  JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
-  //   if (err == 0) {
-  //     Log.notice(F("WEB : Found device at 0x%02X." CR), i);
-  //     i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
-  //     j++;
-  //   }
-  // }
+  for (int i = 1, j = 0; i < 128; i++) {
+// The i2c_scanner uses the return value of
+// the Write.endTransmisstion to see if
+// a device did acknowledge to the address.
+#if defined(USE_SOFTWIRE)
+    Wire2.beginTransmission(i);
+    int err = Wire2.endTransmission();
+
+    // Softwire will return true if nothing is connected, so if we get a hit on
+    // adress one we assume that there is nothing connected
+    if (err == 0 && i == 1) break;
+
+    if (err == 0) {
+      Log.notice(F("WEB : Found device at 0x%x." CR), i);
+      i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
+      i2c1[j][PARAM_BUS] = "SoftWire";
+      j++;
+    }
+#else
+    Wire1.beginTransmission(i);
+    int err = Wire1.endTransmission();
+
+    if (err == 0) {
+      Log.notice(F("WEB : Found device at 0x%x." CR), i);
+      i2c1[j][PARAM_ADRESS] = "0x" + String(i, 16);
+      i2c1[j][PARAM_BUS] = "Wire1";
+      j++;
+    }
+#endif  // USE_SOFTWIRE
+  }
+#endif
 
 #if defined(PIN_CFG1) && defined(PIN_CFG2)
   obj[PARAM_FORCE_CONFIG] = checkPinConnected(PIN_CFG1, PIN_CFG2);
