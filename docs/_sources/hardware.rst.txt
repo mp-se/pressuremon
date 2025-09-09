@@ -18,6 +18,10 @@ To build the hardware for this project you will need the following.
   There is no need for pullups on the I2C bus since the XIDIBEI sensors already have internal pullups. These are added so that we can 
   support other sensors in the future.
 
+.. note:: 
+
+  The analog sensor support is preliminary and not fully tested. It has been designed to be used with a analog pressure sensor designed for
+  3.3V operation. 
 
 .. note:: 
 
