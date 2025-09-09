@@ -44,6 +44,9 @@ constexpr auto PARAM_FORCE_CONFIG = "force_config";
 constexpr auto PARAM_MAX_SENSORS = "max_sensors";
 constexpr auto PARAM_ADC_FOUND = "adc_found";
 
+constexpr auto PARAM_FEATURE_BLE_SUPPORTED = "ble";
+constexpr auto PARAM_FEATURE_NO_SENSORS = "sensors";
+
 extern SoftWire Wire2;
 
 void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
@@ -220,7 +223,6 @@ void PressuremonWebServer::doTaskPushTestSetup(TemplatingEngine &engine,
 constexpr auto PARAM_I2C_1 = "i2c_1";
 
 void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
-
 #if defined(ENABLE_SECOND_SENSOR)
   JsonArray i2c1 = obj[PARAM_I2C_1].to<JsonArray>();
 
@@ -290,6 +292,21 @@ void PressuremonWebServer::doTaskHardwareScanning(JsonObject &obj) {
     onew[j][PARAM_RESOLUTION] = myTempSensor.getSensorResolution();
     j++;
   }
+}
+
+void PressuremonWebServer::doWebFeature(JsonObject &obj) {
+  obj[PARAM_FIRMWARE_FILE] = CFG_FILENAMEBIN;
+#if defined(ENABLE_BLE)
+  obj[PARAM_FEATURE_BLE_SUPPORTED] = true;
+#else
+  obj[PARAM_FEATURE_BLE_SUPPORTED] = false;
+#endif
+
+#if defined(ENABLE_SECOND_SENSOR)
+  obj[PARAM_FEATURE_NO_SENSORS] = 2;
+#else
+  obj[PARAM_FEATURE_NO_SENSORS] = 1;
+#endif
 }
 
 #endif  // PRESSUREMON

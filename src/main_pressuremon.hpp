@@ -40,6 +40,7 @@ SOFTWARE.
 #define PIN_PWR 11
 #define PIN_CFG1 TX
 #define PIN_CFG2 RX
+#define CFG_FILENAMEBIN "firmware32c3mini.bin"
 
 #elif defined(LOLIN_S2_MINI)
 // Hardware config for ESP32-s2-mini, pressuremon hardware
@@ -53,6 +54,7 @@ SOFTWARE.
 #define PIN_PWR 11
 #define PIN_CFG1 TX
 #define PIN_CFG2 RX
+#define CFG_FILENAMEBIN "firmware32s2mini.bin"
 
 #elif defined(LOLIN_C3_PICO)
 // Hardware config for ESP32-c3-pico, pressuremon hardware
@@ -66,6 +68,7 @@ SOFTWARE.
 #define PIN_PWR 4
 #define PIN_CFG1 TX
 #define PIN_CFG2 RX
+#define CFG_FILENAMEBIN "firmware32c3pico.bin"
 
 #elif defined(D1_MINI)
 // Hardware config for ESP8266-d1-mini, only for unit tests
@@ -79,6 +82,7 @@ SOFTWARE.
 #define PIN_PWR 4
 #define PIN_CFG1 TX
 #define PIN_CFG2 RX
+#define CFG_FILENAMEBIN ""
 
 #endif
 
