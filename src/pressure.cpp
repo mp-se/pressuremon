@@ -241,6 +241,7 @@ void PressureSensor::setup(uint8_t idx, TwoWire *wire, SoftWire *softWire) {
 
   if (!ret) {
     Log.error(F("PRES: Failed to communicate with sensor id %d" CR), idx);
+    _impl.reset(); // Clean up failed sensor instance
   }
 }
 

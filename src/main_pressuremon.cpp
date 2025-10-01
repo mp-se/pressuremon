@@ -140,10 +140,10 @@ void setup() {
   digitalWrite(PIN_PWR, HIGH);  // Power to sensors = On
   delay(200);                   // Wait for pin to settle and power to stabilize
 
-  int clock = 400000;
+  constexpr uint32_t I2C_CLOCK_SPEED = 400000; // 400kHz standard mode
 
-  Log.notice(F("Main: OneWire SDA=%d, SCL=%d." CR), PIN_SDA, PIN_SCL);
-  Wire.begin(PIN_SDA, PIN_SCL, clock);
+  Log.notice(F("Main: I2C SDA=%d, SCL=%d, Clock=%d Hz." CR), PIN_SDA, PIN_SCL, I2C_CLOCK_SPEED);
+  Wire.begin(PIN_SDA, PIN_SCL, I2C_CLOCK_SPEED);
 
   // I2C scanner code for testing what is connected
   // for (int i = 1; i < 128; i++) {
@@ -174,8 +174,8 @@ void setup() {
   //   }
   // }
 #else
-  Log.notice(F("Main: OneWire1 SDA=%d, SCL=%d." CR), PIN_SDA1, PIN_SCL1);
-  Wire1.begin(PIN_SDA1, PIN_SCL1, clock);
+  Log.notice(F("Main: I2C1 SDA=%d, SCL=%d, Clock=%d Hz." CR), PIN_SDA1, PIN_SCL1, I2C_CLOCK_SPEED);
+  Wire1.begin(PIN_SDA1, PIN_SCL1, I2C_CLOCK_SPEED);
 
 // I2C scanner code for testing what is connected
 // for (int i = 1; i < 128; i++) {
