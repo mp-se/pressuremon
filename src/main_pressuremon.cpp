@@ -71,7 +71,7 @@ PressuremonConfig myConfig(CFG_APPNAME, CFG_FILENAME);
 WifiConnection myWifi(&myConfig, CFG_AP_SSID, CFG_AP_PASS, CFG_APPNAME,
                       USER_SSID, USER_PASS);
 OtaUpdate myOta(&myConfig, CFG_APPVER);
-BatteryVoltage myBatteryVoltage(&myConfig);
+BatteryVoltage myBatteryVoltage(&myConfig, PIN_VOLT);
 PressuremonWebServer myWebServer(&myConfig);
 SerialWebSocket mySerialWebSocket;
 #if defined(ENABLE_BLE)
@@ -418,7 +418,17 @@ void loopPressureOnInterval() {
     myBatteryVoltage.read();
     if (runMode != RunMode::wifiSetupMode)
       checkSleepModePressure(myBatteryVoltage.getVoltage());
-  }
+
+#if defined(ENABLE_SECOND_SENSOR)
+    Log.notice(
+        F("Loop: Pressure=%F, Pressure2=%F, Battery=%F." CR),
+        myPressureSensor.getPressurePsi(), myPressureSensor1.getPressurePsi(), myBatteryVoltage.getVoltage());
+#else
+    Log.notice(
+        F("Loop: Pressure=%F, Battery=%F." CR),
+        myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
+#endif
+      }
 }
 
 void goToSleep(int sleepInterval) {
