@@ -14,35 +14,35 @@ def after_build(source, target, env):
 
     # Pressuremon
 
-    if name == "pressure32s3-release" :
-        target = dir + "/bin/firmware32s3.bin"
+    if name == "pressure-32s3_mini" :
+        target = dir + "/bin/firmware32s3mini.bin"
         source = dir + "/.pio/build/" + name + "/firmware.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-        target = dir + "/bin/partitions32s3.bin"
+        target = dir + "/bin/partitions32s3mini.bin"
         source = dir + "/.pio/build/" + name + "/partitions.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-    elif name == "pressure32s2-release" :
-        target = dir + "/bin/firmware32s2.bin"
+    elif name == "pressure-32s2_mini" :
+        target = dir + "/bin/firmware32s2mini.bin"
         source = dir + "/.pio/build/" + name + "/firmware.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-        target = dir + "/bin/partitions32s2.bin"
+        target = dir + "/bin/partitions32s2mini.bin"
         source = dir + "/.pio/build/" + name + "/partitions.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-    elif name == "pressure32c3-release" :
-        target = dir + "/bin/firmware32c3.bin"
+    elif name == "pressure-32c3_pico" :
+        target = dir + "/bin/firmware32c3pico.bin"
         source = dir + "/.pio/build/" + name + "/firmware.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )
 
-        target = dir + "/bin/partitions32c3.bin"
+        target = dir + "/bin/partitions32c3pico.bin"
         source = dir + "/.pio/build/" + name + "/partitions.bin"
         print( "Copy file : " + source + " -> " + target )
         shutil.copyfile( source, target )

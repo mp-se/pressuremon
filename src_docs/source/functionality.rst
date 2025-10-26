@@ -13,9 +13,13 @@ The main features
 
 * **Support custom Analog devices using external ADS1115 ADC**
 
-  Analog sensors are supported when using an external ADS1115 ADC chip. This is connected to the first I2C bus. You need to configure the 
+  3.3V Analog sensors are supported when using an external ADS1115 ADC chip. This is connected to the first I2C bus. You need to configure the 
   following values; Minimum Voltage, Maximum Voltage, Minimum Pressure, Maximum Pressure. The device will then calculate the pressure 
-  based on the voltage reading.
+  based on the voltage reading. 
+
+  .. note:: 
+
+    This feature is still experimental and not fully tested. Help is appreciated.
 
 * **Operates in two modes measurement or configuration mode**
 
@@ -63,6 +67,10 @@ The main features
   When in configuration mode the device will also check for an external display and show devicename, pressure and 
   temperature. This is great if you are running the device on power and want to see the current pressure. This display 
   should be connected to the first I2C bus which is the same pins as the first sensor or the I2C connector on the esp32c3 pico.  
+
+  .. note:: 
+
+    Only recommended when running the device on constant power (not battery)
 
 * **WIFI Direct to GravityMon Gateway (Work in progress)**
 
