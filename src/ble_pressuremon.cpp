@@ -40,63 +40,16 @@ void BleSender::init() {
   _initFlag = true;
 }
 
-/*void BleSender::sendEddystoneData(float battery, float tempC, float
-pressurePsi, float pressurePsi1) { Log.info(F("Starting eddystone data
-transmission" CR));
-
-  char beacon_data[25];
-
-  uint16_t p = pressurePsi * 100;
-  uint16_t p1 = pressurePsi1 * 100;
-  uint16_t t = tempC * 1000;
-  uint16_t b = battery * 1000;
-  uint32_t chipId = 0;
-
-  for (int i = 0; i < 17; i = i + 8) {
-    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-  }
-
-  beacon_data[0] = 0x20;  // Eddystone Frame Type (Unencrypted Eddystone-TLM)
-  beacon_data[1] = 0x00;  // TLM version
-  beacon_data[2] = (b >> 8);
-  beacon_data[3] = (b & 0xFF);
-  beacon_data[4] = (t >> 8);
-  beacon_data[5] = (t & 0xFF);
-  beacon_data[6] = (p >> 8);
-  beacon_data[7] = (p & 0xFF);
-  beacon_data[8] = (p1 >> 8);
-  beacon_data[9] = (p1 & 0xFF);
-  beacon_data[10] = ((chipId & 0xFF000000) >> 24);
-  beacon_data[11] = ((chipId & 0xFF0000) >> 16);
-  beacon_data[12] = ((chipId & 0xFF00) >> 8);
-  beacon_data[13] = (chipId & 0xFF);
-
-  BLEAdvertisementData advData = BLEAdvertisementData();
-  BLEAdvertisementData respData = BLEAdvertisementData();
-
-  respData.setFlags(0x06);
-  respData.setCompleteServices(BLEUUID("feaa"));
-  respData.setServiceData(BLEUUID("feaa"), std::string(beacon_data, 14));
-
-  advData.setName("pressuremon");
-  _advertising->setAdvertisementData(advData);
-  _advertising->setScanResponseData(respData);
-
-  _advertising->start();
-  delay(_beaconTime);
-  _advertising->stop();
-}*/
-
 void BleSender::sendCustomBeaconData(float battery, float tempC,
                                      float pressurePsi, float pressurePsi1) {
   Log.info(F("Starting custom beacon data transmission" CR));
 
   _advertising->stop();
 
-  uint16_t p = pressurePsi * 100;
-  uint16_t p1 = pressurePsi1 * 100;
+  uint16_t p = isnan(pressurePsi) ? 0xffff : pressurePsi * 100;
+  uint16_t p1 = isnan(pressurePsi1) ? 0xffff : pressurePsi1 * 100;
   uint16_t t = tempC * 1000;
-  uint16_t b = battery * 1000;
+  uint16_t b = isnan(battery) ? 0xffff : battery * 1000;
   uint32_t chipId = 0;
 
   for (int i = 0; i < 17; i = i + 8) {

@@ -133,7 +133,9 @@ void PressuremonWebServer::doWebStatus(JsonObject &obj) {
     temp = convertCtoF(temp);
   }
 
-  obj[PARAM_TEMP] = serialized(String(temp, DECIMALS_TEMP));
+  if(!isnan(temp)) {
+    obj[PARAM_TEMP] = serialized(String(temp, DECIMALS_TEMP));
+  }
 
   obj[CONFIG_PRESSURE_UNIT] = myConfig.getPressureUnit();
   obj[PARAM_TEMP_UNIT] = String(myConfig.getTempUnit());
