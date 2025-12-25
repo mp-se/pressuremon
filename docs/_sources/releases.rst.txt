@@ -3,6 +3,16 @@
 Releases 
 ########
 
+v0.7.0
+======
+
+* Fixed BLE data format when sensor is not available.
+* Updated dependencies to latest versions.
+* Fixed battery reading setup
+* Added meta data to mDNS broadcast (app, version, id), used by GravityMon Gateway to map device id towards name when using BLE. 
+* Updated code to use NAN instead of -273 as invalid temperature
+* When data is invalid send 0xffff in the ble payload to indicate that,
+
 v0.6.0
 ======
 
