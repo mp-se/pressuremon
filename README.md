@@ -21,6 +21,8 @@ The documentation can be found [here](https://mp-se.github.io/pressuremon/)
 
 PCB design is located [here](https://github.com/mp-se/pcb-designs/) 
 
+3D models for a case can be found in the 3d directory on github.
+
 If you want to support my work you can do that through these options
 
 [<img src="https://gravitymon.com/images/buymecoffee.png" height=40>](https://www.buymeacoffee.com/mpse/) [<img src="https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" height=40>](https://github.com/sponsors/mp-se)
