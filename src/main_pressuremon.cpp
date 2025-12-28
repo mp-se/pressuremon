@@ -421,12 +421,12 @@ void loopPressureOnInterval() {
 
 #if defined(ENABLE_SECOND_SENSOR)
     Log.notice(
-        F("Loop: Pressure=%F, Pressure2=%F, Battery=%F." CR),
-        myPressureSensor.getPressurePsi(), myPressureSensor1.getPressurePsi(), myBatteryVoltage.getVoltage());
+        F("Loop: Pressure=%F, Pressure2=%F, Temp=%F, Battery=%F." CR),
+        myPressureSensor.getPressurePsi(), myPressureSensor1.getPressurePsi(), myTempSensor.getTempC(), myBatteryVoltage.getVoltage());
 #else
     Log.notice(
-        F("Loop: Pressure=%F, Battery=%F." CR),
-        myPressureSensor.getPressurePsi(), myBatteryVoltage.getVoltage());
+        F("Loop: Pressure=%F, Temp=%F, Battery=%F." CR),
+        myPressureSensor.getPressurePsi(), myTempSensor.getTempC(), myBatteryVoltage.getVoltage());
 #endif
       }
 }
