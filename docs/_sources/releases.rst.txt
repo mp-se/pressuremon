@@ -12,6 +12,7 @@ v0.7.0
 * Added meta data to mDNS broadcast (app, version, id), used by GravityMon Gateway to map device id towards name when using BLE. 
 * Updated code to use NAN instead of -273 as invalid temperature
 * Split hardware view into hardware and sensor view for better clarity.
+* Updated file view to improve display of device files
 
 v0.6.0
 ======
