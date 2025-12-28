@@ -13,6 +13,7 @@ v0.7.0
 * Updated code to use NAN instead of -273 as invalid temperature
 * Split hardware view into hardware and sensor view for better clarity.
 * Updated file view to improve display of device files
+* Added 3d model for a case that fits my PCB.
 
 v0.6.0
 ======
