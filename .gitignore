@@ -8,3 +8,4 @@ src_docs/_build
 fp-*
 _autosave*
 *.bak
+idf_*

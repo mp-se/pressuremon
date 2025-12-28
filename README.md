@@ -5,6 +5,9 @@
 ![pr](https://img.shields.io/github/issues-pr/mp-se/pressuremon)
 ![dev_build](https://img.shields.io/github/actions/workflow/status/mp-se/pressuremon/pio-build.yaml?branch=dev)
 ![doc_build](https://img.shields.io/github/actions/workflow/status/mp-se/pressuremon/doc-build.yaml?branch=master)
+![License](https://img.shields.io/github/license/mp-se/pressuremon)
+![GitHub Stars](https://img.shields.io/github/stars/mp-se/pressuremon)
+![Last Commit](https://img.shields.io/github/last-commit/mp-se/pressuremon)
 
 # Pressure Monitor for Beer Brewing
 
