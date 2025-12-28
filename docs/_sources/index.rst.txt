@@ -7,7 +7,7 @@ Welcome to PressureMon
 ######################
 
 .. note::
-  This documentation reflects **v0.6.0 - development**. Last updated 2025-06-08
+  This documentation reflects **v0.7.0**. Last updated 2025-12-28
 
 
 What is PressureMon?
