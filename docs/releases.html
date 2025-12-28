@@ -258,12 +258,11 @@
 <section id="v0-7-0">
 <h2>v0.7.0<a class="headerlink" href="#v0-7-0" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Fixed BLE data format when sensor is not available.</p></li>
+<li><p>Fixed BLE data format when sensor is not available. When data is invalid send 0xffff in the ble payload to indicate that.</p></li>
 <li><p>Updated dependencies to latest versions.</p></li>
 <li><p>Fixed battery reading setup</p></li>
 <li><p>Added meta data to mDNS broadcast (app, version, id), used by GravityMon Gateway to map device id towards name when using BLE.</p></li>
 <li><p>Updated code to use NAN instead of -273 as invalid temperature</p></li>
-<li><p>When data is invalid send 0xffff in the ble payload to indicate that,</p></li>
 </ul>
 </section>
 <section id="v0-6-0">
