@@ -16,25 +16,17 @@ jobs:
       - name: Checkout 
         uses: actions/checkout@v4
 
-      - name: Checkout UI
+      - name: Use repository UI
         run: |
-          echo "Checkout UI"
-          git clone https://github.com/mp-se/pressuremon-ui pressuremon-ui 
-          cp pressuremon-ui/dist/assets/style.css.gz html/app.css.gz
-          cp pressuremon-ui/dist/assets/index.js.gz html/app.js.gz
-          cp pressuremon-ui/pressuremon.html html/index.html
-          cp pressuremon-ui/dist/favicon.ico html/favicon.ico
-          gzip -f html/favicon.ico
+          echo "Use local UI under ui/"
+          cp ui/dist/assets/style.css.gz html/app.css.gz || true
+          cp ui/dist/assets/index.js.gz html/app.js.gz || true
+          cp ui/pressuremon.html html/index.html || true
+          cp ui/dist/favicon.ico html/favicon.ico || true
+          gzip -f html/favicon.ico || true
 
-          # echo "Checkout shared code"
-          # git clone -b dev https://github.com/mp-se/gravitymon pressuremon 
-          # rm ./src/*
-          # rm ./lib/espfwk/*
-          # cp -R pressuremon/lib/ ./
-          # cp -R pressuremon/src/ ./
-          # cp -R pressuremon/script/ ./
-          # cp -R pressuremon/boards/ ./
-          # cp pressuremon/platformio.ini ./platformio.ini
+          # If you still want to source shared code from an external repo,
+          # restore the commented commands below.
 
       - name: Setup PlatformIO
         uses: n-vr/setup-platformio-action@v1.0.1    
