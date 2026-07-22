@@ -110,3 +110,7 @@ export function pushMqttBadge() {
 export function pushBluetoothBadge() {
   return pushTargetCount() === 0 ? 1 : 0
 }
+
+export function pushWifiDirectBadge() {
+  return pushTargetCount() === 0 ? 1 : 0
+}
