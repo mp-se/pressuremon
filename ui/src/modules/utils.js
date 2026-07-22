@@ -10,6 +10,7 @@
  * Source: https://github.com/mp-se/pressuremon and https://github.com/mp-se/pressuremon-ui
  */
 import { ref } from 'vue'
+import i18n from '@/modules/i18n'
 
 export const httpHeaderOptions = ref([
   { label: 'JSON data', value: 'Content-Type: application/json' },
@@ -57,3 +58,10 @@ export const httpPostUrlOptions = ref([
 ])
 
 export const httpGetUrlOptions = ref([{ label: '-blank-', value: '' }])
+
+// Translates a firmware ESPFWK_WEB_ERR message code, falling back to the
+// device's raw (English) message text for codes not yet in locales/*.json.
+export function resolveMessage(code, fallbackText) {
+  const { t, te } = i18n.global
+  return code && te(`messages.${code}`) ? t(`messages.${code}`) : fallbackText
+}

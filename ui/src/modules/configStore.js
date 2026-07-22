@@ -11,6 +11,7 @@
  */
 import { defineStore } from 'pinia'
 import { global, saveConfigState, getConfigChanges } from '@/modules/pinia'
+import { resolveMessage } from '@/modules/utils'
 import {
   logDebug,
   logError,
@@ -546,13 +547,14 @@ export const useConfigStore = defineStore('config', {
         const res = await http.restart(this.mdns, { redirectDelayMs: 8000 })
         if (res.success && res.json && res.json.status === true) {
           global.messageSuccess =
-            (res.json.message || '') +
+            resolveMessage(res.json.message_code, res.json.message || '') +
             ' Redirecting to http://' +
             this.mdns +
             '.local in 8 seconds.'
           logInfo('configStore.restart()', 'Restart requested, redirect scheduled')
         } else if (res.success && res.json) {
-          global.messageError = res.json.message || 'Failed to restart device'
+          global.messageError =
+            resolveMessage(res.json.message_code, res.json.message) || 'Failed to restart device'
         } else {
           global.messageError = 'Failed to request restart'
         }

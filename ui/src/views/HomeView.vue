@@ -20,7 +20,7 @@
         message=""
         alert="danger"
       >
-        No remote services are active. Check your push settings and enable at least one service.
+        {{ t('home.no_push_targets') }}
       </BsMessage>
 
       <BsMessage
@@ -29,7 +29,7 @@
         message=""
         alert="danger"
       >
-        No sensor has been configured, update the hardware configuration.
+        {{ t('home.no_sensor_configured') }}
       </BsMessage>
 
       <BsMessage
@@ -38,50 +38,49 @@
         message=""
         alert="danger"
       >
-        No sensor is detected. Try to reboot / power-off. If this persists, check for hardware
-        issues.
+        {{ t('home.no_sensor_connected') }}
       </BsMessage>
     </template>
 
     <div v-if="status" class="container overflow-hidden text-center">
       <div class="row gy-4">
         <div class="col-md-4" v-if="status.pressure">
-          <BsCard header="Measurement" color="info" title="Pressure">
+          <BsCard :header="t('home.measurement')" color="info" :title="t('home.pressure_title')">
             <p class="text-center">{{ status.pressure }} {{ status.pressure_unit }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4" v-if="status.pressure1">
-          <BsCard header="Measurement" color="info" title="Pressure 2">
+          <BsCard :header="t('home.measurement')" color="info" :title="t('home.pressure2_title')">
             <p class="text-center">{{ status.pressure1 }} {{ status.pressure_unit }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4" v-if="status.temp && status.temp >= -270">
-          <BsCard header="Measurement" color="info" title="Temperature">
+          <BsCard :header="t('home.measurement')" color="info" :title="t('home.temperature')">
             <p class="text-center">{{ status.temp }} {{ status.temp_unit }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4" v-if="status.self_check.battery_level">
-          <BsCard header="Measurement" color="info" title="Battery">
+          <BsCard :header="t('home.measurement')" color="info" :title="t('home.battery')">
             <p class="text-center">{{ status.battery }} V</p>
           </BsCard>
         </div>
         <div class="col-md-4" v-if="!status.self_check.battery_level">
-          <BsCard header="Measurement" title="Error" :iserr="true" icon="bi-x-circle">
-            <p class="text-center">Battery level not valid</p>
+          <BsCard :header="t('home.measurement')" :title="t('home.error')" :iserr="true" icon="bi-x-circle">
+            <p class="text-center">{{ t('home.battery_invalid') }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="WIFI">
+          <BsCard :header="t('home.device')" :title="t('home.wifi')">
             <p class="text-center">{{ status.rssi }} dBm - {{ status.wifi_ssid }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="IP Address">
+          <BsCard :header="t('home.device')" :title="t('home.ip_address')">
             <p class="text-center">
               {{ status.ip }}
             </p>
@@ -89,40 +88,46 @@
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="Memory">
+          <BsCard :header="t('home.device')" :title="t('home.memory')">
             <p class="text-center">
-              Free: {{ status.free_heap }} kb, Total: {{ status.total_heap }} kb
+              {{ t('home.memory_text', { free: status.free_heap, total: status.total_heap }) }}
             </p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="Software version">
+          <BsCard :header="t('home.device')" :title="t('home.software_version')">
             <p class="text-center">
-              Firmware: {{ global.app_ver }} ({{ global.app_build }}) UI: {{ global.uiVersion }} ({{
-                global.uiBuild
-              }})
+              {{
+                t('home.software_version_text', {
+                  appVer: global.app_ver,
+                  appBuild: global.app_build,
+                  uiVersion: global.uiVersion,
+                  uiBuild: global.uiBuild
+                })
+              }}
             </p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="Platform">
+          <BsCard :header="t('home.device')" :title="t('home.platform')">
             <p class="text-center">
-              Platform: <span class="badge bg-secondary">{{ global.platform }}</span> Board:
-              <span class="badge bg-secondary">{{ global.board }}</span>
+              {{ t('home.platform_text') }}<span class="badge bg-secondary">{{ global.platform }}</span>{{
+                t('home.board_text')
+              }}<span class="badge bg-secondary">{{ global.board }}</span>
             </p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="ID">
+          <BsCard :header="t('home.device')" :title="t('home.id')">
             <p class="text-center">{{ status.id }}</p>
           </BsCard>
         </div>
 
         <div class="col-md-4">
-          <BsCard header="Device" title="Force config mode">
+          <BsCard :header="t('home.device')" :title="t('home.force_config_mode')">
             <div class="d-flex justify-content-center">
               <div class="form-check form-switch" style="height: 0.7rem">
                 <input
@@ -147,9 +152,11 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeMount, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { status, global, config } from '@/modules/pinia'
 import { useTimers } from '@mp-se/espframework-ui-components'
 
+const { t } = useI18n()
 const polling = ref(null)
 const flag = ref(false)
 const { createInterval, clearManagedInterval } = useTimers()

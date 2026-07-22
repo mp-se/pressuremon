@@ -12,7 +12,7 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h3">Device - Hardware</p>
+    <p class="h3">{{ t('device_sensor.title') }}</p>
     <hr />
 
     <form @submit.prevent="save" class="needs-validation" novalidate>
@@ -21,8 +21,8 @@
           <BsInputRadio
             v-model="config.tempsensor_resolution"
             :options="tempsensorResolutionOptions"
-            label="DS18B20 resolution"
-            help="Resolution when reading the DS18B20 temperature sensor, higher resolution give better accuracy but takes longer to process and reduces battery life"
+            :label="t('device_sensor.ds18b20_label')"
+            :help="t('device_sensor.ds18b20_help')"
             :disabled="global.disabled"
           ></BsInputRadio>
         </div>
@@ -31,12 +31,12 @@
           <BsInputNumber
             v-model="config.temp_adjustment_value"
             :unit="'°' + config.temp_unit"
-            label="Temperature sensor adjustment"
+            :label="t('device_sensor.temp_adjustment_label')"
             min="-10"
             max="10"
             step=".01"
             width="6"
-            help="This value will be added to the temperature sensor value to adjust the value (-10 to 10)"
+            :help="t('device_sensor.temp_adjustment_help')"
             :disabled="global.disabled"
           ></BsInputNumber>
         </div>
@@ -48,7 +48,7 @@
         <div class="col-md-6">
           <BsSelect
             v-model="config.sensor_type"
-            label="Pressure Sensor"
+            :label="t('device_sensor.sensor_label')"
             :options="pressureSensorOptions"
             :disabled="global.disabled"
           />
@@ -57,7 +57,7 @@
         <div class="col-md-6">
           <BsSelect
             v-model="config.sensor1_type"
-            label="Pressure Sensor 2"
+            :label="t('device_sensor.sensor2_label')"
             :options="pressureSensorOptions"
             :disabled="global.disabled"
             v-if="status.max_sensors > 1"
@@ -67,13 +67,13 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.pressure_adjustment"
-            label="Pressure adjustment"
+            :label="t('device_sensor.pressure_adjustment_label')"
             min="-1000"
             max="1000"
             step=".0001"
             width="6"
             :unit="config.pressure_unit"
-            help="Adjustment value for the pressure sensor"
+            :help="t('device_sensor.pressure_adjustment_help')"
             :disabled="global.disabled || config.sensor_type < 1"
           >
           </BsInputNumber>
@@ -82,13 +82,13 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.pressure1_adjustment"
-            label="Pressure adjustment 2"
+            :label="t('device_sensor.pressure_adjustment2_label')"
             min="-1000"
             max="1000"
             step=".0001"
             width="6"
             :unit="config.pressure_unit"
-            help="Adjustment value for the pressure sensor"
+            :help="t('device_sensor.pressure_adjustment_help')"
             :disabled="global.disabled || config.sensor1_type < 1"
             v-if="status.max_sensors > 1"
           >
@@ -98,7 +98,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom_min_voltage"
-            label="Analog - Min Voltage"
+            :label="t('device_sensor.analog_min_voltage_label')"
             min="0"
             max="5.000"
             step=".001"
@@ -112,7 +112,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom1_min_voltage"
-            label="Analog - Min Voltage 2"
+            :label="t('device_sensor.analog_min_voltage2_label')"
             min="0"
             max="5.000"
             step=".001"
@@ -127,7 +127,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom_max_voltage"
-            label="Analog - Max Voltage"
+            :label="t('device_sensor.analog_max_voltage_label')"
             min="0"
             max="5.000"
             step=".001"
@@ -141,7 +141,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom1_max_voltage"
-            label="Custom - Max Voltage 2"
+            :label="t('device_sensor.analog_max_voltage2_label')"
             min="0"
             max="5.000"
             step=".001"
@@ -156,7 +156,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom_min_pressure"
-            label="Analog - Min Pressure"
+            :label="t('device_sensor.analog_min_pressure_label')"
             min="0"
             max="10000"
             step=".001"
@@ -170,7 +170,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom1_min_pressure"
-            label="Analog - Min Pressure 2"
+            :label="t('device_sensor.analog_min_pressure2_label')"
             min="0"
             max="10000"
             step=".001"
@@ -185,7 +185,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom_max_pressure"
-            label="Analog - Max Pressure"
+            :label="t('device_sensor.analog_max_pressure_label')"
             min="0"
             max="10000"
             step=".001"
@@ -199,7 +199,7 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.custom1_max_pressure"
-            label="Analog - Max Pressure 2"
+            :label="t('device_sensor.analog_max_pressure2_label')"
             min="0"
             max="10000"
             step=".001"
@@ -227,7 +227,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Save</button
+            &nbsp;{{ t('device_sensor.save') }}</button
           >&nbsp;
 
           <button
@@ -242,7 +242,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Restart device</button
+            &nbsp;{{ t('device_sensor.restart') }}</button
           >&nbsp;
 
           <button
@@ -257,7 +257,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Calibrate pressure&nbsp;<span
+            &nbsp;{{ t('device_sensor.calibrate') }}&nbsp;<span
               v-if="badge.deviceSensorCalibratedBadge()"
               class="badge text-bg-danger rounded-circle"
               >1</span
@@ -271,16 +271,18 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config, status } from '@/modules/pinia'
 import * as badge from '@/modules/badge'
 import { logDebug, logError, logInfo } from '@mp-se/espframework-ui-components'
 import { useTimers, sharedHttpClient as http } from '@mp-se/espframework-ui-components'
 
+const { t } = useI18n()
 const { createTimeout } = useTimers()
 
 const pressureSensorOptions = ref([
-  { label: '-- Unused --', value: 0 }, // None selected
+  { label: t('device_sensor.unused_option'), value: 0 }, // None selected
 
   { label: 'XIDIBEI XDB401 IIC 0.0 - 0.2 MPa', value: 1 }, // 2 bar
   { label: 'XIDIBEI XDB401 IIC 0.0 - 0.4 MPa', value: 2 }, // 4 bar
@@ -326,7 +328,7 @@ onMounted(() => {
   logDebug('DeviceSensorView.onMounted()')
 
   if (status.adc_found) {
-    pressureSensorOptions.value.push({ label: 'Custom Analog Sensor', value: 1000 })
+    pressureSensorOptions.value.push({ label: t('device_sensor.custom_analog_option'), value: 1000 })
   }
 })
 
@@ -341,7 +343,7 @@ const calibrate = async () => {
 
     if (!startRes || startRes.ok === false) {
       const body = startRes ? await startRes.text().catch(() => null) : null
-      global.messageError = 'Failed to start calibration'
+      global.messageError = t('device_sensor.err_start_calibration')
       logError(
         'DeviceSensorView.calibrate()',
         'Start calibration failed',
@@ -370,21 +372,21 @@ const calibrate = async () => {
         // Completed - reload config
         const configSuccess = await config.load()
         if (configSuccess) {
-          global.messageSuccess = 'Sensor calibrated'
+          global.messageSuccess = t('device_sensor.calibration_success')
           return { success: true }
         } else {
-          global.messageError = 'Failed to load configuration after calibration'
+          global.messageError = t('device_sensor.err_load_config')
           return { success: false }
         }
       } catch (err) {
         logError('DeviceSensorView.calibrate()', err)
-        global.messageError = 'Failed to get calibrate status'
+        global.messageError = t('device_sensor.err_get_status')
         return { success: false }
       }
     }
   } catch (err) {
     logError('DeviceSensorView.calibrate()', err)
-    global.messageError = err.message || 'Calibration failed unexpectedly'
+    global.messageError = err.message || t('device_sensor.err_calibration_unexpected')
     return { success: false }
   } finally {
     global.disabled = false

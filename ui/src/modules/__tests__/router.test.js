@@ -147,4 +147,32 @@ describe('router.js', () => {
       vi.mocked(validateCurrentForm).mockReturnValue(true)
     })
   })
+
+  describe('menu item i18n labels', () => {
+    // Guards against forgetting to add/restore a locale namespace when editing
+    // router.js: labels are resolved eagerly via i18n.global.t() at module load,
+    // so a missing key silently renders as the raw "namespace.key" string.
+    const KEY_SHAPED = /^[a-z0-9_]+\.[a-z0-9_.]+$/
+
+    function collectLabels(items) {
+      const labels = []
+      for (const item of items) {
+        labels.push(item.label)
+        if (item.subs) labels.push(...collectLabels(item.subs))
+      }
+      return labels
+    }
+
+    it('resolves every menu label to real text, not a raw translation key', async () => {
+      const { items } = await import('@/modules/router')
+      const labels = collectLabels(items.value)
+
+      expect(labels.length).toBeGreaterThan(0)
+      for (const label of labels) {
+        expect(typeof label).toBe('string')
+        expect(label.length).toBeGreaterThan(0)
+        expect(label).not.toMatch(KEY_SHAPED)
+      }
+    })
+  })
 })

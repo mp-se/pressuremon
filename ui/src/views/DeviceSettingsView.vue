@@ -12,11 +12,11 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h2">Device - Settings</p>
+    <p class="h2">{{ t('device_settings.title') }}</p>
     <hr />
 
     <BsMessage v-if="config.mdns === ''" dismissable="true" message="" alert="warning">
-      You need to define a mdns name for the device
+      {{ t('device_settings.mdns_warning') }}
     </BsMessage>
 
     <form @submit.prevent="saveSettings" class="needs-validation" novalidate>
@@ -26,8 +26,8 @@
             v-model="config.mdns"
             maxlength="63"
             minlength="1"
-            label="MDNS"
-            help="Enter device name used on the network, the suffix .local will be added to this name"
+            :label="t('device_settings.mdns_label')"
+            :help="t('device_settings.mdns_help')"
             :badge="badge.deviceMdnsBadge()"
             :disabled="global.disabled"
           >
@@ -42,7 +42,7 @@
           <BsInputRadio
             v-model="config.temp_unit"
             :options="tempOptions"
-            label="Temperature Units"
+            :label="t('device_settings.temp_format_label')"
             width=""
             :disabled="global.disabled"
           ></BsInputRadio>
@@ -52,7 +52,7 @@
           <BsInputRadio
             v-model="config.pressure_unit"
             :options="pressureOptions"
-            label="Pressure Units"
+            :label="t('device_settings.pressure_format_label')"
             width=""
             :disabled="global.disabled"
           ></BsInputRadio>
@@ -66,7 +66,7 @@
           <BsInputRadio
             v-model="config.dark_mode"
             :options="uiOptions"
-            label="User Interface"
+            :label="t('device_settings.ui_label')"
             width=""
             :disabled="global.disabled"
           ></BsInputRadio>
@@ -89,7 +89,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Save</button
+            &nbsp;{{ t('device_settings.save') }}</button
           >&nbsp;
 
           <button
@@ -104,7 +104,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Restart device</button
+            &nbsp;{{ t('device_settings.restart') }}</button
           >&nbsp;
 
           <button
@@ -119,7 +119,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Restore factory defaults
+            &nbsp;{{ t('device_settings.factory_defaults') }}
           </button>
         </div>
       </div>
@@ -129,29 +129,32 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config } from '@/modules/pinia'
 import * as badge from '@/modules/badge'
+import { resolveMessage } from '@/modules/utils'
 import { logError, logInfo } from '@mp-se/espframework-ui-components'
 import { useFetch, useTimers } from '@mp-se/espframework-ui-components'
 
+const { t } = useI18n()
 const { managedFetch } = useFetch()
 const { createTimeout } = useTimers()
 
 const tempOptions = ref([
-  { label: 'Celsius °C', value: 'C' },
-  { label: 'Fahrenheit °F', value: 'F' }
+  { label: t('device_settings.temp_celsius'), value: 'C' },
+  { label: t('device_settings.temp_fahrenheit'), value: 'F' }
 ])
 
 const pressureOptions = ref([
-  { label: 'PSI', value: 'PSI' },
-  { label: 'kPA', value: 'kPa' },
-  { label: 'Bar', value: 'Bar' }
+  { label: t('device_settings.pressure_psi'), value: 'PSI' },
+  { label: t('device_settings.pressure_kpa'), value: 'kPa' },
+  { label: t('device_settings.pressure_bar'), value: 'Bar' }
 ])
 
 const uiOptions = ref([
-  { label: 'Day mode', value: false },
-  { label: 'Dark mode', value: true }
+  { label: t('device_settings.ui_day_mode'), value: false },
+  { label: t('device_settings.ui_dark_mode'), value: true }
 ])
 
 const factory = async () => {
@@ -168,17 +171,17 @@ const factory = async () => {
     const json = await response.json()
 
     if (json.success == true) {
-      global.messageSuccess = json.message
+      global.messageSuccess = resolveMessage(json.message_code, json.message)
       createTimeout(() => {
         location.reload(true)
       }, 2000)
     } else {
-      global.messageError = json.message
+      global.messageError = resolveMessage(json.message_code, json.message)
       global.disabled = false
     }
   } catch (err) {
     logError('DeviceSettingsView.factory()', err)
-    global.messageError = 'Failed to do factory restore'
+    global.messageError = t('device_settings.err_factory_restore')
     global.disabled = false
   }
 }

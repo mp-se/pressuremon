@@ -14,6 +14,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import * as badge from '@/modules/badge'
 import { global } from '@/modules/pinia'
+import i18n from '@/modules/i18n'
 
 import HomeView from '@/views/HomeView.vue'
 import DeviceSettingsView from '@/views/DeviceSettingsView.vue'
@@ -36,6 +37,8 @@ import SupportView from '@/views/SupportView.vue'
 import SerialView from '@/views/SerialView.vue'
 import ToolsView from '@/views/ToolsView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+
+const { t } = i18n.global
 
 const routes = [
   {
@@ -163,114 +166,114 @@ router.beforeEach(() => {
 
 const items = ref([
   {
-    label: 'Home',
+    label: t('router.home'),
     icon: 'IconHome',
     path: '/',
     subs: []
   },
   {
-    label: 'Device',
+    label: t('router.device'),
     icon: 'IconCpu',
     path: '/device',
     badge: badge.deviceBadge,
     subs: [
       {
-        label: 'Settings',
+        label: t('router.device_settings'),
         badge: badge.deviceSettingBadge,
         path: '/device/settings'
       },
       {
-        label: 'Hardware',
+        label: t('router.device_hardware'),
         badge: badge.deviceHardwareBadge,
         path: '/device/hardware'
       },
       {
-        label: 'Sensor',
+        label: t('router.device_sensor'),
         badge: badge.deviceSensorBadge,
         path: '/device/sensor'
       },
       {
-        label: 'Wifi',
+        label: t('router.device_wifi'),
         badge: badge.deviceWifiBadge,
         path: '/device/wifi'
       }
     ]
   },
   {
-    label: 'Push targets',
+    label: t('router.push_targets'),
     icon: 'IconCloudUpArrow',
     path: '/push',
     badge: badge.pushBadge,
     subs: [
       {
-        label: 'Settings',
+        label: t('router.push_settings'),
         badge: badge.pushSettingBadge,
         path: '/push/settings'
       },
       {
-        label: 'WiFi Direct',
+        label: t('router.push_wifi_direct'),
         badge: badge.pushWifiDirectBadge,
         path: '/push/wifi-direct'
       },
       {
-        label: 'HTTP Post 1',
+        label: t('router.push_http_post1'),
         badge: badge.pushHttpPost1Badge,
         path: '/push/http-post1'
       },
       {
-        label: 'HTTP Post 2',
+        label: t('router.push_http_post2'),
         badge: badge.pushHttpPost2Badge,
         path: '/push/http-post2'
       },
       {
-        label: 'HTTP Get',
+        label: t('router.push_http_get'),
         badge: badge.pushHttpGetBadge,
         path: '/push/http-get'
       },
       {
-        label: 'Influxdb v2',
+        label: t('router.push_influxdb'),
         badge: badge.pushInfluxdb2Badge,
         path: '/push/influxdb'
       },
       {
-        label: 'MQTT',
+        label: t('router.push_mqtt'),
         badge: badge.pushMqttBadge,
         path: '/push/mqtt'
       },
       {
-        label: 'Bluetooth',
+        label: t('router.push_bluetooth'),
         badge: badge.pushBluetoothBadge,
         path: '/push/bluetooth'
       }
     ]
   },
   {
-    label: 'Other',
+    label: t('router.other'),
     icon: 'IconTools',
     path: '/other',
     subs: [
       {
-        label: 'Serial console',
+        label: t('router.other_serial'),
         path: '/other/serial'
       },
       {
-        label: 'Backup & Restore',
+        label: t('router.other_backup'),
         path: '/other/backup'
       },
       {
-        label: 'Firmware update',
+        label: t('router.other_firmware'),
         path: '/other/firmware'
       },
       {
-        label: 'Support',
+        label: t('router.other_support'),
         path: '/other/support'
       },
       {
-        label: 'Tools',
+        label: t('router.other_tools'),
         path: '/other/tools'
       },
       {
-        label: 'About',
+        label: t('router.other_about'),
         path: '/other/about'
       }
     ]

@@ -15,7 +15,7 @@
       <div class="row align-items-center" style="height: 170px">
         <div class="col">
           <div class="spinner-border" role="status" style="width: 5rem; height: 5rem">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">{{ t('app.loading') }}</span>
           </div>
         </div>
       </div>
@@ -23,11 +23,7 @@
   </dialog>
 
   <div v-if="!global.initialized" class="container text-center">
-    <BsMessage
-      message="Initalizing PressureMon Web interface"
-      :dismissable="false"
-      alert="info"
-    ></BsMessage>
+    <BsMessage :message="t('app.initializing')" :dismissable="false" alert="info"></BsMessage>
   </div>
 
   <BsMenuBar
@@ -47,7 +43,7 @@
     </div>
     <BsMessage
       v-if="!status.connected"
-      message="No response from device, has it gone into sleep model? No need to refresh the page, just turn on the device again"
+      :message="t('app.no_response')"
       :dismissable="false"
       alert="danger"
     ></BsMessage>
@@ -82,23 +78,27 @@
     />
 
     <BsMessage v-if="status.wifi_setup" :dismissable="false" alert="info">
-      Running in WIFI setup mode. Go to the
-      <router-link class="alert-link" to="/device/wifi">wifi settings</router-link>
-      meny and select wifi. Restart device after settings are selected.
+      {{ t('app.wifi_setup_info') }}
+      <router-link class="alert-link" to="/device/wifi">{{
+        t('app.wifi_setup_link')
+      }}</router-link>
+      {{ t('app.wifi_setup_suffix') }}
     </BsMessage>
   </div>
 
   <router-view v-if="global.initialized" />
-  <BsFooter v-if="global.initialized" text="(c) 2024-2025 Magnus Persson" />
+  <BsFooter v-if="global.initialized" :text="t('app.footer')" />
 </template>
 
 <script setup>
 import { onMounted, watch, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { sharedHttpClient as http } from '@mp-se/espframework-ui-components'
 import { global, status, config, saveConfigState } from './modules/pinia'
 import { useTimers, logInfo, logError, version } from '@mp-se/espframework-ui-components'
 import { items as menuItems } from './modules/router'
 
+const { t } = useI18n()
 const polling = ref(null)
 const { createInterval, clearManagedInterval } = useTimers()
 
@@ -164,37 +164,35 @@ async function initializeApp() {
     const base = btoa('pressuremon:password')
     const authOk = await http.auth(base)
     if (!authOk) {
-      global.messageError = 'Failed to authenticate with device, please try to reload page!'
+      global.messageError = t('app.err_auth_failed')
       return
     }
 
     // Step 2: Load feature flags
     const globalSuccess = await global.load()
     if (!globalSuccess) {
-      global.messageError = 'Failed to load feature flags from device, please try to reload page!'
+      global.messageError = t('app.err_load_features')
       return
     }
 
     // Step 3: Load device status
     const statusSuccess = await status.load()
     if (!statusSuccess) {
-      global.messageError = 'Failed to load status from device, please try to reload page!'
+      global.messageError = t('app.err_load_status')
       return
     }
 
     // Step 4: Load configuration
     const configSuccess = await config.load()
     if (!configSuccess) {
-      global.messageError =
-        'Failed to load configuration data from device, please try to reload page!'
+      global.messageError = t('app.err_load_config')
       return
     }
 
     // Step 5: Load format templates
     const formatSuccess = await config.loadFormat()
     if (!formatSuccess) {
-      global.messageError =
-        'Failed to load format templates from device, please try to reload page!'
+      global.messageError = t('app.err_load_format')
       return
     }
 
@@ -204,7 +202,7 @@ async function initializeApp() {
     global.initialized = true
   } catch (error) {
     logError('App.initializeApp()', error)
-    global.messageError = `Initialization failed: ${error.message}`
+    global.messageError = t('app.err_init_failed', { error: error.message })
   } finally {
     hideSpinner()
   }

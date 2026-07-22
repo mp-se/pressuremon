@@ -12,7 +12,7 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h3">Push - Bluetooth</p>
+    <p class="h3">{{ t('push_bluetooth.title') }}</p>
     <hr />
 
     <template v-if="global.feature.ble">
@@ -22,14 +22,14 @@
             <BsInputRadio
               v-model="config.ble_format"
               :options="bleFormatOptions"
-              label="Bluetooth data format"
-              help="Select the type of bluetooth transmission used."
+              :label="t('push_bluetooth.format_label')"
+              :help="t('push_bluetooth.format_help')"
               :disabled="global.disabled"
             />
           </div>
           <div class="col-md-12">
             <p></p>
-            <p>Changing bluetooth settings might require a restart to function properly</p>
+            <p>{{ t('push_bluetooth.restart_hint') }}</p>
           </div>
         </div>
         <div class="row gy-2">
@@ -48,7 +48,7 @@
                 aria-hidden="true"
                 v-show="global.disabled"
               ></span>
-              &nbsp;Save
+              &nbsp;{{ t('push_bluetooth.save') }}
             </button>
           </div>
         </div>
@@ -57,7 +57,7 @@
     <template v-else>
       <div class="row">
         <div class="col-md-12">
-          <p>Bluetooth is not available on this platform</p>
+          <p>{{ t('push_bluetooth.not_available') }}</p>
         </div>
       </div>
     </template>
@@ -66,12 +66,15 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config } from '@/modules/pinia'
 
+const { t } = useI18n()
+
 const bleFormatOptions = ref([
-  { label: 'Disabled', value: 0 },
-  { label: 'Pressuremon iBeacon', value: 1 }
+  { label: t('push_bluetooth.format_disabled'), value: 0 },
+  { label: t('push_bluetooth.format_ibeacon'), value: 1 }
   // { label: 'Pressuremon Eddystone', value: 2 }
 ])
 

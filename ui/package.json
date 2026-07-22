@@ -18,6 +18,7 @@
   "dependencies": {
     "@mp-se/espframework-ui-components": "git+https://github.com/mp-se/espframework-ui-components.git#v2.2.0",
     "bootstrap": "^5.3.8",
+    "vue-i18n": "^9.3.0",
     "json-parse-even-better-errors": "^4.0.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.22",

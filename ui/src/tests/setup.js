@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { config as vtConfig } from '@vue/test-utils'
+import i18n from '@/modules/i18n'
 
 class LocalStorageMock {
   constructor() {
@@ -316,6 +317,8 @@ globalThis.import = {
 
 vtConfig.global = vtConfig.global || {}
 vtConfig.global.components = vtConfig.global.components || {}
+vtConfig.global.plugins = vtConfig.global.plugins || []
+vtConfig.global.plugins.push(i18n)
 
 const uiStubs = [
   'BsInputReadonly',

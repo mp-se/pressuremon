@@ -12,7 +12,7 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h3">Device - Hardware</p>
+    <p class="h3">{{ t('device_hardware.title') }}</p>
     <hr />
 
     <form @submit.prevent="save" class="needs-validation" novalidate>
@@ -20,13 +20,13 @@
         <div class="col-md-6">
           <BsInputNumber
             v-model="config.voltage_factor"
-            label="Voltage factor"
+            :label="t('device_hardware.voltage_factor_label')"
             min="0"
             max="6"
             step=".01"
             width="4"
             :unit="voltage"
-            help="Factor used to calculate the battery voltage. Can vary depending on the R2 value (0 to 6)"
+            :help="t('device_hardware.voltage_factor_help')"
             :disabled="global.disabled"
           >
           </BsInputNumber>
@@ -35,12 +35,12 @@
           <BsInputNumber
             v-model="config.voltage_config"
             unit="V"
-            label="Voltage config"
+            :label="t('device_hardware.voltage_config_label')"
             min="3"
             max="6"
             step=".01"
             width="4"
-            help="Over this level the device will always go into configuration mode, some batteries might have a higher voltage when fully charged (3 to 6)"
+            :help="t('device_hardware.voltage_config_help')"
             :disabled="global.disabled"
           ></BsInputNumber>
         </div>
@@ -48,8 +48,8 @@
         <div class="col-md-6">
           <BsInputSwitch
             v-model="config.battery_saving"
-            label="Battery saving"
-            help="When active, the sleep interval will be changed to 1 hour when battery drops below 20% (3.73V)"
+            :label="t('device_hardware.battery_saving_label')"
+            :help="t('device_hardware.battery_saving_help')"
             :disabled="global.disabled"
           ></BsInputSwitch>
         </div>
@@ -57,8 +57,8 @@
         <div class="col-md-6">
           <BsSelect
             v-model="config.battery_type"
-            label="Battery type"
-            help="For correct calculation of remaning capacity and battery savings mode"
+            :label="t('device_hardware.battery_type_label')"
+            :help="t('device_hardware.battery_type_help')"
             :options="batteryTypeOptions"
             :disabled="global.disabled"
           />
@@ -80,7 +80,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Save</button
+            &nbsp;{{ t('device_hardware.save') }}</button
           >&nbsp;
 
           <button
@@ -95,7 +95,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Restart device</button
+            &nbsp;{{ t('device_hardware.restart') }}</button
           >&nbsp;
         </div>
       </div>
@@ -105,12 +105,15 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config, status } from '@/modules/pinia'
 
+const { t } = useI18n()
+
 const batteryTypeOptions = ref([
-  { label: 'LiPo battery', value: 0 },
-  { label: 'LithiumIon battery (18650)', value: 1 }
+  { label: t('device_hardware.battery_type_lipo'), value: 0 },
+  { label: t('device_hardware.battery_type_liion'), value: 1 }
 ])
 
 const voltage = computed(() => {

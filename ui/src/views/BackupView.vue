@@ -12,12 +12,12 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h3">Backup & Restore</p>
+    <p class="h3">{{ t('backup.title') }}</p>
     <hr />
 
     <div class="row">
       <div class="col-md-12">
-        <p>Create a backup of the device configuration and store this in a textfile</p>
+        <p>{{ t('backup.create_text') }}</p>
       </div>
 
       <div class="col-md-12">
@@ -28,7 +28,7 @@
           data-bs-toggle="tooltip"
           :disabled="global.disabled"
         >
-          Create backup
+          {{ t('backup.create_button') }}
         </button>
       </div>
 
@@ -37,7 +37,7 @@
       </div>
 
       <div class="col-md-12">
-        <p>Restore a previous backup of the device configuration by uploading it.</p>
+        <p>{{ t('backup.restore_text') }}</p>
       </div>
     </div>
 
@@ -47,7 +47,7 @@
           <BsFileUpload
             name="upload"
             id="upload"
-            label="Select backup file"
+            :label="t('backup.select_file_label')"
             accept=".txt"
             :disabled="global.disabled"
             @change="onFileChange"
@@ -71,7 +71,7 @@
               aria-hidden="true"
               v-show="global.disabled"
             ></span>
-            &nbsp;Restore
+            &nbsp;{{ t('backup.restore_button') }}
           </button>
         </div>
 
@@ -86,20 +86,22 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { global, config, getConfigChanges } from '@/modules/pinia'
 import { logDebug, logError } from '@mp-se/espframework-ui-components'
 import { BsFileUpload, BsProgress } from '@mp-se/espframework-ui-components'
 
+const { t } = useI18n()
 const progress = ref(0)
 const fileSelected = ref(false)
 
 const restoreButtonTooltip = computed(() => {
   if (global.disabled) {
-    return 'Restore in progress, please wait...'
+    return t('backup.tooltip_in_progress')
   } else if (!fileSelected.value) {
-    return 'Please select a backup file first'
+    return t('backup.tooltip_select_file')
   } else {
-    return 'Upload the configuration to the device'
+    return t('backup.tooltip_upload')
   }
 })
 
@@ -138,7 +140,7 @@ function backup() {
   const s = JSON.stringify(backup, null, 2)
   const name = config.mdns + '.txt'
   download(s, 'text/plain', name)
-  global.messageSuccess = 'Backup file created and downloaded as: ' + name
+  global.messageSuccess = t('backup.backup_created', { name })
 }
 
 function resetFileInput() {
@@ -153,7 +155,7 @@ function restore() {
   const fileElement = document.getElementById('upload')
 
   if (fileElement.files.length === 0) {
-    global.messageError = 'You need to select one file to restore configuration from'
+    global.messageError = t('backup.err_no_file_selected')
   } else {
     global.disabled = true
     logDebug('BackupView.restore()', 'Selected file: ' + fileElement.files[0].name)
@@ -166,12 +168,12 @@ function restore() {
           doRestore(data.config)
           resetFileInput()
         } else {
-          global.messageError = 'Unknown format, unable to process'
+          global.messageError = t('backup.err_unknown_format')
           resetFileInput()
         }
       } catch (error) {
         logError('BackupView.restore()', 'Failed to parse backup file:', error)
-        global.messageError = 'Unable to parse configuration file for PressureMon.'
+        global.messageError = t('backup.err_parse_failed')
         resetFileInput()
       }
     })
@@ -200,7 +202,7 @@ async function doRestore(json) {
   getConfigChanges()
   const ok = await config.saveAll()
   if (ok) {
-    global.messageSuccess = 'Configuration has been saved to device'
+    global.messageSuccess = t('backup.restore_success')
   }
 }
 </script>

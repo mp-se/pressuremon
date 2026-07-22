@@ -12,13 +12,10 @@
 <template>
   <div class="container">
     <p></p>
-    <p class="h3">Links and device logs</p>
+    <p class="h3">{{ t('support.title') }}</p>
     <hr />
     <div class="row">
-      <p>
-        If you need support, want to discuss the software or request any new features you can do
-        that on github.com or homebrewtalk.com.
-      </p>
+      <p>{{ t('support.intro') }}</p>
     </div>
     <div class="row">
       <div class="col-md-4">
@@ -26,7 +23,7 @@
           class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
           href="https://github.com/mp-se/pressuremon"
           target="_blank"
-          >Report issues on github.com</a
+          >{{ t('support.link_issues') }}</a
         >
       </div>
       <div class="col-md-4">
@@ -34,7 +31,7 @@
           class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
           href="https://www.homebrewtalk.com/"
           target="_blank"
-          >Discuss on homebrewtalk.com</a
+          >{{ t('support.link_discuss') }}</a
         >
       </div>
     </div>
@@ -43,11 +40,11 @@
     <div class="row">
       <div class="col">
         <p>
-          Platform:
+          {{ t('support.platform_label') }}
           <span class="badge bg-secondary">{{ global.platform }}</span>
-          Firmware:
+          {{ t('support.firmware_label') }}
           <span class="badge bg-secondary">{{ global.app_ver }} ({{ global.app_build }})</span>
-          User interface:
+          {{ t('support.ui_label') }}
           <span class="badge bg-secondary">{{ global.uiVersion }} ({{ global.uiBuild }})</span>
         </p>
       </div>
@@ -63,7 +60,7 @@
             aria-hidden="true"
             v-show="global.disabled"
           ></span>
-          &nbsp;View device logs</button
+          &nbsp;{{ t('support.view_logs') }}</button
         >&nbsp;
 
         <button
@@ -78,7 +75,7 @@
             aria-hidden="true"
             v-show="global.disabled"
           ></span>
-          &nbsp;Erase device logs</button
+          &nbsp;{{ t('support.erase_logs') }}</button
         >&nbsp;
 
         <button
@@ -93,7 +90,7 @@
             aria-hidden="true"
             v-show="global.disabled"
           ></span>
-          &nbsp;Hardware scan</button
+          &nbsp;{{ t('support.hardware_scan') }}</button
         >&nbsp;
 
         <button
@@ -108,7 +105,7 @@
             aria-hidden="true"
             v-show="global.disabled"
           ></span>
-          &nbsp;Toggle error help</button
+          &nbsp;{{ t('support.toggle_help') }}</button
         >&nbsp;
       </div>
     </div>
@@ -122,7 +119,7 @@
       <div class="col">
         <pre>{{ logData }}</pre>
       </div>
-      <div class="form-text">Starts with the latest log entry first.</div>
+      <div class="form-text">{{ t('support.log_hint') }}</div>
     </div>
 
     <div class="row" v-if="showHelp">
@@ -130,47 +127,17 @@
         <p></p>
       </div>
       <div class="col-md-12">
-        Common HTTP error codes:
-        <li>
-          400 - Bad request. Probably an issue with the post format. Do a preview of the format to
-          identify the issue.
-        </li>
-        <li>
-          401 - Unauthorized. The service needs an token or other means to authenticate the device.
-        </li>
-        <li>403 - Forbidden. Could be an issue with token or URL.</li>
-        <li>404 - Not found. Probably a wrong URL.</li>
+        {{ t('support.http_error_title') }}
+        <li v-for="key in httpErrorKeys" :key="key">{{ t('support.' + key) }}</li>
         <br />
-        MQTT connection errors:
-        <li>-1 - Connection refused</li>
-        <li>-2 - Send header failed</li>
-        <li>-3 - Send payload failed</li>
-        <li>-4 - Not connected</li>
-        <li>-5 - Connection lost</li>
-        <li>-6 - No stream</li>
-        <li>-7 - No HTTP server</li>
-        <li>-8 - Too little RAM available</li>
-        <li>-9 - Error encoding</li>
-        <li>-10 - Error writing to stream</li>
-        <li>-11 - Read timeout</li>
-        <li>-100 - Endpoint skipped since its SSL and the device is in gravity mode</li>
+        {{ t('support.mqtt_conn_title') }}
+        <li v-for="key in mqttConnErrorKeys" :key="key">{{ t('support.' + key) }}</li>
         <br />
-        MQTT push on topic errors:
-        <li>-1 - Buffer to short</li>
-        <li>-2 - Overflow</li>
-        <li>-3 - Network failed connected</li>
-        <li>-4 - Network timeout</li>
-        <li>-5 - Network read failed</li>
-        <li>-6 - Network write failed</li>
-        <li>-10 - Connection denied</li>
-        <li>-11 - Failed subscription</li>
+        {{ t('support.mqtt_push_title') }}
+        <li v-for="key in mqttPushErrorKeys" :key="key">{{ t('support.' + key) }}</li>
         <br />
-        WIFI error codes
-        <li>1 - No SSID found.</li>
-        <li>4 - Connection failed.</li>
-        <li>5 - Connection lost.</li>
-        <li>6 - Wrong password.</li>
-        <li>7 - Disconnected by AP.</li>
+        {{ t('support.wifi_error_title') }}
+        <li v-for="key in wifiErrorKeys" :key="key">{{ t('support.' + key) }}</li>
       </div>
     </div>
   </div>
@@ -178,11 +145,40 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { config, global } from '@/modules/pinia'
 import { logDebug } from '@mp-se/espframework-ui-components'
 
+const { t } = useI18n()
 const logData = ref('')
 const showHelp = ref(false)
+
+const httpErrorKeys = ['http_400', 'http_401', 'http_403', 'http_404']
+const mqttConnErrorKeys = [
+  'mqtt_conn_1',
+  'mqtt_conn_2',
+  'mqtt_conn_3',
+  'mqtt_conn_4',
+  'mqtt_conn_5',
+  'mqtt_conn_6',
+  'mqtt_conn_7',
+  'mqtt_conn_8',
+  'mqtt_conn_9',
+  'mqtt_conn_10',
+  'mqtt_conn_11',
+  'mqtt_conn_100'
+]
+const mqttPushErrorKeys = [
+  'mqtt_push_1',
+  'mqtt_push_2',
+  'mqtt_push_3',
+  'mqtt_push_4',
+  'mqtt_push_5',
+  'mqtt_push_6',
+  'mqtt_push_10',
+  'mqtt_push_11'
+]
+const wifiErrorKeys = ['wifi_1', 'wifi_4', 'wifi_5', 'wifi_6', 'wifi_7']
 
 function fetchLog(file, callback) {
   const data = {
@@ -234,7 +230,7 @@ function removeLogs() {
 
   removeLog('/error2.log', () => {
     removeLog('/error.log', () => {
-      global.messageSuccess = 'Requested logs to be deleted'
+      global.messageSuccess = t('support.logs_deleted')
       global.disabled = false
     })
   })
