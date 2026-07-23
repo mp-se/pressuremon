@@ -67,4 +67,7 @@ cp ../../gravitymon/ui/src/views/__tests__/PushInfluxdbView.test.js ./src/views/
 cp ../../gravitymon/ui/src/views/__tests__/PushMqttView.test.js ./src/views/__tests__/PushMqttView.test.js
 cp ../../gravitymon/ui/src/views/__tests__/PushWifiDirectView.test.js ./src/views/__tests__/PushWifiDirectView.test.js
 
+# Build tooling (generic, lives at the repo root rather than under ui/)
+cp ../../gravitymon/script/gen_lang_manifest.py ../script/gen_lang_manifest.py
+
 echo "✓ Components and tests synced from gravitymon"

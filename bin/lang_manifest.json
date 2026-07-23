@@ -1,0 +1,73 @@
+{
+  "product": "pressuremon",
+  "version": "0.8.0",
+  "generated_at": "2026-07-23T12:11:01Z",
+  "packs": [
+    {
+      "lang": "da",
+      "name": "Dansk",
+      "filename": "lang_da.json.gz",
+      "crc32": "abad5b75"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "filename": "lang_de.json.gz",
+      "crc32": "1078105d"
+    },
+    {
+      "lang": "es",
+      "name": "Español",
+      "filename": "lang_es.json.gz",
+      "crc32": "e19d7250"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "filename": "lang_fr.json.gz",
+      "crc32": "cc233199"
+    },
+    {
+      "lang": "it",
+      "name": "Italiano",
+      "filename": "lang_it.json.gz",
+      "crc32": "cacbeeb6"
+    },
+    {
+      "lang": "nl",
+      "name": "Nederlands",
+      "filename": "lang_nl.json.gz",
+      "crc32": "7adc2a67"
+    },
+    {
+      "lang": "no",
+      "name": "Norsk",
+      "filename": "lang_no.json.gz",
+      "crc32": "9738e417"
+    },
+    {
+      "lang": "pl",
+      "name": "Polski",
+      "filename": "lang_pl.json.gz",
+      "crc32": "2c2abb1b"
+    },
+    {
+      "lang": "pt",
+      "name": "Português",
+      "filename": "lang_pt.json.gz",
+      "crc32": "8e4052f2"
+    },
+    {
+      "lang": "sv",
+      "name": "Svenska",
+      "filename": "lang_sv.json.gz",
+      "crc32": "326731f8"
+    },
+    {
+      "lang": "zh",
+      "name": "中文",
+      "filename": "lang_zh.json.gz",
+      "crc32": "7362d9de"
+    }
+  ]
+}

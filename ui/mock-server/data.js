@@ -133,7 +133,7 @@ export var statusData = {
 export var featureData = {
   board: 'D1_MINI',
   platform: 'esp32c3',
-  app_ver: '0.9.0',
+  app_ver: '0.8.0',
   app_build: 'gitrev',
   hardware: 'ispindel',
   firmware_file: 'firmware.bin',
