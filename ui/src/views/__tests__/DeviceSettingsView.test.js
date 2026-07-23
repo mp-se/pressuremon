@@ -16,13 +16,15 @@ const mocks = vi.hoisted(() => ({
     baseURL: '/',
     messageSuccess: '',
     messageError: '',
-    clearMessages: vi.fn()
+    clearMessages: vi.fn(),
+    ui: { enableLanguageDownload: false }
   },
   config: {
     mdns: 'pressuremon-test',
     temp_unit: 'C',
     pressure_unit: 'PSI',
     dark_mode: false,
+    locale: 'en',
     saveAll: vi.fn(),
     restart: vi.fn()
   },
@@ -64,7 +66,24 @@ vi.mock('@mp-se/espframework-ui-components', () => ({
     emits: ['update:modelValue'],
     template:
       '<div :data-label="label"><input v-for="option in options" :key="option.value" type="radio" :checked="modelValue===option.value" @change="$emit(\'update:modelValue\', option.value)" /></div>'
-  }
+  },
+  BsSelect: {
+    props: ['modelValue', 'options', 'label'],
+    emits: ['update:modelValue'],
+    template: '<div :data-label="label" />'
+  },
+  BsProgress: { template: '<div />' }
+}))
+
+vi.mock('@/modules/localePacks', () => ({
+  listInstalledPacks: vi.fn(async () => []),
+  installPackFromUrl: vi.fn(),
+  removeLocalePack: vi.fn(),
+  loadLocalePackWithRetry: vi.fn(async () => true)
+}))
+
+vi.mock('@/lib/langpacks', () => ({
+  fetchManifest: vi.fn(async () => ({ packs: [] }))
 }))
 
 import DeviceSettingsView from '../DeviceSettingsView.vue'

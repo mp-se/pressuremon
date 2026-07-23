@@ -274,6 +274,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config, status } from '@/modules/pinia'
+import { resolveMessage } from '@/modules/utils'
 import * as badge from '@/modules/badge'
 import { logDebug, logError, logInfo } from '@mp-se/espframework-ui-components'
 import { useTimers, sharedHttpClient as http } from '@mp-se/espframework-ui-components'
@@ -369,10 +370,15 @@ const calibrate = async () => {
           continue
         }
 
+        if (!statusJson.success) {
+          global.messageError = resolveMessage(statusJson.message_code, statusJson.message)
+          return { success: false }
+        }
+
         // Completed - reload config
         const configSuccess = await config.load()
         if (configSuccess) {
-          global.messageSuccess = t('device_sensor.calibration_success')
+          global.messageSuccess = resolveMessage(statusJson.message_code, statusJson.message)
           return { success: true }
         } else {
           global.messageError = t('device_sensor.err_load_config')

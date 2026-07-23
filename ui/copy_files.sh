@@ -23,6 +23,12 @@ cp ../../gravitymon/ui/src/modules/__tests__/formatTemplate.test.js ./src/module
 cp ../../gravitymon/ui/src/modules/__tests__/gravityFormatOptions.test.js ./src/modules/__tests__/gravityFormatOptions.test.js
 # pressureFormatOptions.test.js is project-specific, not copied
 
+# Locale / language pack modules (identical logic across projects; only
+# consumed via a project-specific @/modules/i18n instance)
+cp ../../gravitymon/ui/src/lib/langpacks.js ./src/lib/langpacks.js
+cp ../../gravitymon/ui/src/modules/localePacks.js ./src/modules/localePacks.js
+cp ../../gravitymon/ui/src/modules/__tests__/localePacks.test.js ./src/modules/__tests__/localePacks.test.js
+
 # Fragment Components
 cp ../../gravitymon/ui/src/fragments/AdvancedFilesFragment.vue ./src/fragments/AdvancedFilesFragment.vue
 cp ../../gravitymon/ui/src/fragments/ListFilesFragment.vue ./src/fragments/ListFilesFragment.vue

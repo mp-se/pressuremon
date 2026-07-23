@@ -5,7 +5,9 @@
     "WIFI_CLEARED": "WiFi credentials cleared",
     "WIFI_SCAN_NOT_RUNNING": "No scanning running",
     "WIFI_SCAN_RUNNING": "WiFi scanning running",
-    "WIFI_SCAN_SCHEDULED": "Scheduled wifi scanning"
+    "WIFI_SCAN_SCHEDULED": "Scheduled wifi scanning",
+    "CALIBRATION_SUCCESS": "Calibration completed",
+    "CALIBRATION_FAILED": "Calibration failed, no sensors connected"
   },
   "app": {
     "initializing": "Initalizing PressureMon Web interface",
@@ -20,7 +22,8 @@
     "err_load_config": "Failed to load configuration data from device, please try to reload page!",
     "err_load_format": "Failed to load format templates from device, please try to reload page!",
     "err_init_failed": "Initialization failed: {error}",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "err_locale_pack_missing": "Language pack not installed on this device. Install it under Device Settings, showing English instead."
   },
   "router": {
     "home": "Home",
@@ -67,7 +70,15 @@
     "save": "Save",
     "restart": "Restart device",
     "factory_defaults": "Restore factory defaults",
-    "err_factory_restore": "Failed to do factory restore"
+    "err_factory_restore": "Failed to do factory restore",
+    "locale_label": "Language"
+  },
+  "language_packs": {
+    "available_title": "Available languages",
+    "install_success": "Language pack installed",
+    "err_install_failed": "Failed to install language pack, try uploading it manually instead",
+    "delete_success": "Language pack removed",
+    "err_delete_failed": "Failed to remove language pack"
   },
   "device_hardware": {
     "title": "Device - Hardware",
@@ -111,7 +122,6 @@
     "err_start_calibration": "Failed to start calibration",
     "err_get_status": "Failed to get calibrate status",
     "err_load_config": "Failed to load configuration after calibration",
-    "calibration_success": "Sensor calibrated",
     "err_calibration_unexpected": "Calibration failed unexpectedly"
   },
   "device_wifi": {

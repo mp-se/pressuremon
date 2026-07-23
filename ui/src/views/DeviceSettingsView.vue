@@ -38,7 +38,7 @@
           <hr />
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <BsInputRadio
             v-model="config.temp_unit"
             :options="tempOptions"
@@ -48,7 +48,7 @@
           ></BsInputRadio>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <BsInputRadio
             v-model="config.pressure_unit"
             :options="pressureOptions"
@@ -58,11 +58,7 @@
           ></BsInputRadio>
         </div>
 
-        <div class="col-md-12">
-          <hr />
-        </div>
-
-        <div class="col-md-6">
+        <div class="col-md-4">
           <BsInputRadio
             v-model="config.dark_mode"
             :options="uiOptions"
@@ -70,6 +66,50 @@
             width=""
             :disabled="global.disabled"
           ></BsInputRadio>
+        </div>
+
+        <div class="col-md-12">
+          <hr />
+        </div>
+
+        <div class="col-md-4">
+          <BsSelect
+            v-model="config.locale"
+            :options="localeOptions"
+            :label="t('device_settings.locale_label')"
+            :disabled="global.disabled"
+          ></BsSelect>
+        </div>
+
+        <div class="col-md-12" v-if="global.ui.enableLanguageDownload && availableLanguages.length > 0">
+          <hr />
+        </div>
+
+        <div class="col-md-12" v-if="global.ui.enableLanguageDownload && availableLanguages.length > 0">
+          <h6>{{ t('language_packs.available_title') }}</h6>
+          <div class="button-group">
+            <template v-for="entry in availableLanguages" :key="entry.code">
+              <button
+                type="button"
+                class="btn btn-sm"
+                :class="isInstalled(entry.code) ? 'btn-primary' : 'btn-outline-secondary'"
+                :disabled="global.disabled || installingCode !== null"
+                @click.prevent="toggleLanguage(entry)"
+              >
+                <span
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                  v-show="installingCode === entry.code"
+                ></span>
+                {{ entry.name }}</button
+              >&nbsp;
+            </template>
+          </div>
+          <div v-if="installingCode !== null && installProgress > 0" class="col-md-6">
+            <p></p>
+            <BsProgress :progress="installProgress"></BsProgress>
+          </div>
         </div>
       </div>
 
@@ -128,14 +168,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { validateCurrentForm } from '@mp-se/espframework-ui-components'
+import { BsProgress, validateCurrentForm } from '@mp-se/espframework-ui-components'
 import { global, config } from '@/modules/pinia'
 import * as badge from '@/modules/badge'
 import { resolveMessage } from '@/modules/utils'
 import { logError, logInfo } from '@mp-se/espframework-ui-components'
 import { useFetch, useTimers } from '@mp-se/espframework-ui-components'
+import {
+  installPackFromUrl,
+  listInstalledPacks,
+  removeLocalePack,
+  loadLocalePackWithRetry
+} from '@/modules/localePacks'
+import { fetchManifest } from '@/lib/langpacks'
 
 const { t } = useI18n()
 const { managedFetch } = useFetch()
@@ -156,6 +203,95 @@ const uiOptions = ref([
   { label: t('device_settings.ui_day_mode'), value: false },
   { label: t('device_settings.ui_dark_mode'), value: true }
 ])
+
+// Convenience list of downloadable language packs, read from the same
+// version.json-style manifest already used for firmware update checks
+// (hosted alongside gravitymon's, keyed by product name).
+const availableLanguages = ref([])
+const installedCodes = ref([])
+const installingCode = ref(null)
+const installProgress = ref(0)
+
+const isInstalled = (code) => installedCodes.value.includes(code)
+
+// The dropdown only lists languages that are actually installed on the
+// device (English is always available since it ships embedded) - selecting
+// a language with no pack installed would just fall back to English anyway.
+const localeOptions = computed(() => {
+  const options = [{ label: 'English', value: 'en' }]
+  for (const code of installedCodes.value) {
+    const entry = availableLanguages.value.find((lang) => lang.code === code)
+    options.push({ label: entry ? entry.name : code, value: code })
+  }
+  return options
+})
+
+const refreshInstalledCodes = async () => {
+  installedCodes.value = await listInstalledPacks()
+}
+
+onMounted(async () => {
+  await refreshInstalledCodes()
+
+  if (!global.ui.enableLanguageDownload) return
+
+  try {
+    const manifest = await fetchManifest('pressuremon', global.app_ver)
+    availableLanguages.value = (manifest.packs || []).map((p) => ({
+      code: p.lang,
+      name: p.name || p.lang,
+      file: p.filename,
+      url: p.url // resolved to absolute by fetchManifest
+    }))
+  } catch (error) {
+    logError('DeviceSettingsView.loadAvailableLanguages()', error)
+    availableLanguages.value = []
+  }
+})
+
+const toggleLanguage = async (entry) => {
+  if (installingCode.value !== null) return
+
+  installingCode.value = entry.code
+  installProgress.value = 0
+  global.clearMessages()
+
+  try {
+    if (isInstalled(entry.code)) {
+      const res = await removeLocalePack(entry.code)
+      if (res && res.success) {
+        global.messageSuccess = t('language_packs.delete_success')
+        await refreshInstalledCodes()
+      } else {
+        global.messageError = t('language_packs.err_delete_failed')
+      }
+    } else {
+      await installPackFromUrl(entry.url, entry, {
+        onProgress: (percent) => {
+          installProgress.value = Math.round(percent)
+        }
+      })
+      await refreshInstalledCodes()
+
+      const loaded = await loadLocalePackWithRetry(entry.code)
+      if (loaded) {
+        global.messageSuccess = t('language_packs.install_success')
+      } else {
+        // Uploaded but failed to load back - treat as a failed install rather
+        // than silently leaving a broken/incomplete file on the device.
+        await removeLocalePack(entry.code)
+        await refreshInstalledCodes()
+        global.messageError = t('language_packs.err_install_failed')
+      }
+    }
+  } catch (error) {
+    logError('DeviceSettingsView.toggleLanguage()', error)
+    global.messageError = t('language_packs.err_install_failed')
+  } finally {
+    installingCode.value = null
+    installProgress.value = 0
+  }
+}
 
 const factory = async () => {
   global.clearMessages()

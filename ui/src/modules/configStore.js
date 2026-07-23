@@ -29,6 +29,7 @@ export const useConfigStore = defineStore('config', {
       id: '',
       mdns: '',
       temp_unit: '',
+      locale: 'en',
       // Hardware
       ota_url: '',
       voltage_factor: 0,
@@ -159,6 +160,7 @@ export const useConfigStore = defineStore('config', {
         // Device
         this.mdns = json.mdns
         this.temp_unit = json.temp_unit
+        this.locale = json.locale || 'en'
         // Hardware
         this.ota_url = json.ota_url
         this.voltage_factor = json.voltage_factor

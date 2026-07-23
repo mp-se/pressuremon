@@ -20,6 +20,7 @@ export var configData = {
   id: '7376ef',
   mdns: 'pressmon3',
   temp_unit: 'C',
+  locale: 'en',
   // Hardware
   ota_url: 'https://www.gravitymon.com/firmware/',
   voltage_factor: 1.59,
@@ -132,7 +133,7 @@ export var statusData = {
 export var featureData = {
   board: 'D1_MINI',
   platform: 'esp32c3',
-  app_ver: '2.0.0',
+  app_ver: '0.9.0',
   app_build: 'gitrev',
   hardware: 'ispindel',
   firmware_file: 'firmware.bin',

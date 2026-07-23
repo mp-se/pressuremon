@@ -363,7 +363,12 @@ describe('DeviceSensorView', () => {
     mocks.http.request.mockResolvedValueOnce({ ok: true })
     mocks.http.getJson
       .mockResolvedValueOnce({ status: true })
-      .mockResolvedValueOnce({ status: false })
+      .mockResolvedValueOnce({
+        status: false,
+        success: true,
+        message: 'Calibration completed',
+        message_code: 'CALIBRATION_SUCCESS'
+      })
 
     const wrapper = mountView()
     const calibrateButton = wrapper
@@ -375,7 +380,28 @@ describe('DeviceSensorView', () => {
     expect(mocks.http.request).toHaveBeenCalledWith('api/calibrate', { method: 'GET' })
     expect(mocks.http.getJson).toHaveBeenCalledWith('api/calibrate/status')
     expect(mocks.config.load).toHaveBeenCalled()
-    expect(mocks.global.messageSuccess).toBe('Sensor calibrated')
+    expect(mocks.global.messageSuccess).toBe('Calibration completed')
+    expect(mocks.global.disabled).toBe(false)
+  })
+
+  it('reports the device message and skips config reload when calibration fails', async () => {
+    mocks.http.request.mockResolvedValueOnce({ ok: true })
+    mocks.http.getJson.mockResolvedValueOnce({
+      status: false,
+      success: false,
+      message: 'Calibration failed, no sensors connected',
+      message_code: 'CALIBRATION_FAILED'
+    })
+
+    const wrapper = mountView()
+    const calibrateButton = wrapper
+      .findAll('button')
+      .find((entry) => entry.text().includes('Calibrate pressure'))
+    await calibrateButton.trigger('click')
+    await flushPromises()
+
+    expect(mocks.config.load).not.toHaveBeenCalled()
+    expect(mocks.global.messageError).toBe('Calibration failed, no sensors connected')
     expect(mocks.global.disabled).toBe(false)
   })
 
@@ -429,7 +455,7 @@ describe('DeviceSensorView', () => {
 
   it('reports an error when config reload fails after calibration', async () => {
     mocks.http.request.mockResolvedValueOnce({ ok: true })
-    mocks.http.getJson.mockResolvedValueOnce({ status: false })
+    mocks.http.getJson.mockResolvedValueOnce({ status: false, success: true })
     mocks.config.load.mockResolvedValueOnce(false)
 
     const wrapper = mountView()

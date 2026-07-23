@@ -55,9 +55,11 @@ void PressuremonWebServer::doWebCalibrateStatus(JsonObject &obj) {
 #endif
     obj[PARAM_SUCCESS] = true;
     obj[PARAM_MESSAGE] = "Calibration completed";
+    obj[PARAM_MESSAGE_CODE] = "CALIBRATION_SUCCESS";
   } else {
     obj[PARAM_SUCCESS] = false;
     obj[PARAM_MESSAGE] = "Calibration failed, no sensors connected";
+    obj[PARAM_MESSAGE_CODE] = "CALIBRATION_FAILED";
   }
 }
 

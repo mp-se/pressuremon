@@ -21,8 +21,14 @@ const require = createRequire(import.meta.url)
 const multer = require('multer')
 const path = require('path')
 const upload = multer({ dest: './' })
+const fs = require('fs')
 
 var wifiScanRunning = false
+
+// Generic in-memory file store backing /api/filesystem's dir/get/del and
+// /api/filesystem/upload, used for testing arbitrary uploads (e.g. language
+// packs) that aren't part of the hardcoded demo file list below.
+const mockFiles = new Map()
 
 export function registerEspFwk(app) {
   app.get('/', function (req, res) {
@@ -68,11 +74,15 @@ export function registerEspFwk(app) {
   })
 
   app.post('/api/filesystem/upload', upload.single('file'), function (req, res) {
-    const title = req.body.title
     const file = req.file
 
-    console.log(title)
-    console.log(file)
+    console.log('Uploaded file:', file && file.originalname)
+
+    if (file) {
+      const buffer = fs.readFileSync(file.path)
+      mockFiles.set('/' + file.originalname, buffer)
+      fs.unlink(file.path, () => {})
+    }
 
     res.sendStatus(200)
   })
@@ -248,6 +258,24 @@ export function registerEspFwk(app) {
     res.send(data)
   })
 
+  app.get('/api/language', (req, res) => {
+    const file = req.query.file
+    console.log('GET: /api/language', file)
+    /*
+     * Description:    Download a language pack file (gzip-compressed JSON)
+     *                  previously installed via /api/filesystem/upload.
+     * Authentication: Required
+     * Limitation:     -
+     * Return:         200 OK octet-stream, 404 Not found
+     */
+    if (mockFiles.has(file)) {
+      res.type('application/octet-stream')
+      res.send(mockFiles.get(file))
+    } else {
+      res.sendStatus(404)
+    }
+  })
+
   app.post('/api/filesystem', (req, res) => {
     console.log('POST: /api/filesystem')
     /* 
@@ -272,7 +300,8 @@ export function registerEspFwk(app) {
           { file: '/error.log', size: 10 },
           { file: '/error2.log', size: 10 },
           { file: '/config.json', size: 10 },
-          { file: '/gravitymon.json', size: 10 }
+          { file: '/gravitymon.json', size: 10 },
+          ...Array.from(mockFiles.entries()).map(([file, buf]) => ({ file, size: buf.length }))
         ]
       }
       res.type('application/json')
@@ -280,13 +309,18 @@ export function registerEspFwk(app) {
       return
     } else if (req.body.command == 'del') {
       console.log(req.body.file)
+      mockFiles.delete(req.body.file)
       setTimeout(() => {
         res.sendStatus(200)
       }, 2000)
       return
     } else if (req.body.command == 'get') {
       console.log(req.body.file)
-      if (req.body.file == '/error.log') {
+      if (mockFiles.has(req.body.file)) {
+        res.type('application/octet-stream')
+        res.send(mockFiles.get(req.body.file))
+        return
+      } else if (req.body.file == '/error.log') {
         setTimeout(() => {
           res.send('Log entry 5\nLog entry 4\nLog entry 3\nLog entry 2\nLog entry 1\n')
         }, 1000)

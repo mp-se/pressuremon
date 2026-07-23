@@ -42,6 +42,7 @@ vi.mock('@/modules/configStore', () => ({
     id: 'test-id',
     mdns: 'pressuremon-test',
     temp_unit: 'C',
+    locale: 'en',
     ota_url: '',
     voltage_factor: 0,
     voltage_config: 0,
@@ -162,7 +163,9 @@ vi.mock('@/modules/globalStore', () => ({
       enableManualWifiEntry: false,
       enableScanForStrongestAp: true,
       enableGravity: true,
-      enablePressure: true
+      enablePressure: true,
+      enableHttpPostTcpMode: false,
+      enableLanguageDownload: false
     },
     feature: {
       ble: true,
