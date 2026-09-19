@@ -28,17 +28,19 @@ jobs:
           # If you still want to source shared code from an external repo,
           # restore the commented commands below.
 
-      - name: Setup PlatformIO
-        uses: n-vr/setup-platformio-action@v1.0.1    
+      - name: Install PlatformIO dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install platformio intelhex
 
       - name: PlatformIO Run
-        uses: karniv00l/platformio-run-action@v1
-        with:
-          environments: "pressure-32s3_mini,pressure-32s2_mini,pressure-32c3_pico"
-          jobs: 1
-          silent: false
-          verbose: true
-          disable-auto-clean: false
+        run: |
+          pio run \
+            --environment pressure-32s3_mini \
+            --environment pressure-32s2_mini \
+            --environment pressure-32c3_pico \
+            --jobs 1 \
+            --verbose
     
       - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version. https://github.com/marketplace/actions/add-commit
         with:
