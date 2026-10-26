@@ -4,7 +4,6 @@
 .claude
 
 .DS_Store
-src_docs/.venv/
-src_docs/_build
+src_docs/build
 
 idf_*
