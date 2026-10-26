@@ -24,6 +24,10 @@ export const httpPostUrlOptions = ref([
   {
     label: '-- none --',
     value: ''
+  },
+  {
+    label: 'BrewGraph pressure',
+    value: 'https://ingest.brewgraph.com/ingest/pressuremon'
   }
   /*
   {
