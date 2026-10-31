@@ -1,0 +1,4 @@
+node_modules
+coverage
+src_docs/_build/
+.env.development

@@ -1,7 +1,15 @@
 .. _releases:
 
-Releases 
+Releases
 ########
+
+v0.8.0
+======
+
+* Added UI localization support with language packs and locale management.
+* Integrated the UI into the main project build and updated the build workflow.
+* Added a BrewGraph pressure endpoint option for HTTP POST.
+* Updated firmware library dependencies.
 
 v0.7.0
 ======
@@ -9,7 +17,7 @@ v0.7.0
 * Fixed BLE data format when sensor is not available. When data is invalid send 0xffff in the ble payload to indicate that.
 * Updated dependencies to latest versions.
 * Fixed battery reading setup
-* Added meta data to mDNS broadcast (app, version, id), used by GravityMon Gateway to map device id towards name when using BLE. 
+* Added meta data to mDNS broadcast (app, version, id), used by compatible receivers to identify devices.
 * Updated code to use NAN instead of -273 as invalid temperature
 * Split hardware view into hardware and sensor view for better clarity.
 * Updated file view to improve display of device files
@@ -19,7 +27,7 @@ v0.6.0
 ======
 
 New features
-++++++++++++
++++++++++++++
 * Added format templates for second pressure sensor
 * Added support for 0.96" OLED display connected to first I2C bus or connector on ESP32C3-PICO.
 * Enabled support for second pressure sensor on I2C bus #2
@@ -33,16 +41,15 @@ Bugs fixed
 v0.5.0
 ======
 
-Version based on the new hardware design for testing and evaulation. 
+Version based on the new hardware design for testing and evaulation.
 
 New features
-++++++++++++
++++++++++++++
 * Support for XIDIBEI digital I2C sensors and external temperature sensor DS18B20.
 * New userinterface based on VueJS.
 * Shared codebase with Gravitymon for easier maintenance.
-* Format editor will now validate json payloads for http post and mqtt when selecting preview. 
+* Format editor will now validate json payloads for http post and mqtt when selecting preview.
 
 Bugs fixed
 ++++++++++
 * None
-

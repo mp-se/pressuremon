@@ -1,50 +1,36 @@
-name: Sphinx Build
+name: Build documentation
 
-on: 
-  pull_request:
+on:
   push:
-    branches: 
-      - master
-      - dev
+    branches: [master]
+    paths:
+      - 'src_docs/**'
+      - '.github/workflows/doc-build.yaml'
+  pull_request:
+    paths:
+      - 'src_docs/**'
+      - '.github/workflows/doc-build.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  doc-build:
+  docs:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ammaraskar/sphinx-action@master
+      - uses: actions/setup-python@v5
         with:
-          docs-folder: "src_docs/"
-          pre-build-command: |
-            pip install --upgrade pip
-            pip install sphinx==4.3.2
-            pip install docutils==0.16
-            pip install pygments==2.11.1
-            pip install furo==2022.1.2
-            pip install sphinx-copybutton
-            pip list
-          build-command: "sphinx-build -b html ./source ../docs"
-
-      - name: Commit documentation changes
-        run: |
-          pwd
-          ls -al
-          ls -al docs 
-          git clone https://github.com/mp-se/pressuremon.git --branch ghpages --single-branch ghpages
-          mkdir -p ghpages/docs
-          cp -r docs/* ghpages/docs
-          cd ghpages
-          touch docs/.nojekyll
-          git config --local user.email "action@noreply.github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update documentation" -a || true
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+          python-version: '3.13'
+      - name: Install documentation dependencies
+        run: python -m pip install -r src_docs/requirements.txt
+      - name: Build documentation
+        run: sphinx-build -E -W --keep-going -b html src_docs/source src_docs/build/html
+      - name: Publish to ghpages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          branch: ghpages
-          directory: ghpages
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: ghpages
+          publish_dir: src_docs/build/html

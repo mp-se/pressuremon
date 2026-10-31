@@ -1,488 +1,237 @@
-.. _setting-up-device:
+Configuration guide
+===================
 
-Configuration
-#############
+The web interface is available while PressureMon is in configuration mode. The
+ESP status LED indicates configuration mode; the exact color or blink pattern
+depends on the board. The device can enter configuration mode when sleep is
+disabled from Home, no measurement sensor is enabled, the battery voltage is
+outside its configured operating range, or the board's configuration pins are
+connected (where supported).
 
-The device can operate in two modes and must be in ``configuration mode`` in order for the web 
-server to be active. The device (esp) LED will flash slowly or show blue color when the device 
-is in configuration mode. If the LED is constantly or show white color then the device is in 
-WIFI setup mode. Some boards have a LED that can change color.
+Connect to the device's configured hostname (``<name>.local``) or IP address.
+For initial setup, connect to its access point and open ``http://192.168.4.1``.
+The setup access point password is ``password``.
 
-One of the following conditions will place the device in ``configuration mode``:
-
-- Sleep mode has been disabled in the web interface
-- Charger connected >4.15V (or the value that is configured). This does not work on the Floaty variant due to lack of hardware support.
-- The two designated GPIO pins are connected
-
-
-Home page 
-=========
-
-URL: (http://pressmon.local)
+Home
+----
 
 .. image:: images/ui-home.png
   :width: 800
-  :alt: Home page
+  :alt: PressureMon Home page
 
-Configuration is accessed by entering the URL for the device, this will be the mDNS name *device.local* or the IP address. The following 
-chapter assumes the device name is *pressmon*.
+Home shows the latest pressure, temperature and battery readings, device
+status and configuration alerts. Turn on the Home page **Force config mode**
+switch to keep the web interface available while configuring. Turn it off to
+allow the firmware to enter measurement mode and sleep between readings.
 
-If the device is not fully configured or there are some hardware issues then these will be visible on the main page. If there are things to 
-adress this will be indicated in the meny using a red dot.
+The measured connection and processing time helps explain battery use. Slow or
+unreliable Wi-Fi connections can increase active time and shorten battery
+life. A red indicator beside a menu item means that the page has a setting or
+status that needs attention.
 
-The main page shows the device readings; pressure, temperature and battery charge. If the checkbox is active then the device will 
-never go into sleep mode. If this is unchecked the device will change mode as explained before.
-
-You can also view the average time a pressure measurement takes. Under optimal setting this should be around 1.5 - 2.0 seconds. If this 
-is higher than 2 seconds this is most likely connected to slow wifi connection. It will show 0 if data has not been collected yet.
-
-.. tip::
-
-  If you are connected to the device via a serial console (speed: 115200) you can see the connection sequence and get the Unique 
-  ID and IP address from there. 
-
-
-Device 
-======
-
-Device - Settings
-+++++++++++++++++
-
-.. image:: images/ui-device-settings.png
-  :width: 800
-  :alt: Device Settings
-
-* **MDNS:** 
-
-  This is unique name for the device. It will be used in pushing data as well as mDNS name on the network (<name>.local). 
-  The limitation is 63 chars but using long names might break endpoints that data is sent to if they have other limitations. 
-
-* **Temperature format:** 
-
-  Choose between Celsius and Fahrenheit when displaying temperature. 
-
-* **Pressure format:**
-
-  Pressure format can be either `PSI`, `Bar` or `kPa`. The device will use PSI Internally and convert to other when displaying or sending data.
-
-* **Dark Mode:**
-
-  Switches the UI between light and dark mode. You can also use the toggle on the menubar for that.
-
-* **Factory default**
-
-  This function will reset all settings to factory default. Use with caution!
-
-* **Restart**
-
-  Restarts the device, similar to pressing the reset button
-
-
-Device - Hardware
-+++++++++++++++++
+Device settings
+---------------
 
 .. image:: images/ui-device-hardware.png
   :width: 800
-  :alt: Device Hardware
+  :alt: Device settings
 
-* **Voltage factor:**
+* **mDNS name** sets the local hostname and device name used by integrations.
+  Use letters, digits and hyphens, and keep it short for compatibility.
+* **Temperature format** selects Celsius or Fahrenheit for displayed and
+  transmitted values.
+* **Pressure format** selects PSI, bar or kPa for display and supported
+  outputs. Pressure is stored internally in PSI and converted for output.
+* **Dark mode** changes the web interface appearance.
+* **Factory defaults** clears saved configuration and restores defaults.
+* **Restart** reboots the device.
 
-  Factor used to calculate the battery voltage. If you get a too low/high voltage you can adjust this value.
+Hardware and sensors
+--------------------
 
-* **Config voltage:**
+.. image:: images/ui-device-hardware.png
+  :width: 800
+  :alt: Hardware settings
 
-  Defines the level of voltage when the device should enter config mode due to charging. This might vary between different battery manufacturers. 
-  If you don't what the device to go into configuration mode when charging, set this to 6V. This was added since different batteries have different 
-  voltages when fully charged. 
+* **Voltage factor** adjusts the battery measurement scaling. Compare the
+  displayed voltage with a meter before changing this value.
+* **Configuration voltage** sets the upper battery/charging voltage threshold
+  used to keep the device awake for configuration. The supported range is
+  3–6 V; set it high if charging should not trigger setup mode.
+* **Battery saving** reduces the sleep frequency to about once per hour when
+  battery voltage falls below approximately 3.73 V.
+* **Battery type** selects LiPo or Li-ion battery voltage interpretation.
 
-* **Battery saving:**
+Sensors
+-------
 
-  If this option is checked the sleep interval will be changed to 1 hour when battery drops below 20%. Default = on. 
+Open **Device → Sensors**. This page is separate from the hardware settings.
+The number of pressure sensor selectors is determined by the firmware target.
 
-* **DS18B20 Resolution:**
+.. image:: images/ui-device-hardware.png
+  :width: 800
+  :alt: Sensor settings
 
-  Define the resolution used on the temp sensor. 9 bits is default and will give an accuracy of 0.5C and and provide longest batterylife. See 
-  data below from the datasheet.
+* **DS18B20 resolution** trades temperature precision for conversion time:
+  9-bit is fastest (0.5 °C); 12-bit is most precise (0.0625 °C).
+* **Temperature adjustment** applies an offset from −10 to +10 degrees.
+* **Pressure sensor** selects an XIDIBEI XDB401 digital I2C range from 0.2 to
+  4.0 MPa. The list includes intermediate full-scale ranges; select the exact
+  rating printed on the sensor.
+* **Sensor 2** configures the optional second pressure sensor on boards that
+  expose its bus.
+* **Pressure adjustment** applies an offset independently to each sensor.
+  **Calibrate pressure** averages sensor readings and sets the zero offset;
+  expose the sensor to atmospheric pressure before starting calibration.
+* **Custom analog sensor** reveals minimum and maximum voltage and pressure
+  fields. These map the ADS1115 input voltage to the selected pressure range.
+  The firmware ADC is configured for a ±2.048 V measurement range and reads
+  channel A0. Its input must also remain within the ADS1115 supply rails. Check
+  the sensor and board electrical limits before connecting it.
 
-  - 9 bits = 0.5°C, up to 93 ms reading
-  - 10 bits =0.25°C, up to 187 ms reading
-  - 11 bits = 0.125°C, up to 375 ms reading
-  - 12 bits = 0.0625°C, up to 850 ms reading
-
-* **Temperature sensor adjustment:**
-
-  This value will be added to the temperature reading (negative value will reduce temperature reading). This is applied
-  when the device starts. So changing this will not take affect until the device is restarted.
-
-* **Battery type:**
-
-  Choose the type of battery beeing used, LiPo or LithiumIon (18650). These are both supported by the charging module but have 
-  different characteristics when calculating remaning voltage. 
-
-* **Pressure Sensor:**
-
-  Choose the pressure sensor that will be used 
-
-* **Pressure calibration values:** 
-
-  This can be used to calibrate the pressure sensor so it shows the delta pressure.
-
-* **Analog sensor MinV:** 
-
-  When using a custom analog sensor enter the voltage that corresponds to the min pressure in kPa.
-
-* **Analog sensor MaxV:** 
-
-  When using a custom analog sensor enter the voltage that corresponds to the max pressure in kPa.
-
-* **Analog sensor Min Pressure (kPA):** 
-
-  When using a custom analog sensor enter the min pressure in kPa.
-
-* **Analog sensor Max Pressure (kPA):** 
-
-  When using a custom analog sensor enter the max pressure in kPa.
-
-Device - WIFI
-+++++++++++++
+Wi-Fi
+-----
 
 .. image:: images/ui-device-wifi.png
   :width: 800
-  :alt: Device WIFI
+  :alt: Wi-Fi settings
 
-* **SSID #1:**
+Configure a primary SSID and password. An optional secondary network can be
+used as a fallback. **Connect timeout** controls how long the device waits for
+a network connection. **Portal timeout** controls how long the Wi-Fi setup
+portal stays open. If the device cannot connect, use its setup access point to
+update the credentials.
 
-  Select the desired primary SSID to use. 
+The Wi-Fi page scans for nearby networks and lets you select an SSID. Use the
+manual-entry view for hidden networks. The optional strongest-access-point
+switch is only shown when enabled by the firmware feature flags.
 
-* **Password #1:**
-
-  Enter the primary password. 
-
-* **SSID #2:**
-
-  Select the desired secondary SSID to use (optional). 
-
-* **Password #2:**
-
-  Enter the secondary password (optional). 
-
-* **Portal timeout:**
-
-  If the wifi portal is triggered (can be triggered by tapping the reset button 2-3 times within 3 seconds) then this is the amount of time allowed before it exists again.
-
-* **Connect timeout:**
-
-  This is the amount of time allowed for a wifi connect. 
-   
-
-Push targets
-============
-
-Push - Settings
-+++++++++++++++
+Push settings
+-------------
 
 .. image:: images/ui-push-settings.png
   :width: 800
-  :alt: Push Settings
+  :alt: Push settings
 
-* **Token 1:**
+Set the device identity and shared options here before configuring individual
+push targets.
 
-  The token is included in the iSpindle JSON format and will be used for both HTTP targets. If you 
-  need to have 2 different tokens you can customize the data format. 
+* **Token 1** is included in the default iSpindel-compatible data format used
+  by HTTP targets.
+* **Token 2** is available to templates and commonly used as an authorization
+  token for GET integrations.
+* **Sleep interval** sets the time between measurement cycles, from 10 to 3600
+  seconds. A longer interval generally extends battery life. Weak Wi-Fi and
+  frequent pushes can also increase power use.
+* **Wi-Fi Direct SSID and password** identify the GravityMon Gateway network.
+  When Wi-Fi Direct is enabled, PressureMon sends its data to the gateway and
+  bypasses the separately configured push targets.
+* **Push timeout** limits how long a target connection may take.
+* **Estimated battery life** uses recent active time and the configured
+  interval to estimate runtime; it is an estimate, not a battery test.
 
-* **Token 2:**
-
-  The token is included in the default format for the HTTP GET url but can be used for any of the formats. 
-  For HTTP GET use can use this for an authorization token with ubidots api. 
-
-* **Sleep Interval:** 
-
-  This defines how long the device should be sleeping between the readings when in `gravity monitoring` mode. You will also see 
-  the values in minutes/seconds to easier set the interval. 900s is a recommended interval.  The sleep interval can 
-  be set between 10 - 3600 seconds (60 minutes). 
-
-  .. note::
-
-    A low value such as 30s will give a lifespan of 1-2 weeks and 300s (5 min) would last for 3+ weeks. This assumes that 
-    there is good wifi connection that takes less than 1s to reconnect. Poor wifi connection is the main reason for battery drain. 
-    The device will show the estimated lifespan based on the average connection time, if no data exist it will not be shown.
-
-* **WIFI Direct SSID:** 
-
-  This WIFI SSID will be used during gravity mode to send data to the GravityMon Gateway.
-
-* **WIFI Direct Password:** 
-
-  This WIFI Password will be used during gravity mode to send data to the GravityMon Gateway.
-
-* **Use WIFI Direct in gravity mode:** 
-
-  Enabling this feature will disable all other push target settings and data will be sent to the gateway in a pre-defined format (iSpindle format) when in `gravity monitoring` mode.
-
-* **Estimated battery life:** 
-
-  Based on the hardware and the historical execution time the device will estimate how long it can run on a full battery
-  with the current interval.
-
-* **Push timeout:** 
-
-  How long the device will wait for a connection accept from the remote service.
-
-
-Push - HTTP Post
-++++++++++++++++
+HTTP POST targets
+-----------------
 
 .. image:: images/ui-push-post.png
   :width: 800
-  :alt: Push using HTTP Post
+  :alt: HTTP POST settings
 
-* **HTTP URL:**
+HTTP POST 1 and HTTP POST 2 each have a destination URL, up to two request
+headers, a push skip interval and a data template. Use an ``https://`` URL for
+TLS. Headers must use ``Name: value`` syntax, for example:
 
-  Endpoint to send data via http. You can customize the format below.
+.. code-block:: text
 
-  If you add the prefix `https://` then the device will use SSL when sending data.
+   Content-Type: application/json
+   X-Auth-Token: your-token
 
-* **HTTP Headers** 
+A skip interval of 0 sends on every measurement cycle; a value from 1 to 5
+skips that many cycles for the target. The format editor accepts the built-in
+formats or a custom template. Right-click the editor to see available fields.
+See :doc:`format-template` for the template syntax.
 
-  You can define 2 http headers. Enter a value or just select one from the list.
-
-  The input must have the format **'<header>: <value>'** for it to work. The UI will accept any value so errors 
-  will not show until the device tries to push data.
-
-  ::
-   
-    Content-Type: application/json
-    X-Auth-Token: <api-token>
-
-
-  Mozilla has a good guide on what headers are valid; `HTTP Headers <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers>`_ 
-
-* **Skip Interval:**
-
-  These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data 
-  to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.
-
-* **Data format:**
-
-  Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
-  from the list. For more information on this topic, see :ref:`format-template`. 
-  
-  .. note::
-
-    If you right click in this field a list of available variables will be shown.
-
-
-Push - HTTP Get
-+++++++++++++++
+HTTP GET
+--------
 
 .. image:: images/ui-push-get.png
   :width: 800
-  :alt: Push using HTTP Get
+  :alt: HTTP GET settings
 
-* **HTTP URL:**
+GET sends a request to the configured URL. Configure the URL, optional
+headers, skip interval and output template. Use URL query parameters or a
+template supported by the service. HTTPS is selected by using an ``https://``
+URL.
 
-  Endpoint to send data via http. You can customize the format below.
-
-  If you add the prefix `https://` then the device will use SSL when sending data.
-
-* **HTTP Headers** 
-
-  You can define 2 http headers. Enter a value or just select one from the list.
-
-  The input must have the format **'<header>: <value>'** for it to work. The UI will accept any value so errors 
-  will not show until the device tries to push data.
-
-  ::
-   
-    Content-Type: application/json
-    X-Auth-Token: <api-token>
-
-
-  Mozilla has a good guide on what headers are valid; `HTTP Headers <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers>`_ 
-
-* **Skip Interval:**
-
-  These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data 
-  to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.
-
-* **Data format:**
-
-  Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
-  from the list. For more information on this topic, see :ref:`format-template`. 
-  
-  .. note::
-
-    If you right click in this field a list of available variables will be shown.
-
-
-Push - InfluxDB v2
-++++++++++++++++++
+InfluxDB
+--------
 
 .. image:: images/ui-push-influx.png
   :width: 800
-  :alt: Push using InfluxDB v2
+  :alt: InfluxDB settings
 
-* **Server:**
+Configure the InfluxDB v2 server URL, organization, bucket, write token, skip
+interval and line protocol template. The token needs write access to the
+selected bucket. Use the server URL expected by your InfluxDB deployment; TLS
+is available when the URL uses HTTPS.
 
-  Endpoint to send data via http to InfluxDB. You can customize the format using :ref:`format-template`.
-
-  SSL is not supported for this target. Raise a issue on github if this is wanted.
-
-* **Organisation:**
-
-  Name of organisation in Influx.
-
-* **Bucket:**
-
-  Token for bucket. Don't use the bucket name.
-
-* **Authentication Token:**
-
-  Token with write access to bucket.
-
-* **Skip Interval:**
-
-  These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data 
-  to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.
-
-* **Data format:**
-
-  Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
-  from the list. For more information on this topic, see :ref:`format-template`. 
-  
-  .. note::
-
-    If you right click in this field a list of available variables will be shown.
-
-
-Push - MQTT
-+++++++++++
+MQTT
+----
 
 .. image:: images/ui-push-mqtt.png
   :width: 800
-  :alt: Push using MQTT
+  :alt: MQTT settings
 
-* **Server:**
+Set the broker hostname, port, optional username and password, skip interval,
+topic and data template. Enter a hostname without a URL scheme. Common broker
+ports are 1883 for unencrypted MQTT and 8883 for MQTT over TLS. The UI accepts
+ports from 0 to 65535; use the port configured by your broker. Credentials
+are optional when the broker permits anonymous access.
 
-  IP or name of server to send data to. You can customize the format using :ref:`format-template`.
-
-* **Port:**
-
-  Which port should be used for communication, default is 1883 (standard port). For SSL use 8883 (any port over 8000 is treated as SSL). 
-
-* **User name:**
-
-  Username or blank if anonymous is accepted
-
-* **Password:**
-
-  Password or blank if anonymous is accepted
-
-* **Skip Interval:**
-
-  These options allow the user to have variable push intervals for the different endpoints. 0 means that every wakeup will send data 
-  to that endpoint. If you enter another number then that defines how many sleep cycles will be skipped for this target.
-
-* **Data format:**
-
-  Here you can customize the data format used when sending data to the server. You can either enter your own formula or choose one
-  from the list. For more information on this topic, see :ref:`format-template`. 
-  
-  .. note::
-
-    If you right click in this field a list of available variables will be shown.
-
-
-Push - Bluetooth
-++++++++++++++++
+Bluetooth
+---------
 
 .. image:: images/ui-push-ble.png
   :width: 800
-  :alt: Push using Bluetooth
+  :alt: Bluetooth settings
 
-* **Bluetooth data format: (Only boards with BLE support)**
+Choose **Disabled** or **PressureMon iBeacon**. BLE is available on ESP32-S3
+and ESP32-C3 targets; it is not available on ESP32-S2 Mini. The UI's Eddystone
+option is currently disabled in code. The firmware advertises PressureMon
+sensor readings for nearby BLE receivers; use the documented PressureMon
+beacon format in a compatible scanner.
 
-  Choose the bluetooth transmission to use.
+Wi-Fi setup mode
+----------------
 
-  - **PM iBeacon**: Higher accuracy. Data: Pressure, Temperature, ID
-  - **PM EDDYSTONE**: Beacon format that requires active scanning by the client. Data: Pressure, ID, Temperature 
+When no saved network credentials are available, the device starts an access
+point named ``PressureMon`` with the default password ``password``. Connect
+and browse to ``http://192.168.4.1``. The network settings page can scan for
+visible access points or open its manual-entry view for a hidden SSID. Saving
+new Wi-Fi settings requires a restart to connect using them.
 
-Other
-=====
+Other pages
+-----------
 
-Other - Serial
-++++++++++++++
+The **Other** menu includes serial output, settings backup and restore,
+firmware update, support logs, tools and About information.
 
-.. image:: images/ui-other-serial.png
-  :width: 800
-  :alt: Serial console
+* **Backup** downloads a text file containing device configuration and format
+  templates. Restore accepts a previously exported ``.txt`` file. Keep a
+  backup before changing many settings or reinstalling firmware.
+* **Firmware update** uploads a firmware file to the running device. Choose a
+  binary built for its detected board and keep the device powered until it
+  restarts.
+* **Support** displays device logs and includes support actions such as push
+  status and hardware diagnostics.
+* **Tools** lists LittleFS files and storage use. Expand advanced tools to
+  upload or delete files and to manage CORS settings. These are internal
+  firmware files; deleting or replacing them can affect device operation.
+* **SD card files** are a conditional file-manager view in the shared UI. The
+  current PressureMon firmware does not initialize or expose an SD card
+  interface, so an SD slot is not part of the documented reference hardware.
 
-Connects to the device and shows the serial output, useful for debugging.
-
-
-Other - Backup
-++++++++++++++
-
-.. image:: images/ui-other-backup.png
-  :width: 800
-  :alt: Backup & Restore
-
-Here you can download a file with all of the device settings and also restore data if needed. Each file is unique for a device which is determined by the field "id". 
-Modifying this field will allow you to create a template that can be used on any device. This field is stored in more than one place of the file and all needs to be 
-changed for this to work.
-
-When downloading a backup the file will be named **gravitymon<deviceid>.txt**
-
-.. note::
-
-  The gravity formula will be recreated if calibration points are available on the device, so the formula might be different than what is in the file.
-
-
-Other - Firmware
-++++++++++++++++
-
-.. image:: images/ui-other-firmware.png
-  :width: 800
-  :alt: Firmware update
-
-* **Upload Firmware**
-
-  This option gives you the possibility to install an new version of the firmware (or any firmware that uses the standard flash layout).
-
-
-Other - Support
-+++++++++++++++
-
-.. image:: images/ui-other-logs.png
-  :width: 800
-  :alt: Support
-
-* **View device logs**
-
-  Shows the log entires stored on the device, can also be used to delete the current logs.
-
-
-Other - Tools
-+++++++++++++
-
-.. image:: images/ui-other-tools.png
-  :width: 800
-  :alt: Tools
-
-* **Calculate voltage factor**
-
-  Can be used to calculate a new voltage factor based on measured voltage and current readings.
-
-
-* **List files**
-
-  Shows the files on the device and allows a user to show the contents of those files.
-
-Other - About
-+++++++++++++
-
-.. image:: images/ui-other-about.png
-  :width: 800
-  :alt: About
-
-Shows information about the software
+The **Device → Sensors** calibration action requires a detected pressure
+sensor. The **Tools** page also provides voltage-factor calibration and
+hardware scans: I2C addresses are scanned on the second sensor bus and
+1-Wire devices are listed when present.

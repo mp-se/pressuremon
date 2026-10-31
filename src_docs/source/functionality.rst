@@ -1,150 +1,87 @@
 .. _functionality:
 
-Functionality
-==============
+How PressureMon works
+#####################
 
-The main features
------------------
+PressureMon measures pressure and temperature during fermentation or storage.
+Depending on the board and sensor setup, it can read one or two digital I2C
+pressure sensors, an analog sensor through an ADS1115 converter, and a DS18B20
+temperature probe. It forwards measurements to external services over Wi-Fi,
+advertises data over BLE on supported boards, and sleeps between readings to
+conserve battery.
 
-* **Supports multiple I2C based pressure sensors from the vendor XIDIBEI**
+Operating modes
+===============
 
-  XIDIBEI is a vendor that have several I2C based pressure sensors that are very accurate and have a wide range of connectors. Devices 
-  are stainless steel and food safe.
+* **Configuration mode** keeps Wi-Fi and the web interface available so you
+  can view readings and change settings. It uses more power than sleeping
+  measurement mode.
+* **Measurement mode** wakes for a measurement and configured data pushes,
+  then enters deep sleep for the configured interval.
+* **Wi-Fi setup mode** starts the ``PressureMon`` access point so network
+  credentials can be entered.
 
-* **Support custom Analog devices using external ADS1115 ADC**
+The device stays awake for configuration when the Home page's force-config
+switch is on, when no pressure sensor is configured, or when battery voltage
+is above the configured charging threshold or below 2 V. On the supported
+boards, connecting the designated TX and RX pins at startup also forces
+configuration mode. The Wi-Fi access point is started when saved network
+credentials are missing or the setup portal is triggered. See
+:doc:`configuration` for the web interface controls and :doc:`hardware` for
+board pin assignments.
 
-  3.3V Analog sensors are supported when using an external ADS1115 ADC chip. This is connected to the first I2C bus. You need to configure the 
-  following values; Minimum Voltage, Maximum Voltage, Minimum Pressure, Maximum Pressure. The device will then calculate the pressure 
-  based on the voltage reading. 
+Pressure and temperature
+========================
 
-  .. note:: 
+The XIDIBEI XDB401 digital sensor communicates over I2C and reports pressure.
+Choose its rated range in **Device → Sensors**; the configured range must
+match the physical sensor. Temperature comes from the separate DS18B20 probe.
+Pressure is represented internally in PSI and converted for display and
+templates to PSI, Bar, or kPa.
 
-    This feature is still experimental and not fully tested. Help is appreciated.
+An optional second pressure sensor is available on firmware builds that enable
+it. The board may use a second hardware I2C bus or a software I2C bus. The
+second reading is exposed separately in the Home page and templates.
 
-* **Operates in two modes measurement or configuration mode**
+The analog option uses an ADS1115 external ADC. The device maps configured
+minimum and maximum voltage values to minimum and maximum pressure values. It
+does not use the XIDIBEI digital I2C driver. The firmware configures a ±2.048 V
+ADC range; check sensor output voltage against the ADC and board input limits
+before connecting it.
 
-  In ``measurement mode`` it behaves wakes up and perform the measurements and sends the data to the defined services. This will only work when the device
-  is battery operated 
+DS18B20 temperature resolution trades conversion time and battery use for
+precision. The supported settings are 9, 10, 11, and 12 bits. The temperature
+adjustment is applied as an offset. See :doc:`configuration` for the settings
+and :doc:`hardware` for sensor wiring context.
 
-  In ``configuration mode`` the device is always active and the webserver is active. Here you can view the 
-  pressure/temperature values, change configuration. When in configuration mode the device will also perform the measurements and send data to 
-  defined services. There are options for forcing the device into configuration mode, one is secure the battery is outside the range for the measurement 
-  mode. You can also force it by connecting the GPIO pins that are reserved for that or force it via the web interface.
+Battery and sleep
+=================
 
-  .. image:: images/ui-home.png
-    :width: 700
-    :alt: UI example
+The configured sleep interval is 10–3600 seconds. A shorter interval gives
+more frequent readings but uses more battery, especially when Wi-Fi endpoints
+are configured. The Home page's battery life estimate is approximate and uses
+the platform, a nominal 2200 mAh battery, and a short assumed active runtime.
+Actual life depends heavily on Wi-Fi connection time, signal strength, sensor
+hardware, battery condition, and push destinations.
 
-* **Can send data to multiple endpoints**
+When battery saving is enabled and voltage is between 2.0 V and 3.73 V, the
+effective sleep interval becomes one hour. The configured interval is used
+again when voltage rises above that threshold. This helps preserve monitoring
+continuity as the battery runs low.
 
-  This software will push data to all defined endpoints so in theory you can use them all. However this will consume more battery power so use 
-  only as many as needed. Its much more efficient to have the endpoints on your local network than on the internet. 
+Data delivery
+=============
 
-  Currently the device supports the following endpoints.  
+PressureMon has two HTTP POST targets, one HTTP GET target, InfluxDB v2, MQTT,
+Bluetooth, and Wi-Fi Direct delivery to GravityMon Gateway. Wi-Fi targets can
+be enabled together; each connection adds radio-on time. Wi-Fi Direct, when
+enabled, is used in measurement mode instead of the normal network push
+targets. BLE is configured as disabled or PressureMon iBeacon on supported
+boards. See :doc:`services` and :doc:`format-template`.
 
-  * http (ssl optional)
-  * influxdb v2 (ssl optional)
-  * MQTT (ssl optional)
-  
-  Other servies can be easily added based on the format template editor. 
+Security note
+=============
 
-  Under the :ref:`services` section you can find guides for how to connect PressureMon to extenal services. 
-  
-  The software support SSL endpoints but currently without CA validation, this means that the data is encrypted 
-  but it does not validate if the remote endpoint is who it claims to be. 
-
-  if you require CA validation please leave a comment on GitHub and I will make that a priority. Adding this function
-  will dramatically reduce the battery life of the device.
-
-* **Multiple Bluetooth data tranmission options**
-
-  Bluetooth is an option for those boards that have that feature.
-
-  - Pressmon iBeacon. Data: Pressure,Temp,Battery,ChipID.
-
-* **External 0.96" OLED display**
-
-  When in configuration mode the device will also check for an external display and show devicename, pressure and 
-  temperature. This is great if you are running the device on power and want to see the current pressure. This display 
-  should be connected to the first I2C bus which is the same pins as the first sensor or the I2C connector on the esp32c3 pico.  
-
-  .. note:: 
-
-    Only recommended when running the device on constant power (not battery)
-
-* **WIFI Direct to GravityMon Gateway (Work in progress)**
-
-  This works in combination with the GravityMon Gateway that will act as an Access Point (AP) and receive data from GravityMon and then forward 
-  it to the right destination. The Gateway works with both BLE and WIFI. This works only in measurement mode and will force the device to connect to the closest
-  defined AP with the best reception.
-
-  Note! This feature is work in progress and is not yet implemented in the Gateway.
-
-* **Customize the data format being sent to push targets**
-
-  In order to make it easier to support more targets there is a built in format editor that can be used to 
-  customize the data that is to be sent. This way you can easily adapt the software to new targets without coding. 
-  If you have a good template please share it on the github repository and I will add it to the documentation 
-  for other users to enjoy. See the :ref:`format-template` for more information. See :ref:`services` for a list of
-  services currently validated.
-
-* **Validation of common configuration errors**
-
-  Common configuration errors or hardware problems will now be displayed on the front page. The following are checked:
-
-  - No pressure sensor connected
-  - No push targets defined
-  - Skip sleep mode setting
-  - No temperature sensor connected
-  - Battery voltage out of range
-
-* **Backup and Restore of settings**
-
-  All the configuration of the device can be exported and stored as a text file (json). This can be used to restore settings in case of 
-  hardware problems. You can also create a template of your settings and use that on multiple devices. Just make sure to change the "id" fields 
-  to match your device id (can be found on the index page). 
- 
-* **DS18B20 temperature adjustments**
-
-  You can adjust the temperature reading of the temperature sensor. In normal cases this should not be needed since 
-  the sensors should be calibrated. 
-
-* **WIFI connection issues**
-
-  The software will not wait indefinitely for a wifi connection. If it takes longer than 20 seconds to connect then
-  the device will try the secondary wifi configuration, and that also fails it will go into deep sleep for 60 seconds and then 
-  retry later. This to conserve batter as much as possible.
-
-* **Celsius or Fahrenheit**
-
-  You can switch between different temperature formats. GravityMon will always use C for it's internal calculations and 
-  convert to F when displayed.
-
-* **PSI, Bar or kPA**
-
-  You can switch between different pressure formats. PressureMon will always use PSI for it's internal calculations and 
-  convert to other formats when displayed.
-
-* **Battery saving**
-
-  If the battery voltage drops below 20%, then the device will enter battery savings mode 
-  and change the sleep interval to 1 hour.
-
-* **Custom board support**
-
-  There are lots of boards out there that can support a pressure monitor and now there is a possibility to 
-  add custom builds for boards that I dont have access to, in sense a community approach where everyone can 
-  add new boards that can be supported. See: :ref:`custom-boards` 
-
-
-Battery life
-------------
-
-TODO: This section will need to be updated once data has been collected.
-
-
-Performance 
------------
-
-TODO: This section will need to be updated once data has been collected.
-
+The firmware supports HTTPS for compatible HTTP targets. Verify certificate
+handling and transport behavior against the current firmware and target
+service before relying on server identity verification.

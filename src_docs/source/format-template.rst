@@ -1,102 +1,90 @@
 .. _format-template:
 
-Format Templates
+Format templates
 ################
 
-To reduce the need for adding custom endpoints for various services there is an built in format editor that allows the user to customize the format being sent to the push target. 
+Each HTTP, InfluxDB, and MQTT target has a pressure data template. Variables
+use the ``${variable}`` form and are replaced with current measurement values
+before sending. Use **Predefined formats** to start from a service example,
+edit the template, then select **Preview format** to inspect the result.
 
+An empty template restores that target's default format. For HTTP POST and
+MQTT, JSON previews are parsed and errors are shown. The MQTT preview also
+shows the topic and payload structure. A preview checks formatting, not whether
+the receiving service will accept the field names, token, or data types.
 
-You enter the format data in the text field and the preview button will show an example on what the 
-output would look like. If the data cannot be formatted in json it will just be displayed as a text.
+Template variables
+==================
 
-You can also select a template from the list and copy that to the current endpoint. 
-
-.. tip::
-
-   If you save a blank string the default template will be loaded.
-
-.. tip::
-
-   When selecting preview any json format will be verified and parsing errors will be shown. Applies to HTTP Post and MQTT.
-
-These are the format keys available for use in the format.
-
-.. list-table:: Format template keywords
-   :widths: 30 50 20
+.. list-table:: PressureMon template variables
    :header-rows: 1
 
-   * - key 
-     - description
-     - example
-   * - ${mdns}
-     - Name of the device
-     - gravmon2
-   * - ${token}
-     - Token
-     - any value
-   * - ${token2}
-     - Token 2
-     - any value
-   * - ${id}
-     - Unique id of the device
-     - e422a3
-   * - ${sleep-interval}
-     - Seconds between data is pushed
-     - 900
-   * - ${temp}
-     - Temperature in format configured on device, two decimals
-     - 21.23
-   * - ${temp-c}
-     - Temperature in C, two decimals
-     - 21.23
-   * - ${temp-f}
-     - Temperature in F, two decimals
-     - 58.02
-   * - ${temp-unit}
-     - Temperature format `C` or `F`
-     - C
-   * - ${battery}
-     - Battery voltage, two decimals
-     - 3.89
-   * - ${battery-percent}
-     - Battery percentage
-     - 20
-   * - ${rssi}
-     - Wifi signal strength
-     - -75
-   * - ${run-time}
-     - How long the last measurement took, two decimals
-     - 3.87
-   * - ${pressure}
-     - Pressure in PSI, tree decimals
-     - 28.673
-   * - ${pressure1}
-     - Pressure in PSI from second sensor, tree decimals
-     - 28.673
-   * - ${pressure-psi}
-     - Pressure in PSI, tree decimals
-     - 28.673
-   * - ${pressure1-psi}
-     - Pressure in PSI from second sensor, tree decimals
-     - 28.673
-   * - ${pressure-bar}
-     - Pressure in Bar, tree decimals
-     - 28.673
-   * - ${pressure1-bar}
-     - Pressure in BAR from second sensor, tree decimals
-     - 28.673
-   * - ${pressure-kpa}
-     - Pressure in kPa, tree decimals
-     - 28.673
-   * - ${pressure1-kpa}
-     - Pressure in kPA from second sensor, tree decimals
-     - 28.673
-   * - ${pressure-unit}
-     - Pressure format, `PSI`, `Bar` or `kPa`
-     - PSI
-   * - ${app-ver}
-     - Software version
-     - 1.3.0
-   * - ${app-build}
-     - Software revision (git hash)
-     - ..e456743
+   * - Variable
+     - Meaning
+     - Example
+   * - ``${mdns}``
+     - Configured device name.
+     - ``pressmon``
+   * - ``${id}``
+     - Unique device identifier.
+     - ``e422a3``
+   * - ``${token}``, ``${token2}``
+     - Values configured under Push targets → Settings.
+     - configured text
+   * - ``${sleep-interval}``
+     - Configured interval between measurement cycles, in seconds.
+     - ``900``
+   * - ``${temp}``
+     - Temperature in the selected unit.
+     - ``21.23``
+   * - ``${temp-c}``, ``${temp-f}``
+     - Temperature converted to Celsius or Fahrenheit.
+     - ``21.23``
+   * - ``${temp-unit}``
+     - Temperature unit label, ``C`` or ``F``.
+     - ``C``
+   * - ``${pressure}``, ``${pressure-psi}``
+     - Primary pressure in the selected unit or PSI.
+     - ``28.673``
+   * - ``${pressure-bar}``, ``${pressure-kpa}``
+     - Primary pressure converted to Bar or kPa.
+     - ``1.977``
+   * - ``${pressure1}``, ``${pressure1-psi}``
+     - Second pressure in the selected unit or PSI, when available.
+     - ``28.673``
+   * - ``${pressure1-bar}``, ``${pressure1-kpa}``
+     - Second pressure converted to Bar or kPa, when available.
+     - ``1.977``
+   * - ``${pressure-unit}``
+     - Selected unit label: PSI, Bar, or kPa.
+     - ``PSI``
+   * - ``${battery}``
+     - Battery voltage.
+     - ``3.89``
+   * - ``${battery-percent}``
+     - Estimated battery percentage.
+     - ``70``
+   * - ``${rssi}``
+     - Wi-Fi signal strength in dBm.
+     - ``-75``
+   * - ``${run-time}``
+     - Duration of the last measurement cycle in seconds.
+     - ``3.87``
+   * - ``${app-ver}``, ``${app-build}``
+     - Firmware version and build revision.
+     - ``0.8.0``
+
+Availability of the second pressure value depends on the board and selected
+sensor. If a sensor reading is unavailable, the firmware substitutes zero
+while building a push payload. Check sensor status before interpreting zero as
+a real reading.
+
+Payload tips
+============
+
+For JSON, check quotes, commas, and whether the service expects pressure or
+temperature as a number or string. For HTTP GET, include query separators and
+parameter names in the template. For InfluxDB, use a measurement name, tags,
+and fields with consistent types. For MQTT, provide one or more
+``topic:payload`` pairs separated by ``|``. After previewing, run a target test
+and confirm the data at the receiving service.

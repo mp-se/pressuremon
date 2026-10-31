@@ -1,19 +1,14 @@
 Contributing
-############
+============
 
-Anyone is welcome to contribute to this project or create their own variant of it. I would appreciate a PR if your feature would be of benefit other users. 
+Contributions to PressureMon are welcome. Before changing firmware or the UI,
+check the board-specific behavior and configuration descriptions so the docs
+remain consistent with the supported targets.
 
-In order to keep the source code in good condition I use `pre-commit <https://pre-commit.com/>`_ to validate and format the code using their standards for C++/C. 
+A useful contribution includes a focused change, a clear description of the
+hardware or behavior it affects, and build or manual verification details.
+For UI changes, run the mock server before the development server and inspect
+the relevant view. Update documentation and screenshots when the user-facing
+settings change.
 
-.. note::  
-
-  If you are using Windows as a base platform I would suggest that you install pre-commit under wsl (Windows Subsystem for Windows) and run it from there, I have found 
-  that this approach works fine. 
-
-
-The following command will run pre-commit on all the source files. Assuming you are in the project directory.
-
-.. code-block:: 
-
-  pre-commit run --files src/*
-
+Please review the repository license before submitting contributions.

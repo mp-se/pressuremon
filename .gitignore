@@ -1,11 +1,9 @@
-# Prerequisites
-.pio/*
-.vscode/*
-*.zip
+.pio
+.vscode
+.venv
+.claude
+
 .DS_Store
-src_docs/.env/
-src_docs/_build
-fp-*
-_autosave*
-*.bak
+src_docs/build
+
 idf_*

@@ -1,50 +1,39 @@
-Q & A
-#####
+Questions and answers
+=====================
 
-HTTP error codes
-----------------
+Why does the device return to setup mode?
+-----------------------------------------
 
-All these errors are standard http error codes. This are the common ones;
+PressureMon starts its setup access point when it needs configuration, when
+measurement sensors are disabled, or when the configured battery voltage is
+outside the accepted range. Check the battery and sensor settings, then
+reconnect to the device access point. The default access point password is
+``password`` and the setup page is at ``192.168.4.1``.
 
-*  400 - Bad request. Probably an issue with the post format. Check format in the format editor.
-*  401 - Unauthorized. The service needs an token or other means to authenticate the device. 
-*  403 - Forbidden. Could be an issue with token or URL. 
-*  404 - Not found. Probably a wrong URL.
+Why is Bluetooth missing?
+-------------------------
 
-MQTT error codes
-----------------
+Bluetooth is available on the ESP32-S3 and ESP32-C3 builds. The ESP32-S2 Mini
+does not provide BLE support in this firmware.
 
-MQTT connection errors:
+Can I connect two pressure sensors?
+-----------------------------------
 
-* -1 - Connection refused
-* -2 - Send header failed
-* -3 - Send payload failed
-* -4 - Not connected
-* -5 - Connection lost
-* -6 - No stream
-* -7 - No HTTP server
-* -8 - Too little RAM available
-* -9 - Error encoding
-* -10 - Error writing to stream
-* -11 - Read timeout
-* -100 - Endpoint skipped since its SSL and the device is in gravity mode
+Some supported boards expose a second I2C bus for an optional second sensor.
+Check the board table in :doc:`hardware`; availability and bus implementation
+differ by target.
 
-MQTT push on topic errors:
+How do I restore the device after changing Wi-Fi settings?
+----------------------------------------------------------
 
-* -1 - Buffer to short
-* -2 - Overflow
-* -3 - Network failed connected
-* -4 - Network timeout
-* -5 - Network read failed
-* -6 - Network write failed
-* -10 - Connection denied
-* -11 - Failed subscription
+Use the device setup access point and configure Wi-Fi again. If necessary,
+force configuration mode from the Home page or restart the device while its
+configuration condition is present.
 
-WIFI error codes
-----------------
+How do I update firmware?
+-------------------------
 
-* 1 - No SSID found.
-* 4 - Connection failed. 
-* 5 - Connection lot.
-* 6 - Wrong password.
-* 7 - Disconnected by AP.
+Use the PressureMon flasher linked from the `GravityMon website
+<https://gravitymon.com/>`_. Select the build for the exact board and follow
+the instructions shown by the flasher. The web interface also supports OTA
+updates when the device is already reachable on the network.

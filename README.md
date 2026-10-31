@@ -17,7 +17,7 @@ It supports ESP32s2 mini, ESP32s3 mini, ESP32c3 mini, ESP32c3 pico and pico and 
 
 Flashing can be done using https://www.gravitymon.com/flasher/index.html which also will help with wifi setup.
 
-The documentation can be found [here](https://mp-se.github.io/pressuremon/)
+Documentation and flashing instructions are available on the [GravityMon PressureMon project page](https://gravitymon.com/project-pressuremon.html)
 
 PCB design is located [here](https://github.com/mp-se/pcb-designs/) 
 
