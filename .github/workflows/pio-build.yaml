@@ -26,11 +26,9 @@ jobs:
         working-directory: ui
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git fetch --tags
           REV=`git rev-parse HEAD | rev | cut -c 1-6 | rev`
-          TAG=`git tag --sort=creatordate | tail -1`
+          # VITE_APP_VERSION stays as committed in ui/.env (tags lag behind it)
           echo "VITE_APP_BUILD=..$REV" >> .env
-          echo "VITE_APP_VERSION=$TAG" >> .env
           cat .env
 
       - name: Build UI
