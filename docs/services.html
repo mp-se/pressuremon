@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="violet" data-content_root="./">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Push targets and integrations - PressureMon 0.8.0 documentation</title><link rel="shortcut icon" href="_static/pressuremon_logo.png"/><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Format templates" href="format-template.html" /><link rel="prev" title="Hardware" href="hardware.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=199fee78" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="Push targets and integrations"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="index.html">
+      <img class="light-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <img class="dark-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <strong>PressureMon</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="functionality.html">How PressureMon works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and Wi-Fi setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">First readings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Hardware</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Push targets and integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format-template.html">Format templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom.html">Custom firmware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="q_and_a.html">Questions and answers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releases.html">Releases</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Development and compiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#push-settings">Push settings</a></li>
+<li><a class="reference internal" href="#http-post-1-and-http-post-2">HTTP POST #1 and HTTP POST #2</a></li>
+<li><a class="reference internal" href="#http-get">HTTP GET</a></li>
+<li><a class="reference internal" href="#influxdb-v2">InfluxDB v2</a></li>
+<li><a class="reference internal" href="#mqtt">MQTT</a></li>
+<li><a class="reference internal" href="#bluetooth">Bluetooth</a></li>
+<li><a class="reference internal" href="#wi-fi-direct">Wi-Fi Direct</a></li>
+<li><a class="reference internal" href="#format-preview-and-tests">Format preview and tests</a></li>
+<li><a class="reference internal" href="#common-services">Common services</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">PressureMon</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Push targets and integrations</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue" role="main">
+          <section id="push-targets-and-integrations">
+<span id="services"></span><h1>Push targets and integrations<a class="headerlink" href="#push-targets-and-integrations" title="Link to this heading">#</a></h1>
+<p>Configure data destinations under <strong>Push targets</strong>. PressureMon supports two
+HTTP POST targets, one HTTP GET target, InfluxDB v2, MQTT, Bluetooth, and
+Wi-Fi Direct delivery to GravityMon Gateway. Multiple network targets can be
+active, although each connection adds radio-on time and reduces battery life.</p>
+<section id="push-settings">
+<h2>Push settings<a class="headerlink" href="#push-settings" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → Settings</strong>.</p>
+<ul class="simple">
+<li><p><strong>Token 1</strong> — available in templates as <code class="docutils literal notranslate"><span class="pre">${token}</span></code>; the default iSpindel
+compatible HTTP format uses it.</p></li>
+<li><p><strong>Token 2</strong> — available as <code class="docutils literal notranslate"><span class="pre">${token2}</span></code>; the default HTTP GET template can
+use it for services that expect a query token.</p></li>
+<li><p><strong>Sleep interval</strong> — time between measurement cycles in sleep mode, 10–3600
+seconds. A lower value produces more frequent readings and generally shortens
+battery life. The interface warns when set below 300 seconds. Use the
+battery estimate as a rough guide, not a guarantee.</p></li>
+<li><p><strong>Estimated battery life</strong> — approximation based on the board, nominal
+battery capacity, and measured or assumed run time. Wi-Fi signal and
+connection time can change real battery life substantially.</p></li>
+<li><p><strong>Push timeout</strong> — maximum time to wait for a service to accept a connection,
+10–60 seconds.</p></li>
+</ul>
+</section>
+<section id="http-post-1-and-http-post-2">
+<h2>HTTP POST #1 and HTTP POST #2<a class="headerlink" href="#http-post-1-and-http-post-2" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → HTTP Post</strong> or <strong>HTTP Post 2</strong>. The two targets have
+independent endpoints, headers, skip intervals, templates, and enable
+switches.</p>
+<ul class="simple">
+<li><p><strong>HTTP URL</strong> — complete <code class="docutils literal notranslate"><span class="pre">http://</span></code> or <code class="docutils literal notranslate"><span class="pre">https://</span></code> endpoint.</p></li>
+<li><p><strong>HTTP Header #1 / #2</strong> — optional lines in <code class="docutils literal notranslate"><span class="pre">Name:</span> <span class="pre">value</span></code> format. The
+<strong>Predefined headers</strong> menu can insert common headers such as
+<code class="docutils literal notranslate"><span class="pre">Content-Type:</span> <span class="pre">application/json</span></code>. Leave unused headers blank.</p></li>
+<li><p><strong>Skip interval</strong> — 0 sends on every wake cycle; 1 skips one cycle, 2 skips
+two cycles, and so on. The UI range is 0–5.</p></li>
+<li><p><strong>Data format (pressure)</strong> — editable payload template. Choose a predefined
+format, preview the rendered result, and enable pressure data for scheduled
+pushes. The current PressureMon firmware exposes pressure templates.</p></li>
+<li><p><strong>Run push pressure test</strong> — sends a test request using that target’s
+pressure template. Save the endpoint and credentials first, then check the
+receiver to verify it accepted the data.</p></li>
+</ul>
+<p>An advanced build may expose <strong>Use tcp</strong> on HTTP POST #1. It replaces the URL
+and header controls with a <code class="docutils literal notranslate"><span class="pre">hostname:port</span></code> server field. This option is not
+enabled in the standard UI build.</p>
+</section>
+<section id="http-get">
+<h2>HTTP GET<a class="headerlink" href="#http-get" title="Link to this heading">#</a></h2>
+<p>The HTTP GET target has its own URL, two optional headers, skip interval,
+pressure template, enable switch, predefined format, preview, and test action.
+The rendered template is appended to the configured URL; include query
+parameter names and separators expected by the server. URL encode values when
+required by the service.</p>
+</section>
+<section id="influxdb-v2">
+<h2>InfluxDB v2<a class="headerlink" href="#influxdb-v2" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → Influxdb v2</strong>.</p>
+<ul class="simple">
+<li><p><strong>Server</strong> — full InfluxDB URL, including scheme and port if needed.</p></li>
+<li><p><strong>Organisation</strong> — organization name or identifier.</p></li>
+<li><p><strong>Bucket</strong> — destination bucket name.</p></li>
+<li><p><strong>Authentication token</strong> — token with write access to that organization and
+bucket.</p></li>
+<li><p><strong>Skip interval</strong> — 0–5 target cycles, with 0 sending on each eligible
+wake-up.</p></li>
+<li><p><strong>Data format (pressure)</strong> — line protocol template with a separate enable
+switch, predefined formats, preview, and test button.</p></li>
+</ul>
+<p>The template must be valid InfluxDB line protocol. Verify the resulting point
+in the selected bucket after a successful test. Confirm that the configured
+server address and transport are supported by the installed firmware.</p>
+</section>
+<section id="mqtt">
+<h2>MQTT<a class="headerlink" href="#mqtt" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → MQTT</strong>.</p>
+<ul class="simple">
+<li><p><strong>Server</strong> — broker host name or IP address without a URL scheme.</p></li>
+<li><p><strong>Port</strong> — the UI accepts 0–65535. The firmware treats ports above 8000 as
+TLS connections; use 1883 for standard MQTT or the broker’s configured TLS
+port (commonly 8883). A value of 0 uses the firmware default.</p></li>
+<li><p><strong>User name / Password</strong> — optional credentials, up to 20 characters each.</p></li>
+<li><p><strong>Skip interval</strong> — 0–5 target cycles.</p></li>
+<li><p><strong>Retain</strong> — controls whether the broker retains the published message.</p></li>
+<li><p><strong>Data format (pressure)</strong> — template with enable switch, predefined formats,
+preview, and test action. MQTT templates use <code class="docutils literal notranslate"><span class="pre">topic:payload</span></code> pairs
+separated by <code class="docutils literal notranslate"><span class="pre">|</span></code>.</p></li>
+</ul>
+<p>Check the preview for topic spelling and payload syntax, then confirm that a
+subscriber receives the message.</p>
+</section>
+<section id="bluetooth">
+<h2>Bluetooth<a class="headerlink" href="#bluetooth" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → Bluetooth</strong> on a BLE-capable board and choose <strong>Disabled</strong>
+or <strong>Pressuremon iBeacon</strong>. The iBeacon advertisement carries PressureMon
+measurement data for a nearby BLE receiver. Eddystone is not an enabled UI
+option. The ESP32-S2 target does not include BLE support.</p>
+</section>
+<section id="wi-fi-direct">
+<h2>Wi-Fi Direct<a class="headerlink" href="#wi-fi-direct" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → Wi-Fi Direct</strong> to configure a GravityMon Gateway access
+point. Enter the gateway’s <strong>Direct SSID</strong> and <strong>Direct Password</strong>, then enable
+<strong>Use Wi-Fi Direct in gravity mode</strong>. In measurement mode the device connects
+to that access point and sends the gateway’s predefined payload. This mode
+bypasses regular service targets while active. Disable it to resume normal
+endpoint pushes.</p>
+<p>When Wi-Fi Direct is enabled, the HTTP, MQTT, and InfluxDB controls are disabled
+in the UI because those targets are bypassed in measurement mode.</p>
+</section>
+<section id="format-preview-and-tests">
+<h2>Format preview and tests<a class="headerlink" href="#format-preview-and-tests" title="Link to this heading">#</a></h2>
+<p>Use <strong>Predefined formats</strong> to insert a starting template. <strong>Preview format</strong>
+shows the substituted sample values; for HTTP POST and MQTT the UI also checks
+JSON where applicable. Run a pressure test after saving. A successful request
+shows that the service returned a response; verify the accepted measurement on
+the receiving service. See <a class="reference internal" href="format-template.html"><span class="doc">Format templates</span></a> for variables and examples.</p>
+</section>
+<section id="common-services">
+<h2>Common services<a class="headerlink" href="#common-services" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Brewfather</strong> — use its iSpindel-compatible endpoint or a custom endpoint
+and matching JSON format.</p></li>
+<li><p><strong>Home Assistant</strong> — ingest measurements over MQTT or HTTP. See
+<a class="reference internal" href="format-template.html"><span class="doc">Format templates</span></a> for data available to the templates.</p></li>
+<li><p><strong>InfluxDB</strong> — use InfluxDB v2 and a line protocol template.</p></li>
+<li><p><strong>GravityMon Gateway</strong> — use Wi-Fi Direct for a direct local link or a normal
+network target when both devices share Wi-Fi.</p></li>
+</ul>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="hardware.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Hardware</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="format-template.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Format templates</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2022-2026, Magnus Persson</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="_static/documentation_options.js?v=486e5634"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/shibuya.js?v=50760d75"></script></body>
+</html>

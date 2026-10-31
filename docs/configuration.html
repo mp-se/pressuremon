@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="violet" data-content_root="./">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Configuration guide - PressureMon 0.8.0 documentation</title><link rel="shortcut icon" href="_static/pressuremon_logo.png"/><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Hardware" href="hardware.html" /><link rel="prev" title="First readings" href="intro.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=199fee78" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="Configuration guide"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="index.html">
+      <img class="light-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <img class="dark-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <strong>PressureMon</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="functionality.html">How PressureMon works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and Wi-Fi setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">First readings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Push targets and integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format-template.html">Format templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom.html">Custom firmware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="q_and_a.html">Questions and answers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releases.html">Releases</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Development and compiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#home">Home</a></li>
+<li><a class="reference internal" href="#device-settings">Device settings</a></li>
+<li><a class="reference internal" href="#hardware-and-sensors">Hardware and sensors</a></li>
+<li><a class="reference internal" href="#sensors">Sensors</a></li>
+<li><a class="reference internal" href="#wi-fi">Wi-Fi</a></li>
+<li><a class="reference internal" href="#push-settings">Push settings</a></li>
+<li><a class="reference internal" href="#http-post-targets">HTTP POST targets</a></li>
+<li><a class="reference internal" href="#http-get">HTTP GET</a></li>
+<li><a class="reference internal" href="#influxdb">InfluxDB</a></li>
+<li><a class="reference internal" href="#mqtt">MQTT</a></li>
+<li><a class="reference internal" href="#bluetooth">Bluetooth</a></li>
+<li><a class="reference internal" href="#wi-fi-setup-mode">Wi-Fi setup mode</a></li>
+<li><a class="reference internal" href="#other-pages">Other pages</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">PressureMon</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">Configuration guide</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue" role="main">
+          <section id="configuration-guide">
+<h1>Configuration guide<a class="headerlink" href="#configuration-guide" title="Link to this heading">#</a></h1>
+<p>The web interface is available while PressureMon is in configuration mode. The
+ESP status LED indicates configuration mode; the exact color or blink pattern
+depends on the board. The device can enter configuration mode when sleep is
+disabled from Home, no measurement sensor is enabled, the battery voltage is
+outside its configured operating range, or the board’s configuration pins are
+connected (where supported).</p>
+<p>Connect to the device’s configured hostname (<code class="docutils literal notranslate"><span class="pre">&lt;name&gt;.local</span></code>) or IP address.
+For initial setup, connect to its access point and open <code class="docutils literal notranslate"><span class="pre">http://192.168.4.1</span></code>.
+The setup access point password is <code class="docutils literal notranslate"><span class="pre">password</span></code>.</p>
+<section id="home">
+<h2>Home<a class="headerlink" href="#home" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-home.png"><img alt="PressureMon Home page" src="_images/ui-home.png" style="width: 800px;" />
+</a>
+<p>Home shows the latest pressure, temperature and battery readings, device
+status and configuration alerts. Turn on the Home page <strong>Force config mode</strong>
+switch to keep the web interface available while configuring. Turn it off to
+allow the firmware to enter measurement mode and sleep between readings.</p>
+<p>The measured connection and processing time helps explain battery use. Slow or
+unreliable Wi-Fi connections can increase active time and shorten battery
+life. A red indicator beside a menu item means that the page has a setting or
+status that needs attention.</p>
+</section>
+<section id="device-settings">
+<h2>Device settings<a class="headerlink" href="#device-settings" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-device-hardware.png"><img alt="Device settings" src="_images/ui-device-hardware.png" style="width: 800px;" />
+</a>
+<ul class="simple">
+<li><p><strong>mDNS name</strong> sets the local hostname and device name used by integrations.
+Use letters, digits and hyphens, and keep it short for compatibility.</p></li>
+<li><p><strong>Temperature format</strong> selects Celsius or Fahrenheit for displayed and
+transmitted values.</p></li>
+<li><p><strong>Pressure format</strong> selects PSI, bar or kPa for display and supported
+outputs. Pressure is stored internally in PSI and converted for output.</p></li>
+<li><p><strong>Dark mode</strong> changes the web interface appearance.</p></li>
+<li><p><strong>Factory defaults</strong> clears saved configuration and restores defaults.</p></li>
+<li><p><strong>Restart</strong> reboots the device.</p></li>
+</ul>
+</section>
+<section id="hardware-and-sensors">
+<h2>Hardware and sensors<a class="headerlink" href="#hardware-and-sensors" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-device-hardware.png"><img alt="Hardware settings" src="_images/ui-device-hardware.png" style="width: 800px;" />
+</a>
+<ul class="simple">
+<li><p><strong>Voltage factor</strong> adjusts the battery measurement scaling. Compare the
+displayed voltage with a meter before changing this value.</p></li>
+<li><p><strong>Configuration voltage</strong> sets the upper battery/charging voltage threshold
+used to keep the device awake for configuration. The supported range is
+3–6 V; set it high if charging should not trigger setup mode.</p></li>
+<li><p><strong>Battery saving</strong> reduces the sleep frequency to about once per hour when
+battery voltage falls below approximately 3.73 V.</p></li>
+<li><p><strong>Battery type</strong> selects LiPo or Li-ion battery voltage interpretation.</p></li>
+</ul>
+</section>
+<section id="sensors">
+<h2>Sensors<a class="headerlink" href="#sensors" title="Link to this heading">#</a></h2>
+<p>Open <strong>Device → Sensors</strong>. This page is separate from the hardware settings.
+The number of pressure sensor selectors is determined by the firmware target.</p>
+<a class="reference internal image-reference" href="_images/ui-device-hardware.png"><img alt="Sensor settings" src="_images/ui-device-hardware.png" style="width: 800px;" />
+</a>
+<ul class="simple">
+<li><p><strong>DS18B20 resolution</strong> trades temperature precision for conversion time:
+9-bit is fastest (0.5 °C); 12-bit is most precise (0.0625 °C).</p></li>
+<li><p><strong>Temperature adjustment</strong> applies an offset from −10 to +10 degrees.</p></li>
+<li><p><strong>Pressure sensor</strong> selects an XIDIBEI XDB401 digital I2C range from 0.2 to
+4.0 MPa. The list includes intermediate full-scale ranges; select the exact
+rating printed on the sensor.</p></li>
+<li><p><strong>Sensor 2</strong> configures the optional second pressure sensor on boards that
+expose its bus.</p></li>
+<li><p><strong>Pressure adjustment</strong> applies an offset independently to each sensor.
+<strong>Calibrate pressure</strong> averages sensor readings and sets the zero offset;
+expose the sensor to atmospheric pressure before starting calibration.</p></li>
+<li><p><strong>Custom analog sensor</strong> reveals minimum and maximum voltage and pressure
+fields. These map the ADS1115 input voltage to the selected pressure range.
+The firmware ADC is configured for a ±2.048 V measurement range and reads
+channel A0. Its input must also remain within the ADS1115 supply rails. Check
+the sensor and board electrical limits before connecting it.</p></li>
+</ul>
+</section>
+<section id="wi-fi">
+<h2>Wi-Fi<a class="headerlink" href="#wi-fi" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-device-wifi.png"><img alt="Wi-Fi settings" src="_images/ui-device-wifi.png" style="width: 800px;" />
+</a>
+<p>Configure a primary SSID and password. An optional secondary network can be
+used as a fallback. <strong>Connect timeout</strong> controls how long the device waits for
+a network connection. <strong>Portal timeout</strong> controls how long the Wi-Fi setup
+portal stays open. If the device cannot connect, use its setup access point to
+update the credentials.</p>
+<p>The Wi-Fi page scans for nearby networks and lets you select an SSID. Use the
+manual-entry view for hidden networks. The optional strongest-access-point
+switch is only shown when enabled by the firmware feature flags.</p>
+</section>
+<section id="push-settings">
+<h2>Push settings<a class="headerlink" href="#push-settings" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-settings.png"><img alt="Push settings" src="_images/ui-push-settings.png" style="width: 800px;" />
+</a>
+<p>Set the device identity and shared options here before configuring individual
+push targets.</p>
+<ul class="simple">
+<li><p><strong>Token 1</strong> is included in the default iSpindel-compatible data format used
+by HTTP targets.</p></li>
+<li><p><strong>Token 2</strong> is available to templates and commonly used as an authorization
+token for GET integrations.</p></li>
+<li><p><strong>Sleep interval</strong> sets the time between measurement cycles, from 10 to 3600
+seconds. A longer interval generally extends battery life. Weak Wi-Fi and
+frequent pushes can also increase power use.</p></li>
+<li><p><strong>Wi-Fi Direct SSID and password</strong> identify the GravityMon Gateway network.
+When Wi-Fi Direct is enabled, PressureMon sends its data to the gateway and
+bypasses the separately configured push targets.</p></li>
+<li><p><strong>Push timeout</strong> limits how long a target connection may take.</p></li>
+<li><p><strong>Estimated battery life</strong> uses recent active time and the configured
+interval to estimate runtime; it is an estimate, not a battery test.</p></li>
+</ul>
+</section>
+<section id="http-post-targets">
+<h2>HTTP POST targets<a class="headerlink" href="#http-post-targets" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-post.png"><img alt="HTTP POST settings" src="_images/ui-push-post.png" style="width: 800px;" />
+</a>
+<p>HTTP POST 1 and HTTP POST 2 each have a destination URL, up to two request
+headers, a push skip interval and a data template. Use an <code class="docutils literal notranslate"><span class="pre">https://</span></code> URL for
+TLS. Headers must use <code class="docutils literal notranslate"><span class="pre">Name:</span> <span class="pre">value</span></code> syntax, for example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span data-line="1">Content-Type: application/json
+</span><span data-line="2">X-Auth-Token: your-token
+</span></pre></div>
+</div>
+<p>A skip interval of 0 sends on every measurement cycle; a value from 1 to 5
+skips that many cycles for the target. The format editor accepts the built-in
+formats or a custom template. Right-click the editor to see available fields.
+See <a class="reference internal" href="format-template.html"><span class="doc">Format templates</span></a> for the template syntax.</p>
+</section>
+<section id="http-get">
+<h2>HTTP GET<a class="headerlink" href="#http-get" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-get.png"><img alt="HTTP GET settings" src="_images/ui-push-get.png" style="width: 800px;" />
+</a>
+<p>GET sends a request to the configured URL. Configure the URL, optional
+headers, skip interval and output template. Use URL query parameters or a
+template supported by the service. HTTPS is selected by using an <code class="docutils literal notranslate"><span class="pre">https://</span></code>
+URL.</p>
+</section>
+<section id="influxdb">
+<h2>InfluxDB<a class="headerlink" href="#influxdb" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-influx.png"><img alt="InfluxDB settings" src="_images/ui-push-influx.png" style="width: 800px;" />
+</a>
+<p>Configure the InfluxDB v2 server URL, organization, bucket, write token, skip
+interval and line protocol template. The token needs write access to the
+selected bucket. Use the server URL expected by your InfluxDB deployment; TLS
+is available when the URL uses HTTPS.</p>
+</section>
+<section id="mqtt">
+<h2>MQTT<a class="headerlink" href="#mqtt" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-mqtt.png"><img alt="MQTT settings" src="_images/ui-push-mqtt.png" style="width: 800px;" />
+</a>
+<p>Set the broker hostname, port, optional username and password, skip interval,
+topic and data template. Enter a hostname without a URL scheme. Common broker
+ports are 1883 for unencrypted MQTT and 8883 for MQTT over TLS. The UI accepts
+ports from 0 to 65535; use the port configured by your broker. Credentials
+are optional when the broker permits anonymous access.</p>
+</section>
+<section id="bluetooth">
+<h2>Bluetooth<a class="headerlink" href="#bluetooth" title="Link to this heading">#</a></h2>
+<a class="reference internal image-reference" href="_images/ui-push-ble.png"><img alt="Bluetooth settings" src="_images/ui-push-ble.png" style="width: 800px;" />
+</a>
+<p>Choose <strong>Disabled</strong> or <strong>PressureMon iBeacon</strong>. BLE is available on ESP32-S3
+and ESP32-C3 targets; it is not available on ESP32-S2 Mini. The UI’s Eddystone
+option is currently disabled in code. The firmware advertises PressureMon
+sensor readings for nearby BLE receivers; use the documented PressureMon
+beacon format in a compatible scanner.</p>
+</section>
+<section id="wi-fi-setup-mode">
+<h2>Wi-Fi setup mode<a class="headerlink" href="#wi-fi-setup-mode" title="Link to this heading">#</a></h2>
+<p>When no saved network credentials are available, the device starts an access
+point named <code class="docutils literal notranslate"><span class="pre">PressureMon</span></code> with the default password <code class="docutils literal notranslate"><span class="pre">password</span></code>. Connect
+and browse to <code class="docutils literal notranslate"><span class="pre">http://192.168.4.1</span></code>. The network settings page can scan for
+visible access points or open its manual-entry view for a hidden SSID. Saving
+new Wi-Fi settings requires a restart to connect using them.</p>
+</section>
+<section id="other-pages">
+<h2>Other pages<a class="headerlink" href="#other-pages" title="Link to this heading">#</a></h2>
+<p>The <strong>Other</strong> menu includes serial output, settings backup and restore,
+firmware update, support logs, tools and About information.</p>
+<ul class="simple">
+<li><p><strong>Backup</strong> downloads a text file containing device configuration and format
+templates. Restore accepts a previously exported <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file. Keep a
+backup before changing many settings or reinstalling firmware.</p></li>
+<li><p><strong>Firmware update</strong> uploads a firmware file to the running device. Choose a
+binary built for its detected board and keep the device powered until it
+restarts.</p></li>
+<li><p><strong>Support</strong> displays device logs and includes support actions such as push
+status and hardware diagnostics.</p></li>
+<li><p><strong>Tools</strong> lists LittleFS files and storage use. Expand advanced tools to
+upload or delete files and to manage CORS settings. These are internal
+firmware files; deleting or replacing them can affect device operation.</p></li>
+<li><p><strong>SD card files</strong> are a conditional file-manager view in the shared UI. The
+current PressureMon firmware does not initialize or expose an SD card
+interface, so an SD slot is not part of the documented reference hardware.</p></li>
+</ul>
+<p>The <strong>Device → Sensors</strong> calibration action requires a detected pressure
+sensor. The <strong>Tools</strong> page also provides voltage-factor calibration and
+hardware scans: I2C addresses are scanned on the second sensor bus and
+1-Wire devices are listed when present.</p>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="intro.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">First readings</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="hardware.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Hardware</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2022-2026, Magnus Persson</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="_static/documentation_options.js?v=486e5634"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/shibuya.js?v=50760d75"></script></body>
+</html>

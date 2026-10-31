@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="violet" data-content_root="./">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>First readings - PressureMon 0.8.0 documentation</title><link rel="shortcut icon" href="_static/pressuremon_logo.png"/><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Configuration guide" href="configuration.html" /><link rel="prev" title="Installation and Wi-Fi setup" href="installation.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=e1a1ceaf" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=199fee78" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="First readings"/>
+    <meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="index.html">
+      <img class="light-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <img class="dark-logo" src="_static/pressuremon_logo.png" alt="PressureMon" height="28" loading="lazy" />
+      <strong>PressureMon</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials"></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading" aria-level="3"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="functionality.html">How PressureMon works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and Wi-Fi setup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">First readings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Push targets and integrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="format-template.html">Format templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom.html">Custom firmware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="q_and_a.html">Questions and answers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releases.html">Releases</a></li>
+</ul>
+<p class="caption" role="heading" aria-level="3"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Development and compiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#pressure-calibration">Pressure calibration</a></li>
+<li><a class="reference internal" href="#check-battery-and-sleep-settings">Check battery and sleep settings</a></li>
+<li><a class="reference internal" href="#connect-a-destination">Connect a destination</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">PressureMon</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">First readings</strong>
+        <meta itemprop="position" content="2" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue" role="main">
+          <section id="first-readings">
+<span id="getting-started"></span><h1>First readings<a class="headerlink" href="#first-readings" title="Link to this heading">#</a></h1>
+<p>After flashing and connecting the device to Wi-Fi, open its mDNS name or IP
+address in a browser. The Home page shows sensor readings and a self-check for
+configured and connected sensors, temperature probe status, push target setup,
+and device state.</p>
+<section id="pressure-calibration">
+<h2>Pressure calibration<a class="headerlink" href="#pressure-calibration" title="Link to this heading">#</a></h2>
+<p>Remove pressure from each connected sensor so it is exposed to normal
+atmospheric pressure. Open <strong>Device → Sensors</strong>, select the correct sensor
+type, then choose <strong>Calibrate pressure</strong>. The firmware averages several
+readings per active sensor and stores a pressure offset (five for digital
+XIDIBEI sensors and ten for analog sensors). Keep both sensors at
+atmospheric pressure until calibration completes. Recalibrate after changing
+a sensor or if its zero reading drifts.</p>
+<p>Check the Home page for a pressure reading near zero after calibration. A
+pressure sensor’s specified full-scale range and wiring must match the
+selected sensor type. PressureMon reports gauge pressure relative to the
+calibrated atmosphere.</p>
+</section>
+<section id="check-battery-and-sleep-settings">
+<h2>Check battery and sleep settings<a class="headerlink" href="#check-battery-and-sleep-settings" title="Link to this heading">#</a></h2>
+<p>Open <strong>Push targets → Settings</strong> and choose a sleep interval appropriate for
+the desired update frequency and battery life. Confirm that the Home page
+voltage is plausible for the installed battery. If it is clearly wrong, check
+the board’s voltage divider and adjust <strong>Voltage factor</strong> under <strong>Device →
+Hardware</strong>.</p>
+</section>
+<section id="connect-a-destination">
+<h2>Connect a destination<a class="headerlink" href="#connect-a-destination" title="Link to this heading">#</a></h2>
+<p>Configure one target under <strong>Push targets</strong>, save it, and use its test button
+where available. The Home page reports validation and recent delivery status.
+See <a class="reference internal" href="services.html"><span class="doc">Push targets and integrations</span></a> for target-specific settings and <a class="reference internal" href="format-template.html"><span class="doc">Format templates</span></a>
+for payload variables.</p>
+<p>When configuration is complete, turn off the Home page force-config switch.
+Then restart the device to resume scheduled measurements and sleep.</p>
+</section>
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="installation.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">Installation and Wi-Fi setup</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="configuration.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Configuration guide</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2022-2026, Magnus Persson</p>
+  
+  <p>
+    Made with
+    
+    <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials"></div>
+    </div>
+  </div>
+</footer>
+      <script src="_static/documentation_options.js?v=486e5634"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+      <script src="_static/shibuya.js?v=50760d75"></script></body>
+</html>
