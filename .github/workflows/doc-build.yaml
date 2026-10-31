@@ -36,3 +36,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: ghpages
           publish_dir: src_docs/build/html
+          destination_dir: docs
