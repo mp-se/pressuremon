@@ -34,14 +34,28 @@
 #include <WiFi.h>
 #endif
 
+#include <cmath>
+
 void setupTemplateEnginePressure(PressuremonConfig* config,
                                  TemplatingEngine& engine, float pressurePsi,
                                  float pressurePsi1, float tempC, float runTime,
                                  float voltage) {
-  // Set values so that the payload is not invalid
-  if (isnan(pressurePsi)) pressurePsi = 0;
-  if (isnan(pressurePsi1)) pressurePsi1 = 0;
-  if (isnan(tempC)) tempC = 0;
+  const float rawPressurePsi = pressurePsi;
+  const float rawPressurePsi1 = pressurePsi1;
+  const float rawTempC = tempC;
+
+  // Preserve the legacy values for existing placeholders.
+  if (!std::isfinite(pressurePsi)) pressurePsi = 0;
+  if (!std::isfinite(pressurePsi1)) pressurePsi1 = 0;
+  if (!std::isfinite(tempC)) tempC = 0;
+
+  const auto setNullValue = [&engine](const char* token, float value,
+                                      int decimals) {
+    if (std::isfinite(value))
+      engine.setVal(token, value, decimals);
+    else
+      engine.setVal(token, "null");
+  };
 
   // Names
   engine.setVal(TPL_MDNS, config->getMDNS());
@@ -52,8 +66,12 @@ void setupTemplateEnginePressure(PressuremonConfig* config,
   // Temperature
   if (config->isTempFormatC()) {
     engine.setVal(TPL_TEMP, tempC, DECIMALS_TEMP);
+    setNullValue(TPL_TEMP_NULL, rawTempC, DECIMALS_TEMP);
   } else {
-    engine.setVal(TPL_TEMP, convertCtoF(tempC), DECIMALS_TEMP);
+    const float tempF = convertCtoF(tempC);
+    const float rawTempF = convertCtoF(rawTempC);
+    engine.setVal(TPL_TEMP, tempF, DECIMALS_TEMP);
+    setNullValue(TPL_TEMP_NULL, rawTempF, DECIMALS_TEMP);
   }
 
   engine.setVal(TPL_TEMP_C, tempC, DECIMALS_TEMP);
@@ -83,18 +101,24 @@ void setupTemplateEnginePressure(PressuremonConfig* config,
                 DECIMALS_PRESSURE);
 
   if (config->isPressureBar()) {
-    engine.setVal(TPL_PRESSURE, convertPsiPressureToBar(pressurePsi),
-                  DECIMALS_PRESSURE);
-    engine.setVal(TPL_PRESSURE1, convertPsiPressureToBar(pressurePsi1),
-                  DECIMALS_PRESSURE);
+    const float pressureBar = convertPsiPressureToBar(pressurePsi);
+    const float pressure1Bar = convertPsiPressureToBar(pressurePsi1);
+    engine.setVal(TPL_PRESSURE, pressureBar, DECIMALS_PRESSURE);
+    engine.setVal(TPL_PRESSURE1, pressure1Bar, DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE_NULL, convertPsiPressureToBar(rawPressurePsi), DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE1_NULL, convertPsiPressureToBar(rawPressurePsi1), DECIMALS_PRESSURE);
   } else if (config->isPressureKpa()) {
-    engine.setVal(TPL_PRESSURE, convertPsiPressureToKPa(pressurePsi),
-                  DECIMALS_PRESSURE);
-    engine.setVal(TPL_PRESSURE1, convertPsiPressureToKPa(pressurePsi1),
-                  DECIMALS_PRESSURE);
+    const float pressureKpa = convertPsiPressureToKPa(pressurePsi);
+    const float pressure1Kpa = convertPsiPressureToKPa(pressurePsi1);
+    engine.setVal(TPL_PRESSURE, pressureKpa, DECIMALS_PRESSURE);
+    engine.setVal(TPL_PRESSURE1, pressure1Kpa, DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE_NULL, convertPsiPressureToKPa(rawPressurePsi), DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE1_NULL, convertPsiPressureToKPa(rawPressurePsi1), DECIMALS_PRESSURE);
   } else {
     engine.setVal(TPL_PRESSURE, pressurePsi, DECIMALS_PRESSURE);
     engine.setVal(TPL_PRESSURE1, pressurePsi1, DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE_NULL, rawPressurePsi, DECIMALS_PRESSURE);
+    setNullValue(TPL_PRESSURE1_NULL, rawPressurePsi1, DECIMALS_PRESSURE);
   }
 
   engine.setVal(TPL_PRESSURE_UNIT, config->getPressureUnit());

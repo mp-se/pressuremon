@@ -10,6 +10,7 @@ v0.8.0
 * Integrated the UI into the main project build and updated the build workflow.
 * Added a BrewGraph pressure endpoint option for HTTP POST.
 * Updated firmware library dependencies.
+* Added null-capable pressure and temperature template placeholders, plus a matching HTTP POST quick-selector preset.
 
 v0.7.0
 ======

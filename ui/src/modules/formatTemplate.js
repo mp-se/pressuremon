@@ -46,6 +46,10 @@ export function applyTemplate(status, config, template) {
 
   s = s.replaceAll('${temp-c}', c)
   s = s.replaceAll('${temp-f}', f)
+  s = s.replaceAll(
+    '${temp-null}',
+    Number.isFinite(status.temp) ? (config.temp_unit === 'C' ? status.temp : f) : 'null'
+  )
 
   // NOTE: Gravity handling (gated by feature flag)
   if (global.ui.enableGravity) {
@@ -84,6 +88,7 @@ export function applyTemplate(status, config, template) {
     }
 
     s = s.replaceAll('${pressure}', p)
+    s = s.replaceAll('${pressure-null}', Number.isFinite(p) ? p : 'null')
     s = s.replaceAll('${pressure-psi}', p)
     s = s.replaceAll('${pressure-bar}', psiToBar(p))
     s = s.replaceAll('${pressure-kpa}', psiToKPa(p))
@@ -97,6 +102,7 @@ export function applyTemplate(status, config, template) {
     }
 
     s = s.replaceAll('${pressure1}', p1)
+    s = s.replaceAll('${pressure1-null}', Number.isFinite(p1) ? p1 : 'null')
     s = s.replaceAll('${pressure1-psi}', p1)
     s = s.replaceAll('${pressure1-bar}', psiToBar(p1))
     s = s.replaceAll('${pressure1-kpa}', psiToKPa(p1))

@@ -40,18 +40,27 @@ Template variables
    * - ``${temp-c}``, ``${temp-f}``
      - Temperature converted to Celsius or Fahrenheit.
      - ``21.23``
+   * - ``${temp-null}``
+     - Temperature in the selected unit, or the literal ``null`` when invalid.
+     - ``21.23`` / ``null``
    * - ``${temp-unit}``
      - Temperature unit label, ``C`` or ``F``.
      - ``C``
    * - ``${pressure}``, ``${pressure-psi}``
      - Primary pressure in the selected unit or PSI.
      - ``28.673``
+   * - ``${pressure-null}``
+     - Primary pressure in the selected unit, or the literal ``null`` when invalid.
+     - ``28.673`` / ``null``
    * - ``${pressure-bar}``, ``${pressure-kpa}``
      - Primary pressure converted to Bar or kPa.
      - ``1.977``
    * - ``${pressure1}``, ``${pressure1-psi}``
      - Second pressure in the selected unit or PSI, when available.
      - ``28.673``
+   * - ``${pressure1-null}``
+     - Second pressure in the selected unit, or the literal ``null`` when invalid.
+     - ``28.673`` / ``null``
    * - ``${pressure1-bar}``, ``${pressure1-kpa}``
      - Second pressure converted to Bar or kPa, when available.
      - ``1.977``
